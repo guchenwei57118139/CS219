@@ -10,6 +10,8 @@
 - AllOpsMetaData.json: operations' metadata, used to construct uri for final extremal testing.
 - {op}.json: constraints of each op, used to generate testing cases, i.e., test_input_format.
 
+# ./llm.py
+- Input your API_KEY into "api_key"
 
 # TODO
 - Please generate test cases for each ops
