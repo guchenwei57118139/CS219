@@ -12,7 +12,7 @@ from google.genai.types import GenerateContentConfig
 
 def _get_client():
     """Build GenAI client. Prefer GOOGLE_API_KEY env."""
-    api_key="AIzaSyBvGKGE9eDOmbK7fFm5BMMYFA-JkU5duOA"
+    api_key=""
     #api_key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
     print(api_key)
     print("Using GenAI API key:", api_key[:4] + "..." + api_key[-4:])
