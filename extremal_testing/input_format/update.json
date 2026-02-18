@@ -1,0 +1,388 @@
+[
+  {
+    "name": "Update",
+    "resource_url": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+    "method": "PUT",
+    "description": "Update NFProfile using full replacement semantics (same endpoint as Register; if the resource exists it is overwritten).",
+    "fields": {
+      "NFProfile": {
+    "name": "NFProfile",
+    "type": "object",
+    "description": "NF Profile of an NF Instance stored in NRF.",
+    "fields": {
+        "nfInstanceId": {
+          "type": "object_ref",
+          "ref_name": "NfInstanceId",
+          "unresolved": true,
+          "format": "uuid",
+          "mandatory": true,
+          "description": "Unique identity of the NF Instance."
+        },
+        "nfType": {
+          "type": "object_ref",
+          "ref_name": "NFType",
+          "unresolved": false,
+          "mandatory": true,
+          "description": "Type of Network Function."
+        },
+        "nfStatus": {
+          "type": "object_ref",
+          "ref_name": "NFStatus",
+          "unresolved": false,
+          "mandatory": true,
+          "description": "Status of the NF Instance."
+        },
+        "collocatedNfInstances": {
+          "type": "array",
+          "mandatory": false,
+          "description": "Information related collocated NF type(s) and corresponding NF Instance(s) when the NF is collocated with NFs supporting other NF types.",
+          "items": {
+            "type": "object_ref",
+            "ref_name": "CollocatedNfInstance",
+            "unresolved": true
+          }
+        },
+        "nfInstanceName": {
+          "type": "string",
+          "mandatory": false,
+          "description": "Human readable name of the NF Instance."
+        },
+        "plmnList": {
+          "type": "array",
+          "mandatory": false,
+          "description": "PLMN(s) of the Network Function.",
+          "items": {
+            "type": "object_ref",
+            "ref_name": "PlmnId",
+            "unresolved": true
+          }
+        },
+        "sNssais": {
+          "type": "array",
+          "mandatory": false,
+          "description": "S-NSSAIs of the Network Function.",
+          "items": {
+            "type": "object_ref",
+            "ref_name": "ExtSnssai",
+            "unresolved": true
+          }
+        },
+        "perPlmnSnssaiList": {
+          "type": "array",
+          "mandatory": false,
+          "description": "The per-PLMN list of S-NSSAI(s) supported by the Network Function.",
+          "items": {
+            "type": "object_ref",
+            "ref_name": "PlmnSnssai",
+            "unresolved": true
+          }
+        },
+        "nsiList": {
+          "type": "array",
+          "mandatory": false,
+          "description": "List of NSIs of the Network Function.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "fqdn": {
+          "type": "object_ref",
+          "ref_name": "Fqdn",
+          "unresolved": true,
+          "format": "hostname",
+          "mandatory": false,
+          "description": "FQDN of the Network Function."
+        },
+        "interPlmnFqdn": {
+          "type": "object_ref",
+          "ref_name": "Fqdn",
+          "unresolved": true,
+          "format": "hostname",
+          "mandatory": false,
+          "description": "Inter-PLMN FQDN of the Network Function."
+        },
+        "ipv4Addresses": {
+          "type": "array",
+          "mandatory": false,
+          "description": "IPv4 address(es) of the NF Instance.",
+          "items": {
+            "type": "string",
+            "format": "ipv4"
+          }
+        },
+        "ipv6Addresses": {
+          "type": "array",
+          "mandatory": false,
+          "description": "IPv6 address(es) of the NF Instance.",
+          "items": {
+            "type": "string",
+            "format": "ipv6"
+          }
+        },
+        "nfServices": {
+          "type": "object",
+          "mandatory": false,
+          "description": "A map keyed by a unique JSON string, where each value is an NFService.",
+          "additionalProperties": {
+            "type": "object_ref",
+            "ref_name": "NFService",
+            "unresolved": false
+          },
+          "minProperties": 1
+        },
+        "allowedPlmns": {
+          "type": "array",
+          "mandatory": false,
+          "description": "Allowed PLMNs for access/authorization policies.",
+          "items": {
+            "type": "object_ref",
+            "ref_name": "PlmnId",
+            "unresolved": true
+          }
+        },
+        "allowedSnpns": {
+          "type": "array",
+          "mandatory": false,
+          "description": "Allowed SNPNs for access/authorization policies.",
+          "items": {
+            "type": "object_ref",
+            "ref_name": "PlmnIdNid",
+            "unresolved": true
+          }
+        },
+        "allowedNfTypes": {
+          "type": "array",
+          "mandatory": false,
+          "description": "Allowed NF types for access/authorization policies.",
+          "items": {
+            "type": "object_ref",
+            "ref_name": "NFType",
+            "unresolved": false
+          }
+        },
+        "allowedNfDomains": {
+          "type": "array",
+          "mandatory": false,
+          "description": "Allowed NF domains for access/authorization policies.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "allowedNssais": {
+          "type": "array",
+          "mandatory": false,
+          "description": "Allowed S-NSSAIs for access/authorization policies.",
+          "items": {
+            "type": "object_ref",
+            "ref_name": "ExtSnssai",
+            "unresolved": true
+          }
+        },
+        "priority": {
+          "type": "int",
+          "mandatory": false,
+          "description": "Priority for NF selection.",
+          "unresolved": true
+        },
+        "capacity": {
+          "type": "int",
+          "mandatory": false,
+          "description": "Capacity of the NF instance.",
+          "unresolved": true
+        },
+        "load": {
+          "type": "int",
+          "mandatory": false,
+          "description": "Load of the NF instance.",
+          "unresolved": true
+        },
+        "loadTimeStamp": {
+          "type": "object_ref",
+          "ref_name": "DateTime",
+          "unresolved": true,
+          "format": "date-time",
+          "mandatory": false,
+          "description": "Timestamp of the load information."
+        },
+        "locality": {
+          "type": "string",
+          "mandatory": false,
+          "description": "Location/locality of the NF instance.",
+          "unresolved": true
+        },
+        "selectionConditions": {
+          "type": "object_ref",
+          "ref_name": "SelectionConditions",
+          "unresolved": true,
+          "mandatory": false,
+          "description": "Selection conditions information."
+        }
+      }
+    },
+    "NFService": {
+      "name": "NFService",
+      "type": "object",
+      "description": "Information of a given NF Service Instance; it is part of the NFProfile of an NF Instance.",
+      "fields": {
+        "serviceInstanceId": {
+          "type": "string",
+          "mandatory": true,
+          "description": "Identifier of the NF Service instance."
+        },
+        "serviceName": {
+          "type": "object_ref",
+          "ref_name": "ServiceName",
+          "unresolved": false,
+          "mandatory": true,
+          "description": "Name of the NF Service."
+        },
+        "versions": {
+          "type": "array",
+          "mandatory": true,
+          "minItems": 1,
+          "description": "Supported versions of the NF Service.",
+          "items": {
+            "type": "object_ref",
+            "ref_name": "NFServiceVersion",
+            "unresolved": false
+          }
+        },
+        "scheme": {
+          "type": "object_ref",
+          "ref_name": "UriScheme",
+          "unresolved": true,
+          "mandatory": true,
+          "description": "URI scheme of the NF Service."
+        },
+        "nfServiceStatus": {
+          "type": "object_ref",
+          "ref_name": "NFServiceStatus",
+          "unresolved": false,
+          "mandatory": true,
+          "description": "Status of the NF Service."
+        },
+        "fqdn": {
+          "type": "object_ref",
+          "ref_name": "Fqdn",
+          "unresolved": true,
+          "format": "hostname",
+          "mandatory": false,
+          "description": "FQDN of the NF Service."
+        },
+        "interPlmnFqdn": {
+          "type": "object_ref",
+          "ref_name": "Fqdn",
+          "unresolved": true,
+          "format": "hostname",
+          "mandatory": false,
+          "description": "Inter-PLMN FQDN of the NF Service."
+        },
+        "ipEndPoints": {
+          "type": "array",
+          "mandatory": false,
+          "minItems": 1,
+          "description": "IP endpoint(s) of the NF Service.",
+          "items": {
+            "type": "object_ref",
+            "ref_name": "IpEndPoint",
+            "unresolved": true
+          }
+        },
+        "apiPrefix": {
+          "type": "string",
+          "mandatory": false,
+          "description": "API prefix of the NF Service instance."
+        },
+        "callbackUriPrefixList": {
+          "type": "array",
+          "mandatory": false,
+          "minItems": 1,
+          "description": "List of callback URI prefix items.",
+          "items": {
+            "type": "object_ref",
+            "ref_name": "CallbackUriPrefixItem",
+            "unresolved": true
+          }
+        },
+        "defaultNotificationSubscriptions": {
+          "type": "array",
+          "mandatory": false,
+          "minItems": 1,
+          "description": "Default notification subscription(s).",
+          "items": {
+            "type": "object_ref",
+            "ref_name": "DefaultNotificationSubscription",
+            "unresolved": true
+          }
+        },
+        "allowedPlmns": {
+          "type": "array",
+          "mandatory": false,
+          "minItems": 1,
+          "description": "Allowed PLMNs for this service.",
+          "items": {
+            "type": "object_ref",
+            "ref_name": "PlmnId",
+            "unresolved": true
+          }
+        }
+      }
+    },
+    "NFType": {
+      "name": "NFType",
+      "type": "enum",
+      "description": "Type of Network Function.",
+      "options": [],
+      "unresolved": true
+    },
+    "NFStatus": {
+      "name": "NFStatus",
+      "type": "enum",
+      "description": "Status of the NF Instance.",
+      "options": [],
+      "unresolved": true
+    },
+    "ServiceName": {
+      "name": "ServiceName",
+      "type": "string",
+      "description": "Name of the NF Service.",
+      "unresolved": true
+    },
+    "NFServiceStatus": {
+      "name": "NFServiceStatus",
+      "type": "enum",
+      "description": "Status of the NF Service.",
+      "options": [],
+      "unresolved": true
+    },
+    "NFServiceVersion": {
+      "name": "NFServiceVersion",
+      "type": "object",
+      "description": "Version information of an NF Service.",
+      "fields": {
+        "apiVersionInUri": {
+          "type": "string",
+          "mandatory": false,
+          "description": "API version in URI.",
+          "unresolved": true
+        },
+        "apiFullVersion": {
+          "type": "string",
+          "mandatory": false,
+          "description": "Full API version.",
+          "unresolved": true
+        },
+        "expiry": {
+          "type": "object_ref",
+          "ref_name": "DateTime",
+          "unresolved": true,
+          "format": "date-time",
+          "mandatory": false,
+          "description": "Expiry time of this version information."
+        }
+      },
+      "unresolved": true
+      }
+    }
+  }
+]

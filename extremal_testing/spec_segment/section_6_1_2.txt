@@ -1,0 +1,26 @@
+6.1.2	Usage of HTTP
+6.1.2.1	General
+HTTP/2, as defined in IETF RFC 9113 [9], shall be used as specified in clause 5 of 3GPP TS 29.500 [4].
+HTTP/2 shall be transported as specified in clause 5.3 of 3GPP TS 29.500 [4].
+HTTP messages and bodies for the Nnrf_NFManagement service shall comply with the OpenAPI [10] specification contained in Annex A.
+6.1.2.2	HTTP standard headers
+6.1.2.2.1	General
+The mandatory standard HTTP headers as specified in clause 5.2.2.2 of 3GPP TS 29.500 [4] shall be supported.
+6.1.2.2.2	Content type
+The following content types shall be supported:
+-	JSON, as defined in IETF RFC 8259 [22], shall be used as content type of the HTTP bodies specified in the present specification as indicated in clause 5.4 of 3GPP TS 29.500 [4].
+-	The Problem Details JSON Object (IETF RFC 9457 [11]). The use of the Problem Details JSON object in a HTTP response body shall be signalled by the content type "application/problem+json".
+-	JSON Patch (IETF RFC 6902 [13]). The use of the JSON Patch format in a HTTP request body shall be signalled by the content type "application/json-patch+json".
+-	The 3GPP hypermedia format as defined in 3GPP TS 29.501 [5]. The use of the 3GPP hypermedia format in a HTTP response body shall be signalled by the content type "application/3gppHal+json".
+6.1.2.2.3	Accept-Encoding
+The NRF should support gzip coding (see IETF RFC 1952 [30]) in HTTP requests and responses and indicate so in the Accept-Encoding header, as described in clause 6.9 of 3GPP TS 29.500 [4].
+NF Service Consumers of the NFManagement API should support gzip coding in HTTP requests and responses and they should support gzip coding in the reception of notification requests sent by the NRF.
+6.1.2.2.4	ETag
+An "ETag" (entity-tag) header should be included in HTTP responses for resource creation and resource update, as described in IETF RFC 9110 [40], clause 8.8.3. It shall contain a server-generated strong validator, that allows further matching of this value (included in subsequent client requests) with a given resource representation stored in the server or in a cache.
+An "Etag" (entity-tag) header shall not be included in HTTP responses for Heart-Beat operation.
+6.1.2.2.5	If-Match
+An NF Service Consumer should issue conditional PATCH request towards NRF, by including an If-Match header in HTTP requests, as described in IETF RFC 9110 [40], clause 13.1.1, containing an entity tags received in latest response for the same resource.
+An NF Service Consumer shall not include If-Match header in HTTP requests for Heart-Beat operation.
+6.1.2.3	HTTP custom headers
+6.1.2.3.1	General
+In this release of this specification, no custom headers specific to the Nnrf_NFManagement service are defined. For 3GPP specific HTTP custom headers used across all service-based interfaces, see clause 5.2.3 of 3GPP TS 29.500 [4].

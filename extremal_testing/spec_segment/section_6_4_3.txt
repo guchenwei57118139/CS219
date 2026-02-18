@@ -1,0 +1,68 @@
+6.4.3	Resources
+6.4.3.1	Overview
+The structure of the Resource URIs of the Nnrf_Bootstrapping service is shown in figure 6.4.3.1-1.
+
+Figure 6.4.3.1-1: Resource URI structure of the Nnrf_Bootstrapping API
+Table 6.4.3.1-1 provides an overview of the resources and applicable HTTP methods.
+Table 6.4.3.1-1: Resources and methods overview
+
+Resource name	Resource URI	HTTP method or custom operation	Description
+Bootstrapping (Document)	{nrfApiRoot}/bootstrapping	GET	Retrieve a collection of links pointing to other services exposed by NRF.
+
+
+6.4.3.2	Resource: Bootstrapping (Document)
+6.4.3.2.1	Description
+This resource represents a collection of links pointing to other services exposed by NRF.
+This resource is modelled as the Document resource archetype (see clause C.3 of 3GPP TS 29.501 [5]).
+6.4.3.2.2	Resource Definition
+Resource URI: {nrfApiRoot}/bootstrapping
+This resource shall support the resource URI variables defined in table 6.4.3.2.2-1.
+Table 6.4.3.2.2-1: Resource URI variables for this resource
+
+Name	Definition
+nrfApiRoot	See clause 6.4.1
+
+
+6.4.3.2.3	Resource Standard Methods
+6.4.3.2.3.1	GET
+This method retrieves a list of links pointing to other services exposed by NRF. This method shall support the URI query parameters specified in table 6.4.3.2.3.1-1.
+Table 6.4.3.2.3.1-1: URI query parameters supported by the GET method on this resource
+
+Name	Data type	P	Cardinality	Description
+n/a	n/a			
+
+
+This method shall support the request data structures specified in table 6.4.3.2.3.1-2 and the response data structures and response codes specified in table 6.4.3.2.3.1-3.
+Table 6.4.3.2.3.1-2: Data structures supported by the GET Request Body on this resource
+
+Data type	P	Cardinality	Description
+n/a			
+
+
+Table 6.4.3.2.3.1-3: Data structures supported by the GET Response Body on this resource
+
+Data type	P	Cardinality	Response codes	Description
+BootstrappingInfo	M	1	200 OK	The response body contains a "_links" object containing the URI of each service exposed by the NRF. The response may also contain the status of the NRF and the features supported by each NRF service.
+RedirectResponse	O	0..1	307 Temporary Redirect	The response shall be used when the NRF redirects the bootstrapping request temporarily. If an SCP redirects the message to another SCP then the location header field shall contain the same URI or a different URI pointing to the endpoint of the NF service producer to which the request should be sent.
+RedirectResponse	O	0..1	308 Permanent Redirect	The response shall be used when the NRF redirects the bootstrapping request permanently. If an SCP redirects the message to another SCP then the location header field shall contain the same URI or a different URI pointing to the endpoint of the NF service producer to which the request should be sent.
+NOTE:	The mandatory HTTP error status codes for the GET method listed in Table 5.2.7.1-1 of 3GPP TS 29.500 [4] other than those specified in the table above also apply, with a ProblemDetails data type (see clause 5.2.7 of 3GPP TS 29.500 [4]).	NOTE:	The mandatory HTTP error status codes for the GET method listed in Table 5.2.7.1-1 of 3GPP TS 29.500 [4] other than those specified in the table above also apply, with a ProblemDetails data type (see clause 5.2.7 of 3GPP TS 29.500 [4]).	NOTE:	The mandatory HTTP error status codes for the GET method listed in Table 5.2.7.1-1 of 3GPP TS 29.500 [4] other than those specified in the table above also apply, with a ProblemDetails data type (see clause 5.2.7 of 3GPP TS 29.500 [4]).	NOTE:	The mandatory HTTP error status codes for the GET method listed in Table 5.2.7.1-1 of 3GPP TS 29.500 [4] other than those specified in the table above also apply, with a ProblemDetails data type (see clause 5.2.7 of 3GPP TS 29.500 [4]).	NOTE:	The mandatory HTTP error status codes for the GET method listed in Table 5.2.7.1-1 of 3GPP TS 29.500 [4] other than those specified in the table above also apply, with a ProblemDetails data type (see clause 5.2.7 of 3GPP TS 29.500 [4]).
+
+
+Table 6.4.3.2.3.1-4: Headers supported by the 200 Response Code on this endpoint
+
+Name	Data type	P	Cardinality	Description
+Cache-Control	string	C	0..1	Cache-Control containing max-age, described in IETF RFC 9111 [20], clause 5.2
+ETag	string	C	0..1	Entity Tag containing a strong validator, described in IETF RFC 9110 [40], clause 8.8.3
+
+
+Table 6.4.3.2.3.1-5: Headers supported by the 307 Response Code on this endpoint
+
+Name	Data type	P	Cardinality	Description
+Location	string	M	1	The URI pointing to the resource located on the redirect target NRF
+
+
+Table 6.4.3.2.3.1-6: Headers supported by the 308 Response Code on this endpoint
+
+Name	Data type	P	Cardinality	Description
+Location	string	M	1	The URI pointing to the resource located on the redirect target NRF
+

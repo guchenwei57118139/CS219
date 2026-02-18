@@ -1,0 +1,739 @@
+from pathlib import Path
+import sys
+import json
+import re
+from typing import List, Tuple, Dict, Optional
+
+try:
+    from docx import Document
+    from docx.table import Table
+    from docx.text.paragraph import Paragraph
+    _DOCX_AVAILABLE = True
+except ImportError:
+    _DOCX_AVAILABLE = False
+
+#=========== ADD LLM MODULE TO PATH ===========#
+# 0=scripts, 1=project root
+ROOT_DIR = Path(__file__).resolve().parents[1]
+sys.path.append(str(ROOT_DIR))
+
+from llm import GPT 
+
+#=========== Command line arguments ===========#
+import argparse
+
+parser = argparse.ArgumentParser(description="Extract input-related constraints from RFC")
+#parser.add_argument("--input_dir", type=Path, required=True, help="Directory containing test_format.json, tester.py, and impl_setup_info.md")
+# parser.add_argument("--input_file", type=str, required=True, help="Spec file to process")
+# parser.add_argument("--rfc_number", type=int, default=1,
+#                     help="RFC/spec number; used to find spec/<rfc_number>.txt or spec/<rfc_number>.docx (default: 1)")
+# parser.add_argument("--transitivity_level", type=int, default=1, choices=[0, 1],
+#                     help="Transitivity level: 0=no cross-references stored (section-by-section, no transitivity), 1=extract and store cross-references (default)")
+# parser.add_argument("--spec_format", action="store_true",
+#                     help="Use spec-style section headers: '6.1.1\\tTitle\\t59' (number, tab, title, optional page). Default is RFC-style '1.1.  Title'.")
+# parser.add_argument("--input_format_file", type=str, default=None,
+#                     help="JSON filename under input_format/ to use as test case format (e.g. nrf.json). If not set, uses input_format as file or input_format/test_input_format.json.")
+# parser.add_argument("--llm_max_retries", type=int, default=3,
+#                     help="Max retries for LLM call on transient errors (default: 3).")
+# parser.add_argument("--llm_retry_delay", type=float, default=2.0,
+#                     help="Seconds to wait between LLM retries (default: 2.0).")
+# args = parser.parse_args()
+
+#=========== Paths and parameters ===========#
+# RFC_NUMBER = args.rfc_number
+# TRANSITIVITY_LEVEL = args.transitivity_level
+# SPEC_DIR = Path(__file__).resolve().parent / "spec"
+# # Prefer .docx if present, else .txt
+# _docx = SPEC_DIR / f"{RFC_NUMBER}.docx"
+# _txt = SPEC_DIR / f"{RFC_NUMBER}.txt"
+# RFC_PATH = _docx if _docx.is_file() else _txt
+# INPUT_FORMAT_DIR = Path(__file__).resolve().parent / "input_format"
+# # Resolve test case format path: --input_format_file nrf.json -> input_format/nrf.json; else input_format or input_format/test_input_format.json
+# _input_format_file = getattr(args, "input_format_file", None)
+# if _input_format_file:
+#     TEST_INPUT_FORMAT_PATH = INPUT_FORMAT_DIR / _input_format_file
+# else:
+#     _single = INPUT_FORMAT_DIR  # treat "input_format" as file path for backward compat
+#     _default_json = INPUT_FORMAT_DIR / "test_input_format.json"
+#     if _default_json.is_file():
+#         TEST_INPUT_FORMAT_PATH = _default_json
+#     else:
+#         TEST_INPUT_FORMAT_PATH = _single
+FORMAT_OUT_PATH = Path(__file__).resolve().parent / "input_format" / f"AllOpsMetaData.json"
+RFC_SECTIONS_DIR = Path(__file__).resolve().parent / "spec_segment"
+#=========== Constants ===========#
+SYSTEM_PROMPT_1 = """
+You are a document analysis expert proficient in 3GPP protocol specifications. Your task is to extract high-level API operation information from the provided specification text (specifically the Resources sections) and organize it into a standard JSON format.
+
+### Inputs:
+- A chunk of spec text.
+
+### Task:
+Please read the provided text, identify every API operation defined within (Resource + HTTP Method), and extract the following fields:
+
+***Operation***: The operation name of operations in Nnrf_NFManagement Service.
+***Description***: A brief description of the operation (extracted from the document text).
+***Paths***: The URI path of the resource (e.g., /nf-instances/{nfInstanceId}).
+***Method***: The HTTP method (GET, PUT, PATCH, POST, DELETE, etc.).
+
+### Important:
+- Method Differentiation: You must accurately distinguish between different operations using different HTTP methods under the same URI (e.g., PUT for registration, PATCH for update, DELETE for deregistration).
+- Variable Preservation: Keep URI variables exactly as they appear (e.g., {nfInstanceId})..
+- JSON Integrity: The output must be valid JSON and should not contain any text outside of the Markdown code block.
+
+### Output format (for each chunk):
+Return ONLY a JSON array like:
+[
+  {
+    "Operation": "NFRegister",
+    "Description": "Registers a new NF Instance in the NRF.",
+    "Paths": "/nf-instances/{nfInstanceId}",
+    "Method": "PUT"
+  },
+  ...
+]
+No markdown, no explanation.
+"""
+
+
+
+'''
+SYSTEM_PROMPT_2 is used to generate constraints in chat-only way, generated by ChatGPT5.2. 
+    - operation_metadata: copied from /input_format/AllOpsMetaData.json
+    - spec text: /spec_segment/section_6_4_6.txt, mainly Annex A
+'''
+SYSTEM_PROMPT_2 = """
+You are a senior 3GPP protocol standards expert and data modeling engineer. Your task is to deeply analyze the Data Model section of the uploaded specification document and convert it into a strictly nested JSON format.
+### Inputs:
+Content of spec text
+JSON format of the operation involved:
+{Operation_metadata}
+
+### Task:
+Please read the provided specification text and extract all data types and their attributes regarding a specific operation.
+**Core Requirement**: You need to handle "recursive references". If a field's type refers to another custom type (IE), and the definition of that type also exists within the current input text, you must expand it until all leaf nodes are primitive types (int, string, boolean) or external references whose definitions cannot be found in the current text.
+
+### Extraction Rules
+1. **Type Inference & Constraints (Description Analysis)**:
+   - **Integer**: If Data type is Integer/Uinteger.
+     - **Range**: Must check Description. If it contains "Range: 0 to 100" or "0..65535", generate `"range": [min, max]`.
+   - **String**: Default type. If the description contains a Pattern (Regex), extract it.
+   - **Enum**: If the Description lists "Possible values are..." or there is an enumeration list below the table, generate `"type": "enum"` and extract `"options": [...]`.
+   - **Ref (Custom Type)**: If the Data type starts with an uppercase letter (e.g., `NfInstanceId`, `BootstrappingInfo`), treat it as a custom object.
+
+2. **Recursive Expansion Logic**:
+   - **Step 1**: Identify that the type of field A is custom type B.
+   - **Step 2**: Search for "Definition of type B" in the full text you are currently reading.
+   - **Step 3**:
+     - **If found**: Embed the field structure of type B directly into the `"fields"` attribute of field A (i.e., nested structure).
+     - **If not found** (likely an external document reference such as TS 29.571): Mark it as `"type": "object_ref"`, `"ref_name": "B"`, and keep `"unresolved": true`.
+
+### Important:
+- Variable Preservation: Keep URI variables exactly as they appear (e.g., {nfInstanceId}).
+- JSON Integrity: The output must be valid JSON and should not contain any text outside of the Markdown code block.
+
+### Output format of the script:
+Return ONLY a JSON array like:
+[
+  {
+  "DataTypeName": {
+    "name": "DataTypeName",
+    "type": "object",
+    "description": "Summary from text",
+    "fields": {
+      "simpleField": {
+        "type": "int",
+        "mandatory": true,
+        "range": [0, 100],
+        "description": "Load value..."
+      },
+      "enumField": {
+        "type": "enum",
+        "mandatory": false,
+        "options": ["REGISTERED", "SUSPENDED"],
+        "description": "Status..."
+      },
+      "arrayField": {
+        "type": "array",
+        "items": {
+           "type": "string" 
+        },
+        "description": "List of IP addresses"
+      },
+      "nestedObjectField": {
+        "type": "object",
+        "mandatory": true,
+        "description": "This is a complex type (e.g., BootstrappingInfo) expanded here.",
+        "fields": {
+           // Recursive expansion content here
+           "innerField1": { "type": "string", ... }
+        }
+      },
+      "unresolvedField": {
+        "type": "object_ref",
+        "ref_name": "ProblemDetails",
+        "unresolved": true,
+        "description": "Refers to 3GPP TS 29.571"
+      }
+    }
+  }
+}
+
+]
+"""
+
+
+
+
+
+# SYSTEM_PROMPT_2 = """
+# You are a senior developer proficient in Python to extract API operation details from 3GPP specification text in .txt format.
+
+# ### Inputs:
+# - A chunk of spec text in .txt.
+
+# ### Task:
+# Please help me write a Python script to extract contents 3GPP Spec Annex A.
+# The script needs to extract the ***Parameters*** and ***RequestBody*** for a specific operation based on a given URI (Path) and HTTP Method, and resolve all referenced Components (Schemas) within them.
+# The script must implement a function extract_operation_details(operation_name,spec_text) with the following logic:
+# ***Extract Parameters***: Retrieve the **parameters** list (including query, path, and header). Critical Requirement: If a parameter definition contains a $ref (e.g., "$ref": "#/components/parameters/CheckSum"), you must locate the corresponding definition in components and expand it into the result.
+# ***Extract RequestBody***: Retrieve the schema from requestBody -> content -> application/json -> schema. Critical Requirement: Schema parsing must include component resolution.
+# Construct a dictionary named Component. If the Schema uses a $ref (e.g., "$ref": "#/components/schemas/NFProfile"), the full definition of NFProfile must be extracted from components/schemas and placed into the Component dictionary.
+# Recursion: If NFProfile references other schemas internally (e.g., Snssai), those must also be extracted into the Component dictionary recursively until no unresolved references remain.
+
+# ### Important:
+# - Variable Preservation: Keep URI variables exactly as they appear (e.g., {nfInstanceId}).
+# - JSON Integrity: The output must be valid JSON and should not contain any text outside of the Markdown code block.
+
+# ### Output format of the script:
+# Return ONLY a JSON array like:
+# [
+#   {
+#     "Parameters": [ ...list of resolved parameters... ],
+#     "RequestBody": {
+#         "schema": { ...the main schema... },
+#         "Component": {
+#             "NFProfile": { ...definition... },
+#             "Snssai": { ...definition... }
+#         }
+#     }
+#   }
+# ]
+# Please provide complete, runnable Python code. The code must include comments explaining the logic used for the recursive resolution of $ref pointers.
+# """
+
+
+def parse_rfc_sections(
+    lines: List[str],
+    spec_format: bool = False,
+) -> List[Tuple[str, str, List[str]]]:
+    """
+    Parse document text into sections at Level 1 (X), Level 2 (X.Y), and Level 3 (X.Y.Z).
+    Level 4+ (e.g. 5.3.2.1) are included inside the Level 3 section.
+
+    Args:
+        lines: Full document as list of lines.
+        spec_format: If True, use spec-style headers; If False, RFC-style.
+
+    Returns: List of (section_number, section_title, section_lines) tuples.
+    """
+    sections: List[Tuple[str, str, List[str]]] = []
+
+    if spec_format:
+        section_pattern = re.compile(
+            r"^(\s*)(\d+(?:\.\d+)*)[\t ]+(.+?)(?:[\t ]+(\d+))?\s*$"
+        )
+        toc_pattern = None
+    else:
+        section_pattern = re.compile(r"^(\s*)(\d+(?:\.\d+)*)\.\s+(.+)$")
+        toc_pattern = re.compile(r"\.\s*\.\s*\.|\.\s+\d+\s*$")
+
+    current_num = None
+    current_title = None
+    current_lines: List[str] = []
+
+    for line in lines:
+        match = section_pattern.match(line)
+        if match:
+            section_num = match.group(2)
+            section_title = match.group(3).strip()
+
+            if not spec_format and toc_pattern is not None:
+                if toc_pattern.search(section_title):
+                    continue
+
+            parts = section_num.split(".")
+            # Level 1 (X), Level 2 (X.Y), Level 3 (X.Y.Z): each starts a new section
+            if len(parts) <= 3:
+                if current_num is not None:
+                    sections.append((current_num, current_title, current_lines))
+                current_num = section_num
+                current_title = section_title
+                current_lines = [line]
+            else:
+                # Level 4+ (e.g. 5.3.2.1): append to current section
+                if current_num is not None:
+                    current_lines.append(line)
+                else:
+                    current_num = section_num
+                    current_title = section_title
+                    current_lines = [line]
+        else:
+            if current_num is not None:
+                current_lines.append(line)
+
+    if current_num is not None:
+        sections.append((current_num, current_title, current_lines))
+
+    return sections
+
+
+def _is_docx_section_header(paragraph: "Paragraph") -> bool:
+    """Match spec_ingestor logic: Heading style or >50% bold."""
+    if getattr(paragraph, "style", None) and getattr(paragraph.style, "name", None):
+        if str(paragraph.style.name).startswith("Heading"):
+            return True
+    if getattr(paragraph, "runs", None) and paragraph.runs:
+        bold_chars, total_chars = 0, 0
+        for run in paragraph.runs:
+            t = (run.text or "").strip()
+            if t:
+                total_chars += len(t)
+                if getattr(run, "bold", False):
+                    bold_chars += len(t)
+        if total_chars > 0 and bold_chars / total_chars > 0.5:
+            return True
+    return False
+
+
+def _table_to_lines(table: "Table") -> List[str]:
+    """Convert a docx Table to a list of text lines (one per row, tab-separated cells)."""
+    lines: List[str] = []
+    for row in table.rows:
+        cells = [cell.text.strip().replace("\n", " ") for cell in row.cells]
+        lines.append("\t".join(cells))
+    return lines
+
+
+def parse_docx_sections(docx_path: Path) -> List[Tuple[str, str, List[str]]]:
+    """
+    Parse a Word (DOCX) spec into sections at Level 1 (X), Level 2 (X.Y), and Level 3 (X.Y.Z).
+    Level 4+ are included inside the Level 3 section. Matches parse_rfc_sections grouping.
+
+    Returns: List of (section_number, section_title, section_lines) tuples.
+    """
+    if not _DOCX_AVAILABLE:
+        raise RuntimeError("python-docx is required for Word support. Install with: pip install python-docx")
+
+    doc = Document(str(docx_path))
+    section_header_regex = re.compile(r"^(\d+(?:\.\d+)*)\s+(.+)$")
+    sections: List[Tuple[str, str, List[str]]] = []
+    current_num: Optional[str] = None
+    current_title: Optional[str] = None
+    current_lines: List[str] = []
+
+    for element in doc.element.body:
+        tag = getattr(element, "tag", "") or ""
+        if tag.endswith("p"):
+            paragraph = Paragraph(element, doc)
+            text = (paragraph.text or "").strip()
+            if not text:
+                if current_num is not None:
+                    current_lines.append("")
+                continue
+
+            match = section_header_regex.match(text)
+            if match and _is_docx_section_header(paragraph):
+                section_num = match.group(1)
+                section_title = match.group(2).strip()
+                parts = section_num.split(".")
+                # Level 1, 2, 3: new section
+                if len(parts) <= 3:
+                    if current_num is not None:
+                        sections.append((current_num, current_title, current_lines))
+                    current_num = section_num
+                    current_title = section_title
+                    current_lines = [text]
+                else:
+                    if current_num is not None:
+                        current_lines.append(text)
+                    else:
+                        current_num = section_num
+                        current_title = section_title
+                        current_lines = [text]
+            else:
+                if current_num is not None:
+                    current_lines.append(text)
+        elif tag.endswith("tbl"):
+            table = Table(element, doc)
+            tbl_lines = _table_to_lines(table)
+            if current_num is not None and tbl_lines:
+                current_lines.append("")
+                current_lines.extend(tbl_lines)
+                current_lines.append("")
+
+    if current_num is not None:
+        sections.append((current_num, current_title, current_lines))
+
+    return sections
+
+
+def load_spec_sections(path: Path, spec_format: bool = False) -> List[Tuple[str, str, List[str]]]:
+    """
+    Load spec from file and return sections. Dispatches to Word or TXT based on suffix.
+
+    - .docx -> parse_docx_sections(path)
+    - .txt or other -> read text, parse_rfc_sections(lines, spec_format=spec_format)
+    """
+    path = Path(path)
+    suffix = path.suffix.lower()
+    if suffix == ".docx":
+        return parse_docx_sections(path)
+    lines = path.read_text(encoding="utf-8").splitlines()
+    return parse_rfc_sections(lines, spec_format=spec_format)
+
+def extract_ops_high_level_info(
+    gpt: GPT, section_text: str
+) -> List[Dict[str, str]]:
+    prompt = (
+        "Here is a section of the spec to extract high-level API operation information.\n\n" +
+        "\n\n=== Spec SECTION START ===\n" +
+        section_text +
+        "\n=== Spec SECTION END ===\n"
+    )
+    raw_reply = gpt.ask_llm(prompt)
+    # Try strict JSON parse
+    try:
+        data = json.loads(raw_reply)
+    except json.JSONDecodeError:
+        # Try to salvage JSON between first '[' and last ']'
+        start = raw_reply.find("[")
+        end = raw_reply.rfind("]")
+        if start != -1 and end != -1 and end > start:
+            try:
+                data = json.loads(raw_reply[start : end + 1])
+            except json.JSONDecodeError:
+                print("Could not parse JSON from section. Skipping this section.")
+                return []
+        else:
+            print("No JSON array found in model output for this section. Skipping.")
+            return []
+    if not isinstance(data, list):
+        print("Model output is not a list. Skipping this section.")
+        return []
+    result=[]
+    for item in data:
+        if (
+            isinstance(item, dict)
+            and "Operation" in item and isinstance(item["Operation"], str)
+            and "Description" in item and isinstance(item["Description"], str)
+            and "Paths" in item and isinstance(item["Paths"], str)
+            and "Method" in item and isinstance(item["Method"], str)
+        ):
+            result.append({
+                "Operation": item["Operation"].strip(),
+                "Description": item["Description"].strip(),
+                "Paths": item["Paths"].strip(),
+                "Method": item["Method"].strip()
+            })
+    return result
+def extract_constraints_from_section(
+    gpt: GPT, test_case_format: str, section_text: str
+) -> List[Tuple[str, str]]:
+    prompt = (
+        "Here is the test case format you should assume when "
+        "deciding which spec constraints are testable:\n\n"
+        "=== TEST CASE FORMAT START ===\n"
+        f"{test_case_format}\n\n"
+        "=== TEST CASE FORMAT END ===\n\n"
+        "Now, here is a section of the spec. Extract input-related constraints that "
+        "can be tested with this test case format. Each constraint must be returned as a "
+        '2-element JSON array: ["<section_number>", "<constraint_sentence>"].\n'
+        "Return ONLY the JSON array as specified in the system prompt.\n\n"
+        "=== Spec SECTION START ===\n"
+        f"{section_text}\n"
+        "=== Spec SECTION END ===\n"
+    )
+
+    # Use history so the model can maintain context if needed
+    raw_reply = gpt.ask_llm(prompt, use_history=True)
+
+    # Try strict JSON parse
+    try:
+        data = json.loads(raw_reply)
+    except json.JSONDecodeError:
+        # Try to salvage JSON between first '[' and last ']'
+        start = raw_reply.find("[")
+        end = raw_reply.rfind("]")
+        if start != -1 and end != -1 and end > start:
+            try:
+                data = json.loads(raw_reply[start : end + 1])
+            except json.JSONDecodeError:
+                print("Could not parse JSON from section. Skipping this section.")
+                return []
+        else:
+            print("No JSON array found in model output for this section. Skipping.")
+            return []
+
+    if not isinstance(data, list):
+        print("Model output is not a list. Skipping this section.")
+        return []
+
+    result: List[Tuple[str, str]] = []
+    for item in data:
+        if (
+            isinstance(item, list)
+            and len(item) == 2
+            and isinstance(item[0], str)
+            and isinstance(item[1], str)
+        ):
+            section = item[0].strip()
+            constraint = item[1].strip()
+            if section and constraint:
+                result.append((section, constraint))
+
+    return result
+
+
+def dedupe_constraints(pairs: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
+    """Deduplicate (section, constraint) pairs while preserving order."""
+    seen = set()
+    uniq: List[Tuple[str, str]] = []
+    for sec, cons in pairs:
+        key = (sec, cons)
+        if key not in seen:
+            seen.add(key)
+            uniq.append(key)
+    return uniq
+
+
+def extract_section_refs(text: str) -> List[str]:
+    """
+    Extract referenced section numbers from text.
+    
+    Handles both singular "Section 4.1" and plural forms like
+    "Sections 4.1, 4.2 and 4.3". Returns unique section numbers in
+    order of appearance.
+    """
+    refs: List[str] = []
+    # Capture one or more section numbers after "Section" or "Sections"
+    # separated by commas and/or "and".
+    pattern = re.compile(
+        r"\bSections?\s+((?:\d+(?:\.\d+)*)(?:\s*(?:,|and)\s*\d+(?:\.\d+)*)*)",
+        re.IGNORECASE,
+    )
+    for match in pattern.finditer(text):
+        number_list = match.group(1)
+        for raw in re.split(r"\s*(?:,|and)\s*", number_list):
+            cleaned = raw.strip().rstrip(").,;")
+            if cleaned and cleaned not in refs:
+                refs.append(cleaned)
+    return refs
+
+
+def _extract_subsection_from_lines(
+    section_num: str, lines: List[str], spec_format: bool = False
+) -> Optional[str]:
+    """
+    Extract one subsection's content from a block of lines (e.g. one Level 2 section's lines).
+    Used when source is docx and we only have parsed_sections.
+    """
+    if spec_format:
+        section_pattern = re.compile(r"^(\s*)(\d+(?:\.\d+)*)[\t ]+(.+?)(?:[\t ]+(\d+))?\s*$")
+    else:
+        section_pattern = re.compile(r"^(\s*)(\d+(?:\.\d+)*)\.\s+(.+)$")
+    headers: List[Tuple[int, str]] = []
+    for idx, line in enumerate(lines):
+        match = section_pattern.match(line)
+        if match:
+            header_num = match.group(2)
+            headers.append((idx, header_num))
+    target_idx = None
+    for idx, header_num in headers:
+        if header_num == section_num or header_num.startswith(section_num + "."):
+            target_idx = idx
+            break
+    if target_idx is None:
+        return None
+    target_parts = section_num.split(".")
+    start_idx = target_idx
+    end_idx = len(lines)
+    for idx, header_num in headers:
+        if idx <= start_idx:
+            continue
+        header_parts = header_num.split(".")
+        if not (header_num.startswith(section_num + ".") or header_num == section_num):
+            is_child = False
+            for i in range(min(len(target_parts), len(header_parts))):
+                if i < len(target_parts) - 1 and header_parts[i] == target_parts[i]:
+                    if len(header_parts) > len(target_parts):
+                        is_child = True
+                        break
+            if not is_child:
+                end_idx = idx
+                break
+    return "\n".join(lines[start_idx:end_idx]).strip()
+
+
+def extract_section_from_rfc(
+    section_num: str,
+    parsed_sections: List[Tuple[str, str, List[str]]],
+    rfc_lines: Optional[List[str]] = None,
+    spec_format: bool = False,
+) -> Optional[str]:
+    """
+    Extract a specific section's content. Works for both TXT (with rfc_lines) and DOCX (parsed_sections only).
+
+    Args:
+        section_num: Section number to extract (e.g., "3", "4.1", "6.2.3")
+        parsed_sections: List of (section_number, title, lines) from load_spec_sections
+        rfc_lines: Optional; full document lines (only for .txt). If None, only parsed_sections are used.
+        spec_format: True if spec-style headers were used when parsing
+
+    Returns: Section content as string, or None if not found
+    """
+    # 1) Exact match in parsed sections (works for both txt and docx)
+    for parsed_num, _, parsed_lines in parsed_sections:
+        if parsed_num == section_num:
+            return "\n".join(parsed_lines)
+
+    # 2) Subsection: find parent section and extract from its lines (works for both txt and docx)
+    parts = section_num.split(".")
+    if len(parts) >= 2:
+        parent_num = ".".join(parts[:-1])
+        for parsed_num, _, parsed_lines in parsed_sections:
+            if parsed_num == parent_num or section_num.startswith(parsed_num + "."):
+                out = _extract_subsection_from_lines(section_num, parsed_lines, spec_format=spec_format)
+                if out:
+                    return out
+                break
+
+    # 3) Use full rfc_lines only when available (txt path)
+    if rfc_lines is None:
+        return None
+    section_pattern = re.compile(r"^(\s*)(\d+(?:\.\d+)*)\.\s+(.+)$")
+    toc_pattern = re.compile(r"\.\s*\.\s*\.|\.\s+\d+\s*$")
+    headers = []
+    for idx, line in enumerate(rfc_lines):
+        match = section_pattern.match(line)
+        if match:
+            title_part = match.group(3)
+            if not toc_pattern.search(title_part):
+                header_num = match.group(2)
+                headers.append((idx, header_num, line))
+    target_idx = None
+    for idx, header_num, _ in headers:
+        if header_num == section_num or header_num.startswith(section_num + "."):
+            target_idx = idx
+            break
+    if target_idx is None:
+        return None
+    target_parts = section_num.split(".")
+    start_idx = target_idx
+    end_idx = len(rfc_lines)
+    for idx, header_num, _ in headers:
+        if idx <= start_idx:
+            continue
+        header_parts = header_num.split(".")
+        if not (header_num.startswith(section_num + ".") or header_num == section_num):
+            is_child = False
+            for i in range(min(len(target_parts), len(header_parts))):
+                if i < len(target_parts) - 1 and header_parts[i] == target_parts[i]:
+                    if len(header_parts) > len(target_parts):
+                        is_child = True
+                        break
+            if not is_child:
+                end_idx = idx
+                break
+    section_lines = rfc_lines[start_idx:end_idx]
+    return "\n".join(section_lines).strip()
+
+
+def save_referenced_sections(
+    referenced_sections: set,
+    parsed_sections: List[Tuple[str, str, List[str]]],
+    rfc_sections_dir: Path,
+    rfc_lines: Optional[List[str]] = None,
+    spec_format: bool = False,
+) -> None:
+    """
+    Extract and save all referenced sections to files. Works for both TXT and DOCX:
+    - DOCX: only parsed_sections (from load_spec_sections); pass rfc_lines=None.
+    - TXT: can pass rfc_lines for fallback; parsed_sections are always used first.
+
+    Args:
+        referenced_sections: Set of section numbers that are referenced
+        parsed_sections: List of (section_number, title, lines) from load_spec_sections
+        rfc_sections_dir: Directory to save section files (e.g. spec_segment)
+        rfc_lines: Optional; full document lines. Only for .txt fallback.
+        spec_format: True if spec-style headers were used when parsing
+    """
+    saved_count = 0
+    for ref_section in sorted(referenced_sections):
+        safe_section_num = ref_section.replace(".", "_")
+        section_file = rfc_sections_dir / f"section_{safe_section_num}.txt"
+        if section_file.exists():
+            continue
+        section_content = extract_section_from_rfc(
+            ref_section, parsed_sections, rfc_lines=rfc_lines, spec_format=spec_format
+        )
+        if section_content:
+            section_file.write_text(section_content, encoding="utf-8")
+            print(f"    鈫� Extracted and saved referenced section {ref_section} to {section_file.name}")
+            saved_count += 1
+        else:
+            print(f"    鈫� Warning: Could not find referenced section {ref_section} in RFC")
+    
+    if saved_count > 0:
+        print(f"\n[鉁擼 Extracted and saved {saved_count} referenced section(s)")
+def generate_openapi_parser_script(gpt: GPT, test_format: str) -> str:
+    """
+    Generate a Python script to parse OpenAPI YAML files from 3GPP Spec Annex A using LLM.
+    The script will implement a function extract_operation_details(yaml_content, target_path, target_method).
+    """
+    
+    prompt =( "Here is the 3GPP spec .txt format\n\n" +
+        "=== FORMAT START ===\n"+
+        f"{test_format}\n\n"+
+        "=== FORMAT END ===\n\n"+
+    "Please generate the Python script as specified in the system prompt.")
+    raw_reply = gpt.ask_llm(prompt)
+    print("Generated Python script:\n")
+    print(raw_reply)
+    return raw_reply
+
+def main():
+
+    '''
+    Generate input format JSON by extracting high-level API operation info from spec sections using LLM.
+    '''
+    gpt = GPT(
+        system_prompt=SYSTEM_PROMPT_1,
+        max_retries=3, #getattr(args, "llm_max_retries", 3),
+        retry_delay_seconds=2.0 #getattr(args, "llm_retry_delay", 2.0),
+    )
+
+    spec_segment_reg=r"^section_.*\.txt$"
+    section_result=[]
+    matched_files = []
+    for f in RFC_SECTIONS_DIR.iterdir():
+        if f.is_file() and re.match(spec_segment_reg, f.name):
+            matched_files.append(f)
+    matched_files.sort(key=lambda x: x.name)
+    for f in matched_files:
+        with f.open("r", encoding="utf-8") as file:
+            print(f"[*] Processing section file: {f.name}...")
+            section_text = file.read()
+        result=extract_ops_high_level_info(gpt, section_text)
+        if result!=[]:
+            section_result.extend(result)
+    
+    FORMAT_OUT_PATH.write_text(
+        json.dumps(section_result, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    
+    
+
+if __name__ == "__main__":
+    main()

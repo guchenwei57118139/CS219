@@ -1,0 +1,16 @@
+6.1.7	Error Handling
+6.1.7.1	General
+HTTP error handling shall be supported as specified in clause 5.2.4 of 3GPP TS 29.500 [4].
+6.1.7.2	Protocol Errors
+Protocol errors handling shall be supported as specified in clause 5.2.7 of 3GPP TS 29.500 [4].
+6.1.7.3	Application Errors
+The application errors defined for the Nnrf_NFManagement service are listed in Table 6.1.7.3-1.
+Table 6.1.7.3-1: Application errors
+
+Application Error	HTTP status code	Description
+SUBSCRIPTION_NOT_ALLOWED	403 Forbidden	It is used when the validation of the authorization parameters in the subscription request has falied.
+SHARED_DATA_ID_UNKNOWN	400 Bad Request	It is used when the NFProfile contains Shared Data IDs for which Shared Data have not yet been registered. NFs receiving this application error may register the shared data to the NRF before retrying to register the NFProfile that contains the Shared Data ID.
+SHARED_DATA_NOT_CONFIGURED	400 Bad Request	It is used when the NFProfile contains a Shared Data ID for which Shared Data have not been configured at the NRF. In this case the NFProfile registration fails due to network misconfiguration unless the NF is able to fall back to non-support of the Shared-Data-Registration feature.
+SHARED_DATA_WRITE_NOT_ALLOWED	403 Forbidden	It is used when the requesting NF is not authorized with write access to a particular shared data, e.g. the shared data is only writeable within one specific NF Set.
+INVALID_CLIENT	400 Bad Request	It is used when some or all attributes of the NF Service Consumer presented in the request message do not match the requester information in, e.g. its public key certificate.
+

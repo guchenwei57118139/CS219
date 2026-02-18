@@ -1,0 +1,10 @@
+6.2.1	API URI
+The API URI of the Nnrf_NFDiscovery API shall be:
+{apiRoot}/<apiName>/<apiVersion>
+The request URIs used in HTTP requests from the NF service consumer towards the NF service producer shall have the Resource URI structure defined in clause 4.4.1 of 3GPP TS 29.501 [5], i.e.:
+{apiRoot}/<apiName>/<apiVersion>/<apiSpecificResourceUriPart>
+where:
+-	the {apiRoot} shall be set as defined in clause 4.4.1 of 3GPP TS 29.501 [5];
+-	the <apiName> shall be set to "nnrf-disc";
+-	the <apiVersion> shall be set to "v1" for the current version of this specification;
+-	the <apiSpecificResourceUriPart> shall be set as described in clause 6.2.3.

@@ -1,0 +1,4 @@
+6.3.2	API URI
+URIs of this API shall have the following root:
+{nrfApiRoot}/oauth2
+where {nrfApiRoot} represents the concatenation of the "scheme" and "authority" components of the NRF, as defined in IETF RFC 3986 [17].

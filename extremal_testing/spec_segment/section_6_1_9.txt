@@ -1,0 +1,18 @@
+6.1.9	Features supported by the NFManagement service
+The syntax of the supportedFeatures attribute is defined in clause 5.2.2 of 3GPP TS 29.571 [7].
+The following features are defined for the Nnrf_NFManagement service.
+Table 6.1.9-1: Features of supportedFeatures attribute used by Nnrf_NFManagement service
+
+Feature Number	Feature	M/O	Description
+1	Service-Map	M	Support of defining in the profile of the NF Instance the list of NF Service Instances based on a map type (i.e. support of the "nfServiceList" attribute in NFProfile).
+2	Empty-Objects-Nrf-Info	O	Support of receiving empty JSON objects as values in the servedxxxInfo/servedxxxInfoList map attributes of the NrfInfo data structure used by an NRF during registration into another NRF (see clause 6.1.6.2.31).  An NRF that supports registering into another NRF shall support this feature.
+3	Inter-Plmn-Fqdn	M	Support of receiving intra-PLMN notification of changes in the NFProfile/NFService containing the "interPlmnFqdn" attribute (see clauses 6.1.6.2.2 and 6.1.6.2.3).  The NRF shall not send intra-PLMN notifications containing the "interPlmnFqdn" attribute to subscribing NF Instances that don't support this feature.
+4	NRFSET	O	Support of the NRF Set feature as defined in clause 5.2.2.1.  All the NRF service instances of an NRF supporting this feature shall support the NRFSET feature.
+5	Complete-Profile-Subscription	O	Support subscriptions to the complete NF Profile of NF Instances (including, e.g. the authorization attributes) and their notifications.
+6	Allowed-ruleset	O	Support registering RuleSets in NF (Service) profile
+7	Canary-Release	O	Support of "CANARY_RELEASE" value for NFStatus and NFServiceStatus, used for e.g. canary testing
+8	DNN-List-Optimization	O	Support of dnnSmfInfoListId within SnssaiSmfInfoItem, and dnnUpfInfoListId within SnssaiUpfInfoItem The NF consumer shall not make use of this feature if this feature is not supported by the NRF. See clause 5.2.2.2.2 on the NRF’s supported feature detection prior to registration.
+9	Shared-Data-Registration	O	If supported, NF consumers may register NFProfiles containing shared data IDs.
+10	Shared-Data-Retrieval	O	If supported, NFProfiles sent to NF consumers may contain shared data IDs. Support of this feature also covers support of shared data retrieval, shared data list retrieval, subscription, notification and un-subscription.
+Feature number: The order number of the feature within the supportedFeatures attribute (starting with 1). Feature: A short name that can be used to refer to the bit and to the feature. M/O: Defines if the implementation of the feature is mandatory ("M") or optional ("O"). Description: A clear textual description of the feature.	Feature number: The order number of the feature within the supportedFeatures attribute (starting with 1). Feature: A short name that can be used to refer to the bit and to the feature. M/O: Defines if the implementation of the feature is mandatory ("M") or optional ("O"). Description: A clear textual description of the feature.	Feature number: The order number of the feature within the supportedFeatures attribute (starting with 1). Feature: A short name that can be used to refer to the bit and to the feature. M/O: Defines if the implementation of the feature is mandatory ("M") or optional ("O"). Description: A clear textual description of the feature.	Feature number: The order number of the feature within the supportedFeatures attribute (starting with 1). Feature: A short name that can be used to refer to the bit and to the feature. M/O: Defines if the implementation of the feature is mandatory ("M") or optional ("O"). Description: A clear textual description of the feature.
+

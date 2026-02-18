@@ -1,0 +1,4 @@
+5.5.1	Service Description
+The NRF offers a Nnrf_Bootstrapping service to let NF Service Consumers of the NRF know about the services endpoints it supports, the NRF Instance ID and NRF Set ID if the NRF is part of an NRF set, by using a version-independent URI endpoint that does not need to be discovered by using a Discovery service.
+This service shall be used in inter-PLMN scenarios where the NRF in a PLMN-A needs to invoke services from an NRF in PLMN-B, when there is no pre-configured information indicating the version of the services deployed in PLMN-B.
+This service may also be used in intra-PLMN scenarios, to avoid configuring statically in the different NFs information about the service versions deployed in the NRF to be used by those NFs.

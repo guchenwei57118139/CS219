@@ -1,0 +1,2 @@
+6.4.5	Notifications
+There are no notifications defined for the Nnrf_Bootstrapping service in this release of the specification.

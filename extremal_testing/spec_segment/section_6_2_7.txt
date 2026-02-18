@@ -1,0 +1,12 @@
+6.2.7	Error Handling
+6.2.7.1	General
+HTTP error handling shall be supported as specified in clause 5.2.4 of 3GPP TS 29.500 [4].
+6.2.7.2	Protocol Errors
+Protocol errors handling shall be supported as specified in clause 5.2.7 of 3GPP TS 29.500 [4].
+6.2.7.3	Application Errors
+The application errors defined for the Nnrf_NFDiscovery service are listed in Table 6.2.7.3-1.
+Table 6.2.7.3-1: Application errors
+
+Application Error	HTTP status code	Description
+INVALID_CLIENT	400 Bad Request	It is used when some or all attributes of the NF Service Consumer in query parameters do not match the requester information in, e.g. its public key certificate.
+

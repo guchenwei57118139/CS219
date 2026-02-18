@@ -1,0 +1,69 @@
+2	References
+The following documents contain provisions which, through reference in this text, constitute provisions of the present document.
+-	References are either specific (identified by date of publication, edition number, version number, etc.) or non-specific.
+-	For a specific reference, subsequent revisions do not apply.
+-	For a non-specific reference, the latest version applies. In the case of a reference to a 3GPP document (including a GSM document), a non-specific reference implicitly refers to the latest version of that document in the same Release as the present document.
+[1]	3GPP TR 21.905: "Vocabulary for 3GPP Specifications".
+[2]	3GPP TS 23.501: "System Architecture for the 5G System; Stage 2".
+[3]	3GPP TS 23.502: "Procedures for the 5G System; Stage 2".
+[4]	3GPP TS 29.500: "5G System; Technical Realization of Service Based Architecture; Stage 3".
+[5]	3GPP TS 29.501: "5G System; Principles and Guidelines for Services Definition; Stage 3".
+[6]	3GPP TS 29.518: "5G System; Access and Mobility Management Services; Stage 3".
+[7]	3GPP TS 29.571: "5G System; Common Data Types for Service Based Interfaces; Stage 3".
+[8]	ECMA-262: "ECMAScript® Language Specification", https://www.ecma-international.org/ecma-262/5.1/.
+[9]	IETF RFC 9113: "HTTP/2".
+[10]	OpenAPI Initiative, "OpenAPI Specification Version 3.0.0", https://spec.openapis.org/oas/v3.0.0.
+[11]	IETF RFC 9457: "Problem Details for HTTP APIs".
+[12]	3GPP TS 23.003: "Numbering, Addressing and Identification".
+[13]	IETF RFC 6902: "JavaScript Object Notation (JSON) Patch".
+[14]	IETF RFC 6901: "JavaScript Object Notation (JSON) Pointer".
+[15]	3GPP TS 33.501: "Security architecture and procedures for 5G system".
+[16]	IETF RFC 6749: "The OAuth 2.0 Authorization Framework".
+[17]	IETF RFC 3986: "Uniform Resource Identifier (URI): Generic Syntax".
+[18]	IETF RFC 9562: "Universally Unique IDentifiers (UUIDs)".
+[19]	Void.
+[20]	IETF RFC 9111: "HTTP Caching".
+[21]	3GPP TS 29.244: "Interface between the Control Plane and the User Plane Nodes; Stage 3".
+[22]	IETF RFC 8259: "The JavaScript Object Notation (JSON) Data Interchange Format".
+[23]	IETF RFC 2782: "A DNS RR for specifying the location of services (DNS SRV)".
+[24]	IETF RFC 7515: "JSON Web Signature (JWS)".
+[25]	IETF RFC 7519: "JSON Web Token (JWT)".
+[26]	W3C HTML 4.01 Specification, https://www.w3.org/TR/2018/SPSD-html401-20180327/.
+[27]	3GPP TS 23.527: "5G System; Restoration Procedures; Stage 2".
+[28]	3GPP TS 29.513: "5G System; Policy and Charging Control signalling flows and QoS parameter mapping; Stage 3".
+[29]	3GPP TS 38.413: "NG-RAN; NG Application Protocol (NGAP)".
+[30]	IETF RFC 1952: "GZIP file format specification version 4.3".
+[31]	3GPP TR 21.900: "Technical Specification Group working methods".
+[32]	3GPP TS 29.520: "5G System; Network Data Analytics Services; Stage 3".
+[33]	3GPP TS 29.572: "5G System; Location Management Services; Stage 3".
+[34]	3GPP TS 23.288: "Architecture enhancements for 5G System (5GS) to support network data analytics services".
+[35]	3GPP TS 29.517: "Application Function Event Exposure Service".
+[36]	3GPP TS 29.503: "Unified Data Management Services".
+[37]	3GPP TS 29.336: "Home Subscriber Server (HSS) diameter interfaces for interworking with packet data networks and applications".
+[38]	IANA: "SMI Network Management Private Enterprise Codes", http://www.iana.org/assignments/enterprise-numbers.
+[39]	Semantic Versioning Specification: https://semver.org.
+[40]	IETF RFC 9110: "HTTP Semantics".
+[41]	Void.
+[42]	3GPP TS 29.531: "5G System; Network Slice Selection Services; Stage 3".
+[43]	3GPP TS 23.247: "Architectural enhancements for 5G multicast-broadcast services".
+[44]	ITU-T Recommendation E.164: "The international public telecommunication numbering plan".
+[45]	3GPP TS 23.380: "IMS Restoration Procedures".
+[46]	3GPP TS 32.255: "Telecommunication management; Charging management; 5G data connectivity domain charging; Stage 2".
+[47]	3GPP TS 29.514: "5G System; Policy Authorization Service; Stage 3".
+[48]	3GPP TS 23.540: "5G System; Technical realization of Service Based Short Message Service; Stage 2".
+[49]	3GPP TS 29.564: "5G System; User Plane Function Services; Stage 3".
+[50]	3GPP TS 33.310: "Network Domain Security (NDS); Authentication Framework (AF)".
+[51]	3GPP TS 29.536: "5G System; Network Slice Admission Control Services; Stage 3".
+[52]	IETF RFC 7858: "Specification for DNS over Transport Layer Security (TLS)".
+[53]	IETF RFC 8310: "Usage Profiles for DNS over TLS and DNS over DTLS".
+[54]	IETF RFC 8094: "DNS over Datagram Transport Layer Security (DTLS)".
+[55]	3GPP TS 29.122: "T8 reference point for Northbound APIs".
+[56]	3GPP TS 23.273: "5G System (5GS) Location Services (LCS); Stage 2".
+[57]	Void.
+[58]	3GPP TS 23.369: "Architecture support for Ambient power-enabled Internet of Things".
+[59]	3GPP TS 33.210: "Network Domain Security (NDS); IP network layer security".
+[60]	IETF RFC 2387: "The MIME Multipart/Related Content-type".
+[61]	IETF RFC 2045: "Multipurpose Internet Mail Extensions (MIME) Part One: Format of Internet Message Bodies".
+[62]	IETF RFC 5280: "Internet X.509 Public Key Infrastructure Certificate and Certificate Revocation List (CRL) Profile".
+[63]	IETF RFC 5652: "Cryptographic Message Syntax (CMS)".
+[64]	IETF RFC 8933: "Update to the Cryptographic Message Syntax (CMS) for Algorithm Identifier Protection".

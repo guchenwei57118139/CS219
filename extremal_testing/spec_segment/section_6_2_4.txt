@@ -1,0 +1,2 @@
+6.2.4	Custom Operations without associated resources
+There are no custom operations defined without any associated resources for the Nnrf_NFDiscovery service in this release of this specification.

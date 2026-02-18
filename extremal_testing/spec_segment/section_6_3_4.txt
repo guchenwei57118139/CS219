@@ -1,0 +1,99 @@
+6.3.4	Custom Operations without associated resources
+6.3.4.1	Overview
+The /token endpoint as specified in IETF RFC 6749 [16] shall be supported. The "token endpoint" URI shall be:
+{nrfApiRoot}/oauth2/token
+where {nrfApiRoot} is defined in clause 6.3.2.
+The "Retrieve Key Request" custom operation shall be supported. The URI of the "Retrieve Key Request" custom operation shall be:
+{nrfApiRoot}/oauth2/retrieve-key
+where {nrfApiRoot} is defined in clause 6.3.2.
+Table 6.3.4.1-1 provides an overview of the endpoints and applicable HTTP methods.
+Table 6.3.4.1-1: Custom operations without associated resources
+
+Operation Name	Custom operation URI	Mapped HTTP method	Description
+Get (Access Token Request)	/oauth2/token	POST	Access token request for obtaining OAuth2.0 access token. This operation maps to Nnrf_AccessToken_Get service operation.
+Retrieve Key Request	/oauth2/retrieve-key	POST	Retrieve Key Request for obtaining the key used to validate the signature of the Access Token.  This operation maps to Nnrf_AccessToken_RetrieveKey service operation.
+
+
+6.3.4.2	Operation: Get (Access Token Request)
+6.3.4.2.1	Description
+This custom operation represents the process for issuing the OAuth2.0 access token.
+6.3.4.2.2	Operation Definition
+This operation returns an OAuth 2.0 access token based on the input parameters provided. This custom operation shall use the HTTP POST method.
+This method shall support the request data structures specified in table 6.3.4.2.2-1 and the response data structures and response codes specified in table 6.3.4.2.2-2. The data structure used for the POST request body shall be using x-www-form-urlencoded format as specified in clause 17.13.4 of W3C HTML 4.01 Specification [26].
+Table 6.3.4.2.2-1: Data structures supported by the POST Request Body on this endpoint
+
+Data type	P	Cardinality	Description
+AccessTokenReq	M	1	This IE shall contain the request information for the access token request. Content-Type: "application/x-www-form-urlencoded"
+
+
+Table 6.3.4.2.2-2: Data structures supported by the POST Response Body on this endpoint
+
+Data type	P	Cardinality	Response codes	Description
+AccessTokenRsp	M	1	200 OK	This IE shall contain the access token response information.
+RedirectResponse	O	0..1	307 Temporary Redirect	The NRF shall generate a Location header field containing a URI pointing to the endpoint of another NRF service instance to which the request should be sent. If an SCP redirects the message to another SCP then the location header field shall contain the same URI or a different URI pointing to the endpoint of the NF service producer to which the request should be sent.
+RedirectResponse	O	0..1	308 Permanent Redirect	The NRF shall generate a Location header field containing a URI pointing to the endpoint of another NRF service instance to which the request should be sent. If an SCP redirects the message to another SCP then the location header field shall contain the same URI or a different URI pointing to the endpoint of the NF service producer to which the request should be sent.
+AccessTokenErr	M	1	400 Bad Request, 401 Unauthorized	See IETF RFC 6749 [16] clause 5.2. The specific error shall be indicated in the "error" attribute of the AccessTokenErr data type, containing any of the values: - invalid_request - invalid_client - invalid_grant - unauthorized_client - unsupported_grant_type - invalid_scope
+ProblemDetails	O	0..1	400 Bad Request	This error shall only be returned by an SCP or SEPP for errors they originate.
+ProblemDetails	O	0..1	403 Forbidden	This response shall be returned if the requester NF is not allowed to request token for the NF being requested, and the "cause" attribute shall be set to: - "MISSING_PARAMETER" to indicate the missing requester's information. The missing parameter shall be indicated in "invalidParams" attribute of ProblemDetails.
+
+
+Table 6.3.4.2.2-3: Headers supported by the 200 Response Code on this endpoint
+
+Name	Data type	P	Cardinality	Description
+Cache-Control	string	M	1	Enum: "no-store"
+Pragma	string	M	1	Enum: "no-cache"
+
+
+Table 6.3.4.2.2-4: Headers supported by the 400 Response Code on this endpoint
+
+Name	Data type	P	Cardinality	Description
+Cache-Control	string	M	1	Enum: "no-store"
+Pragma	string	M	1	Enum: "no-cache"
+
+
+Table 6.3.4.2.2-5: Headers supported by the 307 Response Code on this endpoint
+
+Name	Data type	P	Cardinality	Description
+Location	string	M	1	A URI pointing to the endpoint of the NRF service instance to which the request should be sent
+
+
+Table 6.3.4.2.2-6: Headers supported by the 308 Response Code on this endpoint
+
+Name	Data type	P	Cardinality	Description
+Location	string	M	1	A URI pointing to the endpoint of the NRF service instance to which the request should be sent
+
+
+6.3.4.3	Operation: Retrieve Key Request
+6.3.4.3.1	Description
+This custom operation provides the key used to validate the OAuth2.0 access token.
+6.3.4.3.2	Operation Definition
+This operation returns the key used to validate the OAuth 2.0 access token based on the input parameters provided. This custom operation shall use the HTTP POST method.
+This method shall support the request data structures specified in table 6.3.4.3.2-1 and the response data structure(s) and response codes specified in table 6.3.4.3.2-2.
+Table 6.3.4.3.2-1: Data structures supported by the POST Request Body on this endpoint
+
+Data type	P	Cardinality	Description
+RetrieveKeyReq	M	1	This IE shall contain the information to identify the key used to validate the OAuth 2.0 access token.
+
+
+Table 6.3.4.3.2-2: Data structures supported by the POST Response Body on this endpoint
+
+Data type	P	Cardinality	Response codes	Description
+RetrieveKeyRsp	M	1	200 OK	This IE shall contain the key used to validate the OAuth 2.0 access token.
+RedirectResponse	O	0..1	307 Temporary Redirect	The NRF shall generate a Location header field containing a URI pointing to the endpoint of another NRF service instance to which the request should be sent. If an SCP redirects the message to another SCP then the location header field shall contain the same URI or a different URI pointing to the endpoint of the NF service producer to which the request should be sent.
+RedirectResponse	O	0..1	308 Permanent Redirect	The NRF shall generate a Location header field containing a URI pointing to the endpoint of another NRF service instance to which the request should be sent. If an SCP redirects the message to another SCP then the location header field shall contain the same URI or a different URI pointing to the endpoint of the NF service producer to which the request should be sent.
+ProblemDetails	O	0..1	400 Bad Request	The cause should be set to one of the following: -	KEY_IDENTIFICATION_FAIL  This error may also be returned by an SCP or SEPP for errors they originate.
+ProblemDetails	O	0..1	404 Not Found	The cause should be set to one of the following: -	UNKNOWN_ISSUER
+NOTE:	The mandatory HTTP error status codes for the POST method listed in Table 5.2.7.1-1 of 3GPP TS 29.500 [4] other than those specified in the table above also apply, with a ProblemDetails data type (see clause 5.2.7 of 3GPP TS 29.500 [4]).	NOTE:	The mandatory HTTP error status codes for the POST method listed in Table 5.2.7.1-1 of 3GPP TS 29.500 [4] other than those specified in the table above also apply, with a ProblemDetails data type (see clause 5.2.7 of 3GPP TS 29.500 [4]).	NOTE:	The mandatory HTTP error status codes for the POST method listed in Table 5.2.7.1-1 of 3GPP TS 29.500 [4] other than those specified in the table above also apply, with a ProblemDetails data type (see clause 5.2.7 of 3GPP TS 29.500 [4]).	NOTE:	The mandatory HTTP error status codes for the POST method listed in Table 5.2.7.1-1 of 3GPP TS 29.500 [4] other than those specified in the table above also apply, with a ProblemDetails data type (see clause 5.2.7 of 3GPP TS 29.500 [4]).	NOTE:	The mandatory HTTP error status codes for the POST method listed in Table 5.2.7.1-1 of 3GPP TS 29.500 [4] other than those specified in the table above also apply, with a ProblemDetails data type (see clause 5.2.7 of 3GPP TS 29.500 [4]).
+
+
+Table 6.3.4.3.2-3: Headers supported by the 307 Response Code on this endpoint
+
+Name	Data type	P	Cardinality	Description
+Location	string	M	1	A URI pointing to the endpoint of the NRF service instance to which the request should be sent
+
+
+Table 6.3.4.3.2-4: Headers supported by the 308 Response Code on this endpoint
+
+Name	Data type	P	Cardinality	Description
+Location	string	M	1	A URI pointing to the endpoint of the NRF service instance to which the request should be sent
+

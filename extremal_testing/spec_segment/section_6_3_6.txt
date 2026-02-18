@@ -1,0 +1,19 @@
+6.3.6	Error Handling
+6.3.6.1	General
+HTTP error handling shall be supported as specified in IETF RFC 6749 [16] for errors returned by NRF as Oauth 2.0 authorization server, and also as specified in clause 5.2.7.4 of 3GPP TS 29.500 [4] for errors returned by SCP or SEPP.
+6.3.6.2	Protocol Errors
+Protocol errors handling shall be supported as specified in clause 5.2.7 of 3GPP TS 29.500 [4].
+6.3.6.3	Application Errors
+The application errors defined for the Nnrf_AccessToken service are listed in Table 6.3.6.3-1 and correspond to the values of the "error" attribute (see clause 6.3.5.2.5) or the value of the cause IE of ProblemDetails.
+Table 6.3.6.3-1: Application errors
+
+Application Error	HTTP status code	Description
+invalid_request	400 Bad Request	See IETF RFC 6749 [16]
+invalid_client	400 Bad Request, 401 Unauthorized	See IETF RFC 6749 [16]
+invalid_grant	400 Bad Request	See IETF RFC 6749 [16]
+unauthorized_client	400 Bad Request	See IETF RFC 6749 [16]
+unsupported_grant_type	400 Bad Request	See IETF RFC 6749 [16]
+invalid_scope	400 Bad Request	See IETF RFC 6749 [16]
+KEY_IDENTIFICATION_FAIL	400 Bad Request	No key can be identified based on the input information.
+UNKNOWN_ISSUER	404 Not Found	The indicated issuer is unknown.
+

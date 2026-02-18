@@ -1,0 +1,338 @@
+[
+  {
+    "name": "Subscribe",
+    "resource_url": "/nnrf-nfm/v1/subscriptions",
+    "method": "POST",
+    "description": "Create an NF status/profile change subscription in NRF (NRF assigns subscriptionId and returns it in Location header).",
+    "fields": {
+      "nfStatusNotificationUri": {
+        "description": "Callback URI where the NF Service Consumer will receive the notifications from NRF.",
+        "mandatory": true,
+        "type": "string",
+        "ref": "Uri",
+        "format": "uri",
+        "unresolved": true
+      },
+      "reqNfInstanceId": {
+        "description": "If present, this IE shall contain the NF instance id of the NF service consumer.",
+        "mandatory": false,
+        "type": "string",
+        "ref": "NfInstanceId",
+        "format": "uuid",
+        "unresolved": true
+      },
+      "sharedDataIds": {
+        "description": "List of shared data IDs. The format of the sharedDataId shall be a Universally Unique Identifier (UUID) version 4, as described in IETF RFC 9562 [18]. The hexadecimal letters should be formatted as lower-case characters by the sender, and they shall be handled as case-insensitive by the receiver. Example: \"4ace9d34-2c69-4f99-92d5-a73a3fe8e23b\"",
+        "mandatory": false,
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "ref",
+          "ref": "string",
+          "unresolved": true
+        }
+      },
+      "subscrCond": {
+        "description": "If present, this attributed shall contain the conditions identifying the set of NF Instances whose status is requested to be monitored. If this attribute is not present, it means that the NF Service Consumer requests a subscription to all NFs in the NRF (NOTE 1).",
+        "mandatory": false,
+        "name": "SubscrCond",
+        "type": "object",
+        "fields": {}
+      },
+      "subscriptionId": {
+        "description": "Subscription ID for the newly created resource. This parameter shall be absent in the request to the NRF and shall be included by NRF in the response to the subscription creation request. Read-Only: true Pattern: \"^([0-9]{5,6}-(x3Lf57A:nid=[A-Fa-f0-9]{11}:)?)?[^-]+$\"",
+        "mandatory": false,
+        "type": "string"
+      },
+      "validityTime": {
+        "description": "Time instant after which the subscription becomes invalid. This parameter may be sent by the client, as a hint to the server, but it shall be always sent back by the server (regardless of the presence of the attribute in the request) in the response to the subscription creation request.",
+        "mandatory": false,
+        "type": "string",
+        "ref": "DateTime",
+        "format": "date-time",
+        "unresolved": true
+      },
+      "reqNotifEvents": {
+        "description": "If present, this attribute shall contain the list of event types that the NF Service Consumer is interested in receiving. If this attribute is not present, it means that notifications for all event types are requested.",
+        "mandatory": false,
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "name": "NotificationEventType",
+          "type": "enum",
+          "description": "Table 6.1.6.3.6-1: Enumeration NotificationEventType",
+          "enum": [
+            "NF_REGISTERED",
+            "NF_DEREGISTERED",
+            "NF_PROFILE_CHANGED",
+            "SHARED_DATA_CHANGED"
+          ]
+        }
+      },
+      "reqNfType": {
+        "description": "An NF Service Consumer complying with this version of the specification shall include this IE. If included, this IE shall contain the NF type of the NF Service Consumer that is requesting the creation of the subscription. The NRF shall use it for authorizing the request, in the same way as the \"requester-nf-type\" is used in the NF Discovery service (see Table 6.2.3.2.3.1-1). When the subscription is for a set of NF Instances, the subscription may be accepted by NRF, but it shall only generate notifications from NF Instances whose authorization parameters allow the NF Service Consumer to access their services (NOTE 2).",
+        "mandatory": false,
+        "name": "NFType",
+        "type": "enum",
+        "enum": [
+          "NRF",
+          "UDM",
+          "AMF",
+          "SMF",
+          "AUSF",
+          "NEF",
+          "PCF",
+          "SMSF",
+          "NSSF",
+          "UDR",
+          "LMF",
+          "GMLC",
+          "5G_EIR",
+          "SEPP",
+          "UPF",
+          "N3IWF",
+          "AF",
+          "UDSF",
+          "BSF",
+          "CHF",
+          "NWDAF",
+          "PCSCF",
+          "CBCF",
+          "UCMF",
+          "HSS",
+          "SOR_AF",
+          "SPAF",
+          "MME",
+          "SCSAS",
+          "SCEF",
+          "SCP",
+          "NSSAAF",
+          "ICSCF",
+          "SCSCF",
+          "DRA",
+          "IMS_AS",
+          "AANF",
+          "5G_DDNMF",
+          "NSACF",
+          "MFAF",
+          "EASDF",
+          "DCCF",
+          "MB_SMF",
+          "TSCTSF",
+          "ADRF",
+          "GBA_BSF",
+          "CEF",
+          "MB_UPF",
+          "NSWOF",
+          "PKMF",
+          "MNPF",
+          "SMS_GMSC",
+          "SMS_IWMSC",
+          "MBSF",
+          "MBSTF",
+          "PANF",
+          "IP_SM_GW",
+          "SMS_ROUTER",
+          "DCSF",
+          "MRF",
+          "MRFP",
+          "MF",
+          "SLPKMF",
+          "RH",
+          "EIF",
+          "AIOTF",
+          "ADM"
+        ]
+      },
+      "reqNfFqdn": {
+        "description": "This IE may be present for a subscription request within the same PLMN as the NRF. If included, this IE shall contain the FQDN of the NF Service Consumer that is requesting the creation of the subscription. The NRF shall use it for authorizing the request, in the same way as the \"requester-nf-instance-fqdn\" is used in the NF Discovery service (see Table 6.2.3.2.3.1-1). This IE shall be ignored by the NRF if it is received from a requester NF belonging to a different PLMN. When the subscription is for a set of NF Instances, the subscription may be accepted by NRF, but it shall only generate notifications from NF Instances whose authorization parameters allow the NF Service Consumer to access their services (NOTE 2).",
+        "mandatory": false,
+        "type": "string",
+        "ref": "Fqdn",
+        "format": "hostname",
+        "unresolved": true
+      },
+      "reqSnssais": {
+        "description": "If included, this IE shall contain the list of S-NSSAIs of the NF Service Consumer that is requesting the creation of the subscription. If this IE is included in a subscription request in a different PLMN, the requester NF shall provide S-NSSAI values of the target PLMN, that correspond to the S-NSSAI values of the requester NF. The NRF shall use it for authorizing the request, in the same way as the \"requester-snssais\" is used in the NF Discovery service (see Table 6.2.3.2.3.1-1). When the subscription is for a set of NF Instances, the subscription may be accepted by NRF, but it shall only generate notifications from NF Instances whose authorization parameters allow the NF Service Consumer to access their services (NOTE 2).",
+        "mandatory": false,
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "object",
+          "ref": "ExtSnssai",
+          "unresolved": true
+        }
+      },
+      "reqPerPlmnSnssais": {
+        "description": "If included, this IE shall indicate the list of S-NSSAIs supported by the NF Service Consumer in each of the PLMNs it supports. The NRF shall use it for authorizing the request, in the same way as the \"per-plmn-requester-snssais\" is used in the NF Discovery service (see Table 6.2.3.2.3.1-1). When the subscription is for a set of NF Instances, the subscription may be accepted by NRF, but it shall only generate notifications from NF Instances whose authorization parameters allow the NF Service Consumer to access their services (NOTE 2).",
+        "mandatory": false,
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "name": "PlmnSnssai",
+          "type": "object",
+          "description": "Table 6.1.6.2.44-1: Definition of type PlmnSnssai",
+          "fields": {
+            "plmnId": {
+              "description": "PLMN ID for which list of supported S-NSSAI(s) is provided.",
+              "mandatory": true,
+              "type": "ref",
+              "ref": "PlmnId",
+              "unresolved": true
+            },
+            "sNssaiList": {
+              "description": "The specific list of S-NSSAIs supported by the given PLMN or SNPN.",
+              "mandatory": true,
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "ref": "ExtSnssai",
+                "unresolved": true
+              }
+            },
+            "nid": {
+              "description": "NID for which list of supported S-NSSAI(s) is provided.",
+              "mandatory": false,
+              "type": "ref",
+              "ref": "Nid",
+              "unresolved": true
+            }
+          }
+        }
+      },
+      "plmnId": {
+        "description": "If present, this attribute contains the target PLMN ID of the NF Instance(s) whose status is requested to be monitored. (NOTE 7)",
+        "mandatory": false,
+        "type": "ref",
+        "ref": "PlmnId",
+        "unresolved": true
+      },
+      "nid": {
+        "description": "If present, this attribute contains the target NID that, together with the plmnId attribute, identifies the SNPN of the NF Instance(s) whose status is requested to be monitored.",
+        "mandatory": false,
+        "type": "ref",
+        "ref": "Nid",
+        "unresolved": true
+      },
+      "onboardingCapability": {
+        "description": "If present, this attribute indicates the NF Instance(s) whose status is requested to be monitored support SNPN Onboarding capability.",
+        "mandatory": false,
+        "type": "boolean"
+      },
+      "notifCondition": {
+        "description": "If present, this attribute contains the conditions that trigger a notification from NRF; this attribute shall only be present if the NF Service Consumer has subscribed to changes on the NF Profile (i.e., reqNotifEvents contains the value \"NF_PROFILE_CHANGED\", or reqNotifEvents attribute is absent) (NOTE 3). If this attribute is absent, it means that the NF Service Consumer does not indicate any restriction, or condition, on which attributes of the NF Profile shall trigger a notification from NRF. (NOTE 5).",
+        "mandatory": false,
+        "name": "NotifCondition",
+        "type": "object",
+        "fields": {
+          "monitoredAttributes": {
+            "description": "List of JSON Pointers (as specified in IETF RFC 6901 [14]) of attributes in the NF Profile. If this attribute is present, the NRF shall send notification only for changes in the attributes included in this list (see NOTE 1).",
+            "mandatory": false,
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "ref",
+              "ref": "string",
+              "unresolved": true
+            }
+          },
+          "unmonitoredAttributes": {
+            "description": "List of JSON Pointers (as specified in IETF RFC 6901 [14]) of attributes in the NF Profile. If this attribute is present, the NRF shall send notification for changes on any attribute, except for those included in this list (see NOTE 1).",
+            "mandatory": false,
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "ref",
+              "ref": "string",
+              "unresolved": true
+            }
+          }
+        }
+      },
+      "reqPlmnList": {
+        "description": "This IE shall be included when subscribing to NF services in a different PLMN. It may be present when subscribing to NF services in the same PLMN. When included, this IE shall contain the PLMN ID(s) of the requester NF. (NOTE 2)",
+        "mandatory": false,
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "ref",
+          "ref": "PlmnId",
+          "unresolved": true
+        }
+      },
+      "reqSnpnList": {
+        "description": "This IE shall be included when the subscribing NF belongs to one or several SNPNs and it subscribes to NF services of a specific SNPN. When included, this IE shall contain the SNPN ID(s) of the requester NF. When the subscription is for a set of NF Instances, the subscription may be accepted by NRF, but it shall only generate notifications from NF Instances whose authorization parameters allow the NF Service Consumer to access their services. (NOTE 2)",
+        "mandatory": false,
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "ref",
+          "ref": "PlmnIdNid",
+          "unresolved": true
+        }
+      },
+      "servingScope": {
+        "description": "If present, this attribute indicates the target served area(s) of the NF instance(s) whose status is required to be monitored. (NOTE 4)",
+        "mandatory": false,
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "ref",
+          "ref": "string",
+          "unresolved": true
+        }
+      },
+      "requesterFeatures": {
+        "description": "Nnrf_NFManagement features supported by the NF Service Consumer that is invoking the Nnrf_NFManagement service. See clause 6.1.9. This IE shall be included if at least one feature is supported by the NF Service Consumer. Write-Only: true (NOTE 6)",
+        "mandatory": false,
+        "type": "ref",
+        "ref": "SupportedFeatures",
+        "unresolved": true
+      },
+      "nrfSupportedFeatures": {
+        "description": "Features supported by the NRF in the Nnrf_NFManagement service. See clause 6.1.9. This IE shall be included if at least one feature is supported by the NRF. Read-Only: true",
+        "mandatory": false,
+        "type": "ref",
+        "ref": "SupportedFeatures",
+        "unresolved": true
+      },
+      "hnrfUri": {
+        "description": "If included, this IE shall contain the API URI of the NFManagement Service (see clause 6.1.1) of the home NRF. It shall be included if the NF Service Consumer has previously received such API URI from the NSSF in the home PLMN (see clause 6.1.6.2.11 of 3GPP TS 29.531 [42]).",
+        "mandatory": false,
+        "type": "string",
+        "ref": "Uri",
+        "format": "uri",
+        "unresolved": true
+      },
+      "targetHni": {
+        "description": "If present, this attribute shall contain the identification of the Default Credentials Server or the identification of the Credentials Hoder.",
+        "mandatory": false,
+        "type": "string",
+        "ref": "Fqdn",
+        "format": "hostname",
+        "unresolved": true
+      },
+      "preferredLocality": {
+        "description": "Preferred target NF location (e.g. geographic location, data center). When present, the NRF should set a priority for the monitored NF instance in the notification as specified in the description of the preferred-locality in Table 6.2.3.2.3.1-1.",
+        "mandatory": false,
+        "type": "string"
+      },
+      "extPreferredLocality": {
+        "description": "Preferred target NF location (e.g. geographic location, data center). The key of the map shall represent the relative priority, for the requester, of each locality description among the list of locality descriptions in this attribute, encoded as \"1\" (highest priority\"), \"2\", \"3\",… ,\"n\" (lowest priority). See examples in the description of the ext-preferred-locality in Table 6.2.3.2.3.1-1. When present, the NRF should set a priority for the monitored NF instance in the notification as specified in the description of the ext-preferred-locality in Table 6.2.3.2.3.1-1.",
+        "mandatory": false,
+        "type": "object",
+        "additionalProperties": {
+          "type": "ref",
+          "ref": "array(LocalityDescription)",
+          "unresolved": true
+        }
+      },
+      "completeProfileSubscription": {
+        "description": "This IE may be included by an SCP with the value true to request to monitor, and to be notified of, changes on the complete profile of the NF Instance (including authorization attributes such as the \"allowedXXX\" attributes of NFProfile and NFService data types). See clause 5.2.2.5.2. Write-Only: true",
+        "mandatory": false,
+        "type": "boolean"
+      }
+    }
+  }
+]

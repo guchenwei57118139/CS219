@@ -1,0 +1,548 @@
+[
+  {
+    "Operation": "NFRegister",
+    "Description": "Registers a new NF Instance in the NRF.",
+    "Paths": "/nf-instances/{nfInstanceId}",
+    "Method": "PUT"
+  },
+  {
+    "Operation": "NFUpdate",
+    "Description": "Updates an existing NF Instance in the NRF.",
+    "Paths": "/nf-instances/{nfInstanceId}",
+    "Method": "PATCH"
+  },
+  {
+    "Operation": "NFDeregister",
+    "Description": "Deregisters an NF Instance in the NRF.",
+    "Paths": "/nf-instances/{nfInstanceId}",
+    "Method": "DELETE"
+  },
+  {
+    "Operation": "NFInstanceRetrieve",
+    "Description": "Allows retrieving a list of NF, SCP or SEPP Instances currently registered in the NRF or the NF Profile of a given NF, SCP or SEPP Instance.",
+    "Paths": "/nf-instances",
+    "Method": "GET"
+  },
+  {
+    "Operation": "NFInstanceRetrieve",
+    "Description": "Allows retrieving a list of NF, SCP or SEPP Instances currently registered in the NRF or the NF Profile of a given NF, SCP or SEPP Instance.",
+    "Paths": "/nf-instances/{nfInstanceId}",
+    "Method": "GET"
+  },
+  {
+    "Operation": "NFRegister",
+    "Description": "Registers a new NF Instance in the NRF.",
+    "Paths": "/nf-instances/{nfInstanceId}",
+    "Method": "PUT"
+  },
+  {
+    "Operation": "SharedDataRegister",
+    "Description": "Registers Shared Data in the NRF.",
+    "Paths": "/nf-instances/{sharedDataId}",
+    "Method": "PUT"
+  },
+  {
+    "Operation": "NFUpdate_CompleteReplace",
+    "Description": "Performs a complete replacement of the NF Profile of a given NF Instance.",
+    "Paths": "/nf-instances/{nfInstanceId}",
+    "Method": "PUT"
+  },
+  {
+    "Operation": "NFUpdate_PartialUpdate",
+    "Description": "Performs a partial update of the NF Profile of a given NF Instance.",
+    "Paths": "/nf-instances/{nfInstanceId}",
+    "Method": "PATCH"
+  },
+  {
+    "Operation": "SharedData_CompleteReplace",
+    "Description": "Performs a complete replacement of the Shared Data.",
+    "Paths": "/nf-instances/{sharedDataId}",
+    "Method": "PUT"
+  },
+  {
+    "Operation": "SharedData_PartialUpdate",
+    "Description": "Performs a partial update of the Shared Data.",
+    "Paths": "/nf-instances/{sharedDataId}",
+    "Method": "PATCH"
+  },
+  {
+    "Operation": "NFHeartBeat",
+    "Description": "NF contacts the NRF periodically (heart-beat), by invoking the NFUpdate service operation, in order to show that the NF is still operative.",
+    "Paths": "/nf-instances/{nfInstanceId}",
+    "Method": "PATCH"
+  },
+  {
+    "Operation": "NFDeregister",
+    "Description": "Removes the profile of a Network Function previously registered in the NRF.",
+    "Paths": "/nf-instances/{nfInstanceId}",
+    "Method": "DELETE"
+  },
+  {
+    "Operation": "SharedDataDeregister",
+    "Description": "Removes the shared data previously registered in the NRF.",
+    "Paths": "/nf-instances/{sharedDataId}",
+    "Method": "DELETE"
+  },
+  {
+    "Operation": "NFStatusSubscribe",
+    "Description": "Creates a subscription so an NF Service Consumer can request to be notified when NF Instances of a given set, following certain filter criteria are registered/deregistered in NRF or when their profile is modified.",
+    "Paths": "/subscriptions",
+    "Method": "POST"
+  },
+  {
+    "Operation": "NFStatusUpdate",
+    "Description": "Updates the subscription to notifications on NF Instances to refresh the validity time.",
+    "Paths": "/subscriptions/{subscriptionID}",
+    "Method": "PATCH"
+  },
+  {
+    "Operation": "NFStatusNotify",
+    "Description": "Notifies each NF Service Consumer that was previously subscribed to receiving notifications of registration/deregistration of NF Instances, or notifications of changes of the NF profile of a given NF Instance.",
+    "Paths": "callback URI",
+    "Method": "POST"
+  },
+  {
+    "Operation": "NFStatusUnSubscribe",
+    "Description": "Removes an existing subscription to notifications.",
+    "Paths": "/subscriptions/{subscriptionID}",
+    "Method": "DELETE"
+  },
+  {
+    "Operation": "NFListRetrieval",
+    "Description": "Allows the retrieval of a list of NF Instances that are currently registered in NRF.",
+    "Paths": "/nf-instances",
+    "Method": "GET"
+  },
+  {
+    "Operation": "NFProfileRetrieval",
+    "Description": "Allows the retrieval of the NF profile of a given NF instance currently registered in NRF.",
+    "Paths": "/nf-instances/{nfInstanceId}",
+    "Method": "GET"
+  },
+  {
+    "Operation": "SharedDataRetrieval",
+    "Description": "Retrieves Shared Data.",
+    "Paths": "/shared-data/{sharedDataId}",
+    "Method": "GET"
+  },
+  {
+    "Operation": "SharedDataListRetrieval",
+    "Description": "Retrieves a list of Shared Data.",
+    "Paths": "/shared-data",
+    "Method": "GET"
+  },
+  {
+    "Operation": "NFDiscover",
+    "Description": "It provides to the NF service consumer or SCP the profile (including IP address(es) or FQDN) of the NF Instance(s) or NF Service(s) or SEPP instances matching certain input criteria. It also provides to the SCP the profile (including IP address(es) or FQDN) of the SCP Instance(s) matching certain input criteria.",
+    "Paths": "/nf-instances",
+    "Method": "GET"
+  },
+  {
+    "Operation": "SCPDomainRoutingInfoGet",
+    "Description": "It allows a service consumer (e.g. SCP) to fetch the SCP domain routing information (list of all SCP Domains registered by SCPs and the interconnected SCP domains per SCP domain), if both the SCP and the NRF supports the \"SCPDRI\" feature. It also allows a service consumer (e.g. NRF) to fetch the local SCP domain routing information (based on SCPs registered in the NRF as service producer), if both the NRF as service consumer and NRF as service producer supports the \"SCPDRI\" feature.",
+    "Paths": "/scp-domain-routing-info",
+    "Method": "GET"
+  },
+  {
+    "Operation": "SCPDomainRoutingInfoSubscribe",
+    "Description": "It allows a service consumer (e.g. SCP) to create a subscription for changes of the SCP domain routing information, if both the SCP and the NRF supports the \"SCPDRI\" feature. It also allows a service consumer (e.g. NRF) to create a subscription for changes of local SCP domain routing information, if both the NRF as service consumer and NRF as service producer supports the \"SCPDRI\" feature.",
+    "Paths": "/scp-domain-routing-info-subscriptions",
+    "Method": "POST"
+  },
+  {
+    "Operation": "SCPDomainRoutingInfoNotify",
+    "Description": "It allows the NRF to send notification(s) to a service consumer (e.g. SCP) previously subscribed to the changes of the SCP domain routing information, if both the SCP and the NRF supports the \"SCPDRI\" feature. It also allows the NRF as service producer to send notification(s) to a service consumer (e.g. NRF) previously subscribed to the changes of the local SCP domain routing information, if both the NRF as service consumer and NRF as service producer supports the \"SCPDRI\" feature.",
+    "Paths": "callback URI",
+    "Method": "POST"
+  },
+  {
+    "Operation": "SCPDomainRoutingInfoUnsubscribe",
+    "Description": "It allows a service consumer (e.g. SCP or NRF) to delete a previously created subscription for changes of the SCP domain routing information, if both the service consumer and the NRF as service producer supports the \"SCPDRI\" feature.",
+    "Paths": "resource URI representing the individual subscription",
+    "Method": "DELETE"
+  },
+  {
+    "Operation": "AccessTokenRequest",
+    "Description": "Request service operation can be requested by NF Service Consumers.",
+    "Paths": "/token",
+    "Method": "POST"
+  },
+  {
+    "Operation": "Retrieve Request",
+    "Description": "Request service operation can be requested.",
+    "Paths": "/token",
+    "Method": "GET"
+  },
+  {
+    "Operation": "AccessTokenRequest",
+    "Description": "This service operation is used by an NF Service Consumer to request an OAuth 2.0 access token from the authorization server (NRF).",
+    "Paths": "/oauth2/token",
+    "Method": "POST"
+  },
+  {
+    "Operation": "RetrieveKeyRequest",
+    "Description": "This service operation is used by an NF Service Consumer of the NRF (i.e. the NF Service Producer verifying the Access Token) to request the NRF to provide the key (raw public key, X.509 certificate or certificate chain) that is required to validate the signature of the OAuth 2.0 Access Token.",
+    "Paths": "/oauth2/retrieve-key",
+    "Method": "POST"
+  },
+  {
+    "Operation": "Nnrf_Bootstrapping_Get",
+    "Description": "This service operation is used by an NF Service Consumer to request bootstrapping information from the NRF.",
+    "Paths": "/bootstrapping",
+    "Method": "GET"
+  },
+  {
+    "Operation": "NFInstanceCollection_Read",
+    "Description": "Read a collection of NF Instances.",
+    "Paths": "/nf-instances",
+    "Method": "GET"
+  },
+  {
+    "Operation": "NFInstanceCollection_DiscoverOptions",
+    "Description": "Discover the communication options supported by the NRF for this resource.",
+    "Paths": "/nf-instances",
+    "Method": "OPTIONS"
+  },
+  {
+    "Operation": "NFInstance_Read",
+    "Description": "Read the profile of a given NF Instance.",
+    "Paths": "/nf-instances/{nfInstanceId}",
+    "Method": "GET"
+  },
+  {
+    "Operation": "NFInstance_RegisterOrReplace",
+    "Description": "Register in NRF a new NF Instance, or replace the profile of an existing NF Instance, by providing an NF profile.",
+    "Paths": "/nf-instances/{nfInstanceId}",
+    "Method": "PUT"
+  },
+  {
+    "Operation": "NFInstance_Update",
+    "Description": "Modify the NF profile of an existing NF Instance.",
+    "Paths": "/nf-instances/{nfInstanceId}",
+    "Method": "PATCH"
+  },
+  {
+    "Operation": "NFInstance_Deregister",
+    "Description": "Deregister from NRF a given NF Instance.",
+    "Paths": "/nf-instances/{nfInstanceId}",
+    "Method": "DELETE"
+  },
+  {
+    "Operation": "SharedDataCollection_Read",
+    "Description": "Read a collection of Shared Data",
+    "Paths": "/shared-data",
+    "Method": "GET"
+  },
+  {
+    "Operation": "SharedData_Read",
+    "Description": "Read Shared Data",
+    "Paths": "/shared-data/{sharedDataId}",
+    "Method": "GET"
+  },
+  {
+    "Operation": "SharedData_RegisterOrReplace",
+    "Description": "Register in NRF new Shared Data, or replace the Shared Data, by providing Shared Data",
+    "Paths": "/shared-data/{sharedDataId}",
+    "Method": "PUT"
+  },
+  {
+    "Operation": "SharedData_Update",
+    "Description": "Modify existing Shared Data",
+    "Paths": "/shared-data/{sharedDataId}",
+    "Method": "PATCH"
+  },
+  {
+    "Operation": "SharedData_Delete",
+    "Description": "Delete Shared Data from the NRF",
+    "Paths": "/shared-data/{sharedDataId}",
+    "Method": "DELETE"
+  },
+  {
+    "Operation": "SubscriptionCollection_Create",
+    "Description": "Creates a new subscription in NRF to newly registered NF Instances. Or, if the \"Shared-Data-Retrieval\" feature is supported, creates a new subscription in NRF to shared data change notifications.",
+    "Paths": "/subscriptions",
+    "Method": "POST"
+  },
+  {
+    "Operation": "Subscription_Update",
+    "Description": "Updates an existing subscription in NRF. Or, if the \"Shared-Data-Retrieval\" feature is supported, updates an existing subscription in NRF to shared data change notifications.",
+    "Paths": "/subscriptions/{subscriptionID}",
+    "Method": "PATCH"
+  },
+  {
+    "Operation": "Subscription_Delete",
+    "Description": "Deletes an existing subscription from NRF. Or, if the \"Shared-Data-Retrieval\" feature is supported, deletes an existing subscription in NRF to shared data change notifications.",
+    "Paths": "/subscriptions/{subscriptionID}",
+    "Method": "DELETE"
+  },
+  {
+    "Operation": "NotificationCallback",
+    "Description": "Notify about newly created NF Instances, or about changes of the profile of a given NF Instance. Or, if the \"Shared-Data-Retrieval\" feature is supported, notify about shared data changes.",
+    "Paths": "{nfStatusNotificationUri}",
+    "Method": "POST"
+  },
+  {
+    "Operation": "SharedDataCollection_Read",
+    "Description": "This method retrieves a list of Shared Data registered in the NRF.",
+    "Paths": "/nnrf-nfm/<apiVersion>/shared-data",
+    "Method": "GET"
+  },
+  {
+    "Operation": "SharedData_Read",
+    "Description": "This method retrieves the Shared Data identified by the sharedDataId.",
+    "Paths": "/nnrf-nfm/<apiVersion>/shared-data/{sharedDataId}",
+    "Method": "GET"
+  },
+  {
+    "Operation": "SharedData_RegisterOrReplace",
+    "Description": "This method registers new Shared Data in the NRF, or replaces completely existing Shared Data.",
+    "Paths": "/nnrf-nfm/<apiVersion>/shared-data/{sharedDataId}",
+    "Method": "PUT"
+  },
+  {
+    "Operation": "SharedData_Update",
+    "Description": "This method updates partially the shared data identified by a sharedDataId.",
+    "Paths": "/nnrf-nfm/<apiVersion>/shared-data/{sharedDataId}",
+    "Method": "PATCH"
+  },
+  {
+    "Operation": "SharedData_Delete",
+    "Description": "This method deletes existing Shared Data from the NRF.",
+    "Paths": "/nnrf-nfm/<apiVersion>/shared-data/{sharedDataId}",
+    "Method": "DELETE"
+  },
+  {
+    "Operation": "NF Instance Status Notification",
+    "Description": "Notify about registrations / deregistrations or profile changes of NF Instances",
+    "Paths": "{nfStatusNotificationUri}",
+    "Method": "POST"
+  },
+  {
+    "Operation": "NFRegister",
+    "Description": "Registers a new NF Instance in the NRF.",
+    "Paths": "/nf-instances/{nfInstanceId}",
+    "Method": "PUT"
+  },
+  {
+    "Operation": "NFUpdate",
+    "Description": "Updates a NF Instance in the NRF.",
+    "Paths": "/nf-instances/{nfInstanceId}",
+    "Method": "PUT"
+  },
+  {
+    "Operation": "NFUpdate",
+    "Description": "Updates a NF Instance in the NRF.",
+    "Paths": "/nf-instances/{nfInstanceId}",
+    "Method": "PATCH"
+  },
+  {
+    "Operation": "NFInstances",
+    "Description": "Retrieve a collection of NF Instances according to certain filter criteria.",
+    "Paths": "/nf-instances",
+    "Method": "GET"
+  },
+  {
+    "Operation": "StoredSearch",
+    "Description": "Retrieve a collection of NF Instances, previously stored by NRF as a consequence of a prior search result.",
+    "Paths": "/searches/{searchId}",
+    "Method": "GET"
+  },
+  {
+    "Operation": "CompleteStoredSearch",
+    "Description": "Retrieve a collection of NF Instances, previously stored by NRF as a consequence of a prior search result, without applying any client restriction on the number of instances (e.g. \"limit\" or \"max-payload-size\" query parameters).",
+    "Paths": "/searches/{searchId}/complete",
+    "Method": "GET"
+  },
+  {
+    "Operation": "SCPDomainRoutingInformation",
+    "Description": "Retrieve the SCP Domain Routing Information.",
+    "Paths": "/scp-domain-routing-info",
+    "Method": "GET"
+  },
+  {
+    "Operation": "SCPDomainRoutingInfoSubscriptions",
+    "Description": "Subscribe to SCP Domain Routing Information change.",
+    "Paths": "/scp-domain-routing-info-subs",
+    "Method": "POST"
+  },
+  {
+    "Operation": "IndividualSCPDomainRoutingInfoSubscription",
+    "Description": "Unsubscribe to SCP Domain Routing Information change.",
+    "Paths": "/scp-domain-routing-info-subs/{subscriptionID}",
+    "Method": "DELETE"
+  },
+  {
+    "Operation": "SCP Domain Routing Information Change Notification",
+    "Description": "Notify about change of SCP Domain Routing Information",
+    "Paths": "{callbackUri}",
+    "Method": "POST"
+  },
+  {
+    "Operation": "SCPDomainRoutingInfoGet",
+    "Description": "An NRF supporting this feature shall allow a service consumer (i.e. a SCP) to get the SCP Domain Routing Information",
+    "Paths": "N/A",
+    "Method": "GET"
+  },
+  {
+    "Operation": "SCPDomainRoutingInfoSubscribe",
+    "Description": "An NRF supporting this feature shall allow a service consumer (i.e. a SCP) to subscribe to the change of SCP Domain Routing Information",
+    "Paths": "N/A",
+    "Method": "POST"
+  },
+  {
+    "Operation": "SCPDomainRoutingInfoUnsubscribe",
+    "Description": "An NRF supporting this feature shall allow a service consumer (i.e. a SCP) to unsubscribe to the change of SCP Domain Routing Information",
+    "Paths": "N/A",
+    "Method": "DELETE"
+  },
+  {
+    "Operation": "Retrieve Key Request",
+    "Description": "HTTP multipart messages shall be supported, to transfer binary key (X.509 certificate and/or certficate chain) in the following service operations (and HTTP messages)",
+    "Paths": "N/A",
+    "Method": "POST"
+  },
+  {
+    "Operation": "Get (Access Token Request)",
+    "Description": "Access token request for obtaining OAuth2.0 access token. This operation maps to Nnrf_AccessToken_Get service operation.",
+    "Paths": "/oauth2/token",
+    "Method": "POST"
+  },
+  {
+    "Operation": "Retrieve Key Request",
+    "Description": "Retrieve Key Request for obtaining the key used to validate the signature of the Access Token.  This operation maps to Nnrf_AccessToken_RetrieveKey service operation.",
+    "Paths": "/oauth2/retrieve-key",
+    "Method": "POST"
+  },
+  {
+    "Operation": "AccessTokenRequest",
+    "Description": "Request an access token.",
+    "Paths": "/oauth2/token",
+    "Method": "POST"
+  },
+  {
+    "Operation": "Bootstrapping",
+    "Description": "Retrieve a collection of links pointing to other services exposed by NRF.",
+    "Paths": "{nrfApiRoot}/bootstrapping",
+    "Method": "GET"
+  },
+  {
+    "Operation": "GetNFInstances",
+    "Description": "Retrieves a collection of NF Instances",
+    "Paths": "/nf-instances",
+    "Method": "GET"
+  },
+  {
+    "Operation": "OptionsNFInstances",
+    "Description": "Discover communication options supported by NRF for NF Instances",
+    "Paths": "/nf-instances",
+    "Method": "OPTIONS"
+  },
+  {
+    "Operation": "GetNFInstance",
+    "Description": "Read the profile of a given NF Instance",
+    "Paths": "/nf-instances/{nfInstanceID}",
+    "Method": "GET"
+  },
+  {
+    "Operation": "RegisterNFInstance",
+    "Description": "Register a new NF Instance",
+    "Paths": "/nf-instances/{nfInstanceID}",
+    "Method": "PUT"
+  },
+  {
+    "Operation": "UpdateNFInstance",
+    "Description": "Update NF Instance profile",
+    "Paths": "/nf-instances/{nfInstanceID}",
+    "Method": "PATCH"
+  },
+  {
+    "Operation": "DeregisterNFInstance",
+    "Description": "Deregisters a given NF Instance",
+    "Paths": "/nf-instances/{nfInstanceID}",
+    "Method": "DELETE"
+  },
+  {
+    "Operation": "GetSharedDataCollection",
+    "Description": "Retrieves a collection of Shared Data",
+    "Paths": "/shared-data",
+    "Method": "GET"
+  },
+  {
+    "Operation": "GetSharedData",
+    "Description": "Read the shared data identified by a given NF sharedDataId",
+    "Paths": "/shared-data/{sharedDataId}",
+    "Method": "GET"
+  },
+  {
+    "Operation": "RegisterSharedData",
+    "Description": "Register new Shared Data",
+    "Paths": "/shared-data/{sharedDataId}",
+    "Method": "PUT"
+  },
+  {
+    "Operation": "UpdateSharedData",
+    "Description": "Update Shared Data",
+    "Paths": "/shared-data/{sharedDataId}",
+    "Method": "PATCH"
+  },
+  {
+    "Operation": "DeleteSharedData",
+    "Description": "Delete Shared Data identified by a given sharedDataId",
+    "Paths": "/shared-data/{sharedDataId}",
+    "Method": "DELETE"
+  },
+  {
+    "Operation": "CreateSubscription",
+    "Description": "Create a new subscription",
+    "Paths": "/subscriptions",
+    "Method": "POST"
+  },
+  {
+    "Operation": "UpdateSubscription",
+    "Description": "Updates a subscription",
+    "Paths": "/subscriptions/{subscriptionID}",
+    "Method": "PATCH"
+  },
+  {
+    "Operation": "RemoveSubscription",
+    "Description": "Deletes a subscription",
+    "Paths": "/subscriptions/{subscriptionID}",
+    "Method": "DELETE"
+  },
+  {
+    "Operation": "SearchNFInstances",
+    "Description": "Search a collection of NF Instances",
+    "Paths": "/nf-instances",
+    "Method": "GET"
+  },
+  {
+    "Operation": "ScpDomainRoutingInfoSubscribe",
+    "Description": "Create a new subscription",
+    "Paths": "/scp-domain-routing-info-subs",
+    "Method": "POST"
+  },
+  {
+    "Operation": "ScpDomainRoutingInfoUnsubscribe",
+    "Description": "Deletes a subscription",
+    "Paths": "/scp-domain-routing-info-subs/{subscriptionID}",
+    "Method": "DELETE"
+  },
+  {
+    "Operation": "AccessTokenRequest",
+    "Description": "Access Token Request",
+    "Paths": "/oauth2/token",
+    "Method": "POST"
+  },
+  {
+    "Operation": "RetrieveKeyRequest",
+    "Description": "Retrieve Key Request",
+    "Paths": "/oauth2/retrieve-key",
+    "Method": "POST"
+  },
+  {
+    "Operation": "BootstrappingInfoRequest",
+    "Description": "Bootstrapping Info Request",
+    "Paths": "/bootstrapping",
+    "Method": "GET"
+  }
+]

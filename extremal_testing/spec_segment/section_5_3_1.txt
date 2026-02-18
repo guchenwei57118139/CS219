@@ -1,0 +1,6 @@
+5.3.1	Service Description
+The Nnrf_NFDiscovery service allows a NF or SCP Instance to discover other NF Instances with the potential services they offer, or to discover SEPP instances in the same PLMN, by querying the local NRF.
+The Nnrf_NFDiscovery service also allows:
+-	an SCP to discover other SCP instances,
+-	an NF or SCP to discover the list of NRF instances that are part of the NRF set with, for each NRF instance, its NRF instance ID and addressing information, if the NRF is part of an NRF set.
+It also allows an NRF in a PLMN to re-issue a discovery request towards an NRF in another PLMN (e.g., the HPLMN of a certain UE).

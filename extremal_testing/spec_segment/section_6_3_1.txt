@@ -1,0 +1,2 @@
+6.3.1	General
+This API reuses the API endpoints and input / output parameters specified in IETF RFC 6749 [16] as a custom operation without resources. Hence this clause does not follow the 3GPP API specification guidelines described in 3GPP TS 29.501 [5].

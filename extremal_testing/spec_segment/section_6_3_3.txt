@@ -1,0 +1,29 @@
+6.3.3	Usage of HTTP
+6.3.3.1	General
+HTTP/2, as defined in IETF RFC 9113 [9], shall be used as specified in clause 5 of 3GPP TS 29.500 [4].
+HTTP/2 shall be transported as specified in clause 5.3 of 3GPP TS 29.500 [4].
+HTTP messages and bodies this API shall comply with the OpenAPI [10] specification contained in Annex A.
+6.3.3.2	HTTP standard headers
+6.3.3.2.1	General
+The HTTP headers as specified in clause 4.4 of IETF RFC 6749 [16] shall be supported, with the exception that there shall not be "Authorization" HTTP request header in the access token request.
+6.3.3.2.2	Content type
+The following content types shall be supported:
+-	The x-www-form-urlencoded format (see clause 17.13.4 of W3C HTML 4.01 Specification [26]). The use of the x-www-form-urlencoded format shall be signalled by the content type "application/x-www-form-urlencoded".
+-	The JSON format (IETF RFC 8259 [22]). The use of the JSON format shall be signalled by the content type "application/json". See also clause 5.4 of 3GPP TS 29.500 [4].
+Multipart messages shall also be supported (see clause 6.3.3.4) using the content type "multipart/related", comprising:
+-	one JSON body part with the "application/json" content type; and
+-	one binary body part with the "application/pkix-cert" content type; and/or
+-	one binary body part with the "application/pkcs7-mime" content type.
+See clause 6.3.3.4 for the binary contents supported in the binary body part of multipart messages.
+6.3.3.3	HTTP custom headers
+6.3.3.3.1	General
+In this release of this specification, no custom headers specific to the OAuth2.0 Authorization Service API are defined. For 3GPP specific HTTP custom headers used across all service-based interfaces, see clause 5.2.3 of 3GPP TS 29.500 [4].
+6.3.3.4	HTTP multipart messages
+HTTP multipart messages shall be supported, to transfer binary key (X.509 certificate and/or certficate chain) in the following service operations (and HTTP messages):
+-	Retrieve Key Request (POST)
+HTTP multipart messages shall include one JSON body part and one or more binary body parts comprising:
+-	X.509 certificate, and/or certificate chain, as specified in clause 6.3.5.5.
+The JSON body part shall be the "root" body part of the multipart message. It shall be encoded as the first body part of the multipart message. The "Start" parameter does not need to be included.
+The multipart message shall include a "type" parameter (see IETF RFC 2387 [60]) specifying the media type of the root body part, i.e. "application/json".
+NOTE:	The "root" body part (or "root" object) is the first body part the application processes when receiving a multipart/related message, see IETF RFC 2387 [60]. The default root is the first body within the multipart/related message. The "Start" parameter indicates the root body part, e.g. when this is not the first body part in the message.
+For each binary body part in a HTTP multipart message, the binary body part shall include a Content-ID header (see IETF RFC 2045 [61]), and the JSON body part shall include an attribute, defined with the RefToBinaryData type, that contains the value of the Content-ID header field of the referenced binary body part.

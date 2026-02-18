@@ -1,0 +1,23 @@
+5.1	Introduction
+The NRF offers to other NFs the following services:
+-	Nnrf_NFManagement
+-	Nnrf_NFDiscovery
+-	Nnrf_AccessToken (OAuth2 Authorization)
+-	Nnrf_Bootstrapping
+Table 5.1-1 summarizes the corresponding APIs defined for this specification.
+Table 5.1-1: API Descriptions
+
+Service Name	Clause	Description	OpenAPI Specification File	apiName	Annex
+Nnrf_NFManagement	6.1	NRF NFManagement Service	TS29510_Nnrf_NFManagement.yaml	nnrf-nfm	A.2
+Nnrf_NFDiscovery	6.2	NRF NFDiscovery Service	TS29510_Nnrf_NFDiscovery.yaml	nnrf-disc	A.3
+Nnrf_AccessToken	6.3	NRF OAuth2 Authorization	TS29510_Nnrf_AccessToken.yaml		A.4
+Nnrf_Bootstrapping	6.4	NRF Bootstrapping	TS29510_Nnrf_Bootstrapping.yaml		A.5
+
+
+NRF provides services to the following SNPN scenarios (see clauses 4.17.4a, 4.17.5a, 5.2.7.2 and 5.2.7.3 in 3GPP TS 23.502 [3]):
+-	In a SNPN where roaming is not supported, which corresponds to the NRF services in the same PLMN;
+-	In the case of UE access to SNPN using credentials from Credentials Holder with AAA-S, which corresponds to the NRF services in the same PLMN;
+-	In the case of UE access to SNPN using credentials from Credentials Holder with AUSF and UDM, which corresponds to the NRF services across different PLMNs;
+-	In the case of Onboarding of UEs for SNPNs without using Default Credentials Server, which corresponds to the NRF services in the same PLMN;
+-	In the case of Onboarding of UEs for SNPNs using Default Credentials Server with AAA-S, which corresponds to the NRF services in the same PLMN;
+-	In the case of Onboarding of UEs for SNPNs using Default Credentials Server with AUSF and UDM, which corresponds to the NRF services across different PLMNs.
