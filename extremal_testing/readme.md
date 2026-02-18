@@ -2,9 +2,9 @@
 - generate operations' metadata
     - Input is from /spec_segment/section_{xx}.txt
     - Original spec is in /spec/1.docx
-
-- generate constrains
-    - Use SYSTEM_PROMPT_2 and /spec_segment/section_6_4_6.txt
+# ./generate_input_format.py
+- generate constraints for "NFRegister"
+    - Use SYSTEM_PROMPT_2 and /spec_segment/section_6_4_6.txt to generate the code and then run it to generate the constaints format
 
 # ./input_format
 - AllOpsMetaData.json: operations' metadata, used to construct uri for final extremal testing.
