@@ -1,0 +1,352 @@
+[
+  {
+    "test_case_index": 0,
+    "test_name": "Empty subscription body missing nfStatusNotificationUri",
+    "operation": "NFStatusSubscribe",
+    "constraint": "The request body MUST be present and MUST conform to the SubscriptionData schema.",
+    "status_code": 400,
+    "status_message": "Bad Request",
+    "response_body": "{\"title\":\"Malformed request syntax\",\"status\":400,\"detail\":\"[Request Body] unexpected end of JSON input\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 1,
+    "test_name": "Missing required nfStatusNotificationUri in subscription request",
+    "operation": "NFStatusSubscribe",
+    "constraint": "The nfStatusNotificationUri property is required in the SubscriptionData request body.",
+    "status_code": 201,
+    "status_message": "Created",
+    "response_body": "{\"nfStatusNotificationUri\":\"\",\"reqNfInstanceId\":\"550e8400-e29b-41d4-a716-446655440001\",\"reqNfType\":\"AMF\",\"reqNotifEvents\":[\"NF_REGISTERED\"],\"subscriptionId\":\"278ad431888130e4de034d92de801ca0\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 2,
+    "test_name": "Subscription creation with non-JSON Content-Type",
+    "operation": "NFStatusSubscribe",
+    "constraint": "The request body content type for the subscription creation MUST be application/json.",
+    "status_code": 400,
+    "status_message": "Bad Request",
+    "response_body": "{\"title\":\"Malformed request syntax\",\"status\":400,\"detail\":\"[Request Body] json: cannot unmarshal string into Go value of type models.NrfNfManagementSubscriptionData\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 3,
+    "test_name": "sharedDataIds present but empty array",
+    "operation": "NFStatusSubscribe",
+    "constraint": "If sharedDataIds is present, it MUST be an array containing at least 1 item.",
+    "status_code": 201,
+    "status_message": "Created",
+    "response_body": "{\"nfStatusNotificationUri\":\"https://consumer.example.com/nf-status\",\"subscriptionId\":\"efe04e34b2fd40252c3a9f975fb2f4cf\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 4,
+    "test_name": "SubscriptionId contains hyphen in final segment (invalid pattern)",
+    "operation": "NFStatusSubscribe",
+    "constraint": "The subscriptionId property, when present, MUST match the regular expression '^([0-9]{5,6}-(x3Lf57A:nid=[A-Fa-f0-9]{11}:)?)?[^-]+$'.",
+    "status_code": 201,
+    "status_message": "Created",
+    "response_body": "{\"nfStatusNotificationUri\":\"https://client.example.com/nf-status\",\"reqNfType\":\"NRF\",\"subscriptionId\":\"38b98c4b285f15564aac1d6c25df0166\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 5,
+    "test_name": "Client provides readOnly subscriptionId in request",
+    "operation": "NFStatusSubscribe",
+    "constraint": "The subscriptionId property is readOnly and must not be provided by the client in the request.",
+    "status_code": 201,
+    "status_message": "Created",
+    "response_body": "{\"nfStatusNotificationUri\":\"https://consumer.example.com/nf-status\",\"subscriptionId\":\"912a176188debde0ae56918ad367ee1c\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 6,
+    "test_name": "reqNotifEvents contains invalid enum value",
+    "operation": "NFStatusSubscribe",
+    "constraint": "If reqNotifEvents is present, it MUST be an array and MUST contain at least 1 item, each item being one of the NotificationEventType enum values (e.g. NF_REGISTERED, NF_DEREGISTERED, NF_PROFILE_CHANGED, SHARED_DATA_CHANGED).",
+    "status_code": 201,
+    "status_message": "Created",
+    "response_body": "{\"nfStatusNotificationUri\":\"https://consumer.example.com/nf-status\",\"reqNotifEvents\":[\"INVALID_EVENT\"],\"subscriptionId\":\"8db901ce989aaf572e2d8094657a2820\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 7,
+    "test_name": "reqSnssais present but empty array",
+    "operation": "NFStatusSubscribe",
+    "constraint": "If reqSnssais is present, it MUST be an array containing at least 1 ExtSnssai item.",
+    "status_code": 201,
+    "status_message": "Created",
+    "response_body": "{\"nfStatusNotificationUri\":\"https://consumer.example/notifications\",\"subscriptionId\":\"f726817808cc53693d9c4e00df1a0cbf\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 8,
+    "test_name": "reqPerPlmnSnssais present but empty array",
+    "operation": "NFStatusSubscribe",
+    "constraint": "If reqPerPlmnSnssais is present, it MUST be an array containing at least 1 PlmnSnssai item.",
+    "status_code": 201,
+    "status_message": "Created",
+    "response_body": "{\"nfStatusNotificationUri\":\"https://client.example.com/notify\",\"reqNfType\":\"NRF\",\"subscriptionId\":\"2c3be268efdcbf6ce6ef49abfab6dc62\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 9,
+    "test_name": "reqPlmnList present but empty array",
+    "operation": "NFStatusSubscribe",
+    "constraint": "If reqPlmnList is present, it MUST be an array containing at least 1 PlmnId item.",
+    "status_code": 201,
+    "status_message": "Created",
+    "response_body": "{\"nfStatusNotificationUri\":\"https://example.consumer/notifications\",\"subscriptionId\":\"f2605ff6aa191423659cca149c552bd5\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 10,
+    "test_name": "reqSnpnList present but empty array",
+    "operation": "NFStatusSubscribe",
+    "constraint": "If reqSnpnList is present, it MUST be an array containing at least 1 PlmnIdNid item.",
+    "status_code": 201,
+    "status_message": "Created",
+    "response_body": "{\"nfStatusNotificationUri\":\"https://notify.receiver.example/nfstatus\",\"subscriptionId\":\"a1a75b28fee91d963009e9061b6559a0\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 11,
+    "test_name": "servingScope present as empty array",
+    "operation": "NFStatusSubscribe",
+    "constraint": "If servingScope is present, it MUST be an array containing at least 1 string item.",
+    "status_code": 201,
+    "status_message": "Created",
+    "response_body": "{\"nfStatusNotificationUri\":\"https://subscriber.example.com/notify\",\"subscriptionId\":\"4dfd7354747ca808ba215f74bdf3be4f\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 12,
+    "test_name": "Invalid requesterFeatures type in subscription request",
+    "operation": "NFStatusSubscribe",
+    "constraint": "The requesterFeatures property is writeOnly and is defined by the SupportedFeatures schema, meaning it can be provided by the client in the request (but will not be returned in read responses).",
+    "status_code": 400,
+    "status_message": "Bad Request",
+    "response_body": "{\"title\":\"Malformed request syntax\",\"status\":400,\"detail\":\"[Request Body] json: cannot unmarshal number into Go struct field NrfNfManagementSubscriptionData.requesterFeatures of type string\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 13,
+    "test_name": "Client supplies readOnly nrfSupportedFeatures in subscription",
+    "operation": "NFStatusSubscribe",
+    "constraint": "The nrfSupportedFeatures property is readOnly and is defined by the SupportedFeatures schema, meaning it is provided by the server (not by the client in the request).",
+    "status_code": 400,
+    "status_message": "Bad Request",
+    "response_body": "{\"title\":\"Malformed request syntax\",\"status\":400,\"detail\":\"[Request Body] json: cannot unmarshal object into Go struct field NrfNfManagementSubscriptionData.nrfSupportedFeatures of type string\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 14,
+    "test_name": "extPreferredLocality with empty array property",
+    "operation": "NFStatusSubscribe",
+    "constraint": "extPreferredLocality, when present, MUST be an object containing at least one property; each property value MUST be an array of LocalityDescription items and each such array MUST contain at least 1 item.",
+    "status_code": 201,
+    "status_message": "Created",
+    "response_body": "{\"nfStatusNotificationUri\":\"https://consumer.example.com/notify\",\"reqNfType\":\"NRF\",\"subscriptionId\":\"5c40e63c0eeff153d51edb392b5773df\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 15,
+    "test_name": "completeProfileSubscription non-boolean value",
+    "operation": "NFStatusSubscribe",
+    "constraint": "completeProfileSubscription MUST be a boolean value.",
+    "status_code": 201,
+    "status_message": "Created",
+    "response_body": "{\"nfStatusNotificationUri\":\"https://subscriber.example.org/notify\",\"subscriptionId\":\"b14ec1120ae7d55b4aaad4e282ad3946\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 16,
+    "test_name": "subscrCond with invalid type (not matching any SubscrCond variant)",
+    "operation": "NFStatusSubscribe",
+    "constraint": "subscrCond, if present, MUST conform to one of the SubscrCond variants (oneOf): NfInstanceIdCond, NfInstanceIdListCond, NfTypeCond, ServiceNameCond, ServiceNameListCond, AmfCond, GuamiListCond, NetworkSliceCond, NfGroupCond, NfGroupListCond, NfSetCond, NfServiceSetCond, UpfCond, ScpDomainCond, NwdafCond, NefCond, or DccfCond.",
+    "status_code": 400,
+    "status_message": "Bad Request",
+    "response_body": "{\"title\":\"Malformed request syntax\",\"status\":400,\"detail\":\"[Request Body] json: cannot unmarshal string into Go struct field NrfNfManagementSubscriptionData.subscrCond of type models.SubscrCond\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 17,
+    "test_name": "Subscription with NfInstanceIdCond missing nfInstanceId",
+    "operation": "NFStatusSubscribe",
+    "constraint": "If subscrCond is NfInstanceIdCond, the nfInstanceId property is required.",
+    "status_code": 201,
+    "status_message": "Created",
+    "response_body": "{\"nfStatusNotificationUri\":\"https://consumer.example.com/nf-status\",\"subscrCond\":{\"conditionType\":\"\",\"guamiList\":null,\"nfGroupId\":\"\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":null},\"subscriptionId\":\"691ab615493688b2e9cf208c877c3629\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 18,
+    "test_name": "Subscription with NfInstanceIdListCond but empty nfInstanceIdList",
+    "operation": "NFStatusSubscribe",
+    "constraint": "If subscrCond is NfInstanceIdListCond, the nfInstanceIdList property is required and it MUST contain at least 1 item.",
+    "status_code": 201,
+    "status_message": "Created",
+    "response_body": "{\"nfStatusNotificationUri\":\"https://client.example.com/notify\",\"subscrCond\":{\"conditionType\":\"\",\"guamiList\":null,\"nfGroupId\":\"\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":null},\"subscriptionId\":\"800e257dfffc813bb769270b088de242\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 19,
+    "test_name": "Subscription with NfTypeCond including forbidden nfGroupId",
+    "operation": "NFStatusSubscribe",
+    "constraint": "If subscrCond is NfTypeCond, the nfType property is required and the presence of nfGroupId (or the pair conditionType + nfGroupIdList) is explicitly prohibited.",
+    "status_code": 201,
+    "status_message": "Created",
+    "response_body": "{\"nfStatusNotificationUri\":\"https://consumer.example.com/notify\",\"subscrCond\":{\"conditionType\":\"NfTypeCond\",\"guamiList\":null,\"nfGroupId\":\"forbidden-group-1\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"AMF\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":null},\"subscriptionId\":\"cc0b5718b3364a0a2ed1ac23325288f7\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 20,
+    "test_name": "Subscription missing serviceName when subscrCond is ServiceNameCond",
+    "operation": "NFStatusSubscribe",
+    "constraint": "If subscrCond is ServiceNameCond, the serviceName property is required.",
+    "status_code": 201,
+    "status_message": "Created",
+    "response_body": "{\"nfStatusNotificationUri\":\"https://client.example.com/nf-status-callback\",\"subscrCond\":{\"conditionType\":\"\",\"guamiList\":null,\"nfGroupId\":\"\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":null},\"subscriptionId\":\"a27a39e88b7dbe3bd790b74ac0b858c5\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 21,
+    "test_name": "Subscription with empty serviceNameList for ServiceNameListCond",
+    "operation": "NFStatusSubscribe",
+    "constraint": "If subscrCond is ServiceNameListCond, both conditionType and serviceNameList properties are required and conditionType MUST have the value 'SERVICE_NAME_LIST_COND', and serviceNameList MUST contain at least 1 item.",
+    "status_code": 201,
+    "status_message": "Created",
+    "response_body": "{\"nfStatusNotificationUri\":\"https://consumer.example.com/nf-status\",\"subscrCond\":{\"conditionType\":\"SERVICE_NAME_LIST_COND\",\"guamiList\":null,\"nfGroupId\":\"\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":[],\"snssaiList\":null},\"subscriptionId\":\"973153ae3ce26a3b87b148d8ec262dca\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 22,
+    "test_name": "Subscription with AmfCond but missing amfSetId and amfRegionId",
+    "operation": "NFStatusSubscribe",
+    "constraint": "If subscrCond is AmfCond, at least one of amfSetId or amfRegionId MUST be present.",
+    "status_code": 201,
+    "status_message": "Created",
+    "response_body": "{\"nfStatusNotificationUri\":\"https://consumer.example.com/nrf-status-callback\",\"subscrCond\":{\"conditionType\":\"\",\"guamiList\":null,\"nfGroupId\":\"\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":null},\"subscriptionId\":\"f6751fd3dfb8f2325f62de0c151e63b3\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 23,
+    "test_name": "SubscrCond GuamiListCond with empty guamiList",
+    "operation": "NFStatusSubscribe",
+    "constraint": "If subscrCond is GuamiListCond, guamiList is required and it MUST contain at least 1 item.",
+    "status_code": 201,
+    "status_message": "Created",
+    "response_body": "{\"nfStatusNotificationUri\":\"https://consumer.example.org/notify\",\"subscrCond\":{\"conditionType\":\"\",\"guamiList\":null,\"nfGroupId\":\"\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":null},\"subscriptionId\":\"4b846750876c5c7c0a3080c17edebaf1\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 24,
+    "test_name": "NetworkSliceCond with empty snssaiList",
+    "operation": "NFStatusSubscribe",
+    "constraint": "If subscrCond is NetworkSliceCond, snssaiList is required and it MUST contain at least 1 item; if nsiList is present it MUST contain at least 1 item.",
+    "status_code": 201,
+    "status_message": "Created",
+    "response_body": "{\"nfStatusNotificationUri\":\"https://consumer.example.org/nf-status\",\"subscrCond\":{\"conditionType\":\"\",\"guamiList\":null,\"nfGroupId\":\"\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":[]},\"subscriptionId\":\"804d4f382f48d9a826c3896e25ae68e3\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 25,
+    "test_name": "Subscription with NfGroupCond using invalid nfType value",
+    "operation": "NFStatusSubscribe",
+    "constraint": "If subscrCond is NfGroupCond, both nfType and nfGroupId are required and nfType is restricted to the enum [UDM, AUSF, UDR, PCF, CHF, HSS, BSF, UDSF].",
+    "status_code": 201,
+    "status_message": "Created",
+    "response_body": "{\"nfStatusNotificationUri\":\"https://consumer.example.org/notify\",\"subscrCond\":{\"conditionType\":\"\",\"guamiList\":null,\"nfGroupId\":\"group-1\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"AMF\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":null},\"subscriptionId\":\"dfc46c6d6c199abaad7cd9218b896d21\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 26,
+    "test_name": "subscrCond NfGroupListCond with invalid conditionType and empty nfGroupIdList",
+    "operation": "NFStatusSubscribe",
+    "constraint": "If subscrCond is NfGroupListCond, conditionType, nfType and nfGroupIdList are required and conditionType MUST have the value 'NF_GROUP_LIST_COND' and nfGroupIdList MUST contain at least 1 item.",
+    "status_code": 201,
+    "status_message": "Created",
+    "response_body": "{\"nfStatusNotificationUri\":\"https://subscriber.example.com/nf-status\",\"subscrCond\":{\"conditionType\":\"WRONG_COND_TYPE\",\"guamiList\":null,\"nfGroupId\":\"\",\"nfGroupIdList\":[],\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"AMF\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":null},\"subscriptionId\":\"aef770988024427f418b3762ae00b0bf\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 27,
+    "test_name": "Missing nfSetId when subscrCond is NfSetCond",
+    "operation": "NFStatusSubscribe",
+    "constraint": "If subscrCond is NfSetCond, nfSetId is required.",
+    "status_code": 201,
+    "status_message": "Created",
+    "response_body": "{\"nfStatusNotificationUri\":\"https://callback.example.com/nfstatus\",\"subscrCond\":{\"conditionType\":\"\",\"guamiList\":null,\"nfGroupId\":\"\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":null},\"subscriptionId\":\"2a2f750d61dcc9cddcb19668c203f7d0\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 28,
+    "test_name": "Subscribe with NfServiceSetCond but missing nfServiceSetId",
+    "operation": "NFStatusSubscribe",
+    "constraint": "If subscrCond is NfServiceSetCond, nfServiceSetId is required.",
+    "status_code": 201,
+    "status_message": "Created",
+    "response_body": "{\"nfStatusNotificationUri\":\"https://client.example.com/nf-status-callback\",\"subscrCond\":{\"conditionType\":\"\",\"guamiList\":null,\"nfGroupId\":\"\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":null},\"subscriptionId\":\"7a54b7bfd203529b2f5852f6ee954830\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 29,
+    "test_name": "subscrCond UpfCond with incorrect conditionType",
+    "operation": "NFStatusSubscribe",
+    "constraint": "If subscrCond is UpfCond, conditionType is required and MUST equal 'UPF_COND'.",
+    "status_code": 201,
+    "status_message": "Created",
+    "response_body": "{\"nfStatusNotificationUri\":\"https://client.example.com/notify\",\"reqNfType\":\"NRF\",\"subscrCond\":{\"conditionType\":\"INVALID_VALUE\",\"guamiList\":null,\"nfGroupId\":\"\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":null},\"subscriptionId\":\"e225e73c464335f1e80a6f5b10c1fe9a\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 30,
+    "test_name": "SubscrCond NwdafCond with incorrect conditionType",
+    "operation": "NFStatusSubscribe",
+    "constraint": "If subscrCond is NwdafCond, conditionType is required and MUST equal 'NWDAF_COND'.",
+    "status_code": 201,
+    "status_message": "Created",
+    "response_body": "{\"nfStatusNotificationUri\":\"https://consumer.example/notify\",\"subscrCond\":{\"conditionType\":\"INVALID_COND\",\"guamiList\":null,\"nfGroupId\":\"\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":null},\"subscriptionId\":\"dc30dc914857b3c9691cbb06eb0cd4bd\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 31,
+    "test_name": "subscrCond NefCond with incorrect conditionType",
+    "operation": "NFStatusSubscribe",
+    "constraint": "If subscrCond is NefCond, conditionType is required and MUST equal 'NEF_COND'.",
+    "status_code": 201,
+    "status_message": "Created",
+    "response_body": "{\"nfStatusNotificationUri\":\"https://consumer.example/notify\",\"reqNfType\":\"NRF\",\"subscrCond\":{\"conditionType\":\"INVALID_COND\",\"guamiList\":null,\"nfGroupId\":\"\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":null},\"subscriptionId\":\"5b756226e9db891999a5bbb32d79de8e\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 32,
+    "test_name": "SubscrCond DccfCond missing required conditionType",
+    "operation": "NFStatusSubscribe",
+    "constraint": "If subscrCond is DccfCond, conditionType is required and MUST equal 'DCCF_COND'.",
+    "status_code": 201,
+    "status_message": "Created",
+    "response_body": "{\"nfStatusNotificationUri\":\"https://consumer.example/notify\",\"subscrCond\":{\"conditionType\":\"\",\"guamiList\":null,\"nfGroupId\":\"\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":null},\"subscriptionId\":\"7e1c83cf16eef411eda4ccae03cbdf4a\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 33,
+    "test_name": "notifCondition contains both monitoredAttributes and unmonitoredAttributes",
+    "operation": "NFStatusSubscribe",
+    "constraint": "notifCondition, if present, MUST NOT contain both monitoredAttributes and unmonitoredAttributes at the same time (the schema disallows both being present simultaneously).",
+    "status_code": 201,
+    "status_message": "Created",
+    "response_body": "{\"nfStatusNotificationUri\":\"https://example.com/notify\",\"notifCondition\":{\"monitoredAttributes\":[\"nfProfile\",\"nfLoad\"],\"unmonitoredAttributes\":[\"nfInstanceId\"]},\"subscriptionId\":\"694e9f4402a8e4b863ce36356ff88803\"}",
+    "error": null
+  },
+  {
+    "test_case_index": 34,
+    "test_name": "Subscription with non-HTTP callback URI (mailto)",
+    "operation": "NFStatusSubscribe",
+    "constraint": "The nfStatusNotificationUri value provided in the request body is used as the callback endpoint for notifications (the callback definition uses '{$request.body#/nfStatusNotificationUri}' as the callback URI to POST NotificationData).",
+    "status_code": 201,
+    "status_message": "Created",
+    "response_body": "{\"nfStatusNotificationUri\":\"mailto:alerts@example.com\",\"subscriptionId\":\"3e203722e3f8c958f6afa3491f2017ba\"}",
+    "error": null
+  }
+]

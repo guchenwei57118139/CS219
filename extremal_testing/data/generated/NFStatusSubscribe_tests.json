@@ -1,0 +1,1119 @@
+[
+  {
+    "name": "Empty subscription body missing nfStatusNotificationUri",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {}
+    },
+    "violated_constraints": [
+      "The request body MUST be present and MUST conform to the SubscriptionData schema."
+    ]
+  },
+  {
+    "name": "Missing required nfStatusNotificationUri in subscription request",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "reqNfType": "AMF",
+        "reqNfInstanceId": "550e8400-e29b-41d4-a716-446655440001",
+        "reqNotifEvents": [
+          "NF_REGISTERED"
+        ]
+      }
+    },
+    "violated_constraints": [
+      "The nfStatusNotificationUri property is required in the SubscriptionData request body."
+    ]
+  },
+  {
+    "name": "Subscription creation with non-JSON Content-Type",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/nnrf-nfm/v1/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/xml"
+      },
+      "request_body": "<SubscriptionData><nfStatusNotificationUri>https://client.example.com/notify</nfStatusNotificationUri></SubscriptionData>"
+    },
+    "violated_constraints": [
+      "The request body content type for the subscription creation MUST be application/json."
+    ]
+  },
+  {
+    "name": "sharedDataIds present but empty array",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/nnrf-nfm/v1/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://consumer.example.com/nf-status",
+        "sharedDataIds": []
+      }
+    },
+    "violated_constraints": [
+      "If sharedDataIds is present, it MUST be an array containing at least 1 item."
+    ]
+  },
+  {
+    "name": "SubscriptionId contains hyphen in final segment (invalid pattern)",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/nnrf-nfm/v1/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://client.example.com/nf-status",
+        "subscriptionId": "sub-id-with-hyphen",
+        "reqNfType": "NRF"
+      }
+    },
+    "violated_constraints": [
+      "The subscriptionId property, when present, MUST match the regular expression '^([0-9]{5,6}-(x3Lf57A:nid=[A-Fa-f0-9]{11}:)?)?[^-]+$'."
+    ]
+  },
+  {
+    "name": "Client provides readOnly subscriptionId in request",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/nnrf-nfm/v1/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://consumer.example.com/nf-status",
+        "subscriptionId": "sub12345"
+      }
+    },
+    "violated_constraints": [
+      "The subscriptionId property is readOnly and must not be provided by the client in the request."
+    ]
+  },
+  {
+    "name": "reqNotifEvents contains invalid enum value",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/nnrf-nfm/v1/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://consumer.example.com/nf-status",
+        "reqNotifEvents": [
+          "INVALID_EVENT"
+        ]
+      }
+    },
+    "violated_constraints": [
+      "If reqNotifEvents is present, it MUST be an array and MUST contain at least 1 item, each item being one of the NotificationEventType enum values (e.g. NF_REGISTERED, NF_DEREGISTERED, NF_PROFILE_CHANGED, SHARED_DATA_CHANGED)."
+    ]
+  },
+  {
+    "name": "reqSnssais present but empty array",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/nnrf-nfm/v1/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://consumer.example/notifications",
+        "reqSnssais": []
+      }
+    },
+    "violated_constraints": [
+      "If reqSnssais is present, it MUST be an array containing at least 1 ExtSnssai item."
+    ]
+  },
+  {
+    "name": "reqPerPlmnSnssais present but empty array",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/nnrf-nfm/v1/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://client.example.com/notify",
+        "reqNfType": "NRF",
+        "reqPerPlmnSnssais": []
+      }
+    },
+    "violated_constraints": [
+      "If reqPerPlmnSnssais is present, it MUST be an array containing at least 1 PlmnSnssai item."
+    ]
+  },
+  {
+    "name": "reqPlmnList present but empty array",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/nnrf-nfm/v1/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://example.consumer/notifications",
+        "reqPlmnList": []
+      }
+    },
+    "violated_constraints": [
+      "If reqPlmnList is present, it MUST be an array containing at least 1 PlmnId item."
+    ]
+  },
+  {
+    "name": "reqSnpnList present but empty array",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://notify.receiver.example/nfstatus",
+        "reqSnpnList": []
+      }
+    },
+    "violated_constraints": [
+      "If reqSnpnList is present, it MUST be an array containing at least 1 PlmnIdNid item."
+    ]
+  },
+  {
+    "name": "servingScope present as empty array",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://subscriber.example.com/notify",
+        "servingScope": []
+      }
+    },
+    "violated_constraints": [
+      "If servingScope is present, it MUST be an array containing at least 1 string item."
+    ]
+  },
+  {
+    "name": "Invalid requesterFeatures type in subscription request",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://client.example.com/notify",
+        "requesterFeatures": 12345
+      }
+    },
+    "violated_constraints": [
+      "The requesterFeatures property is writeOnly and is defined by the SupportedFeatures schema, meaning it can be provided by the client in the request (but will not be returned in read responses)."
+    ]
+  },
+  {
+    "name": "Client supplies readOnly nrfSupportedFeatures in subscription",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/nnrf-nfm/v1/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://consumer.example.com/notifications",
+        "nrfSupportedFeatures": {
+          "supportedFeatureList": "abcd1234"
+        }
+      }
+    },
+    "violated_constraints": [
+      "The nrfSupportedFeatures property is readOnly and is defined by the SupportedFeatures schema, meaning it is provided by the server (not by the client in the request)."
+    ]
+  },
+  {
+    "name": "extPreferredLocality with empty array property",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/nnrf-nfm/v1/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://consumer.example.com/notify",
+        "reqNfType": "NRF",
+        "extPreferredLocality": {
+          "regionA": []
+        }
+      }
+    },
+    "violated_constraints": [
+      "extPreferredLocality, when present, MUST be an object containing at least one property; each property value MUST be an array of LocalityDescription items and each such array MUST contain at least 1 item."
+    ]
+  },
+  {
+    "name": "completeProfileSubscription non-boolean value",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://subscriber.example.org/notify",
+        "completeProfileSubscription": "not-a-boolean"
+      }
+    },
+    "violated_constraints": [
+      "completeProfileSubscription MUST be a boolean value."
+    ]
+  },
+  {
+    "name": "subscrCond with invalid type (not matching any SubscrCond variant)",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/nnrf-nfm/v1/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://consumer.example.com/nf-status",
+        "subscrCond": "this-should-be-an-object-not-a-string"
+      }
+    },
+    "violated_constraints": [
+      "subscrCond, if present, MUST conform to one of the SubscrCond variants (oneOf): NfInstanceIdCond, NfInstanceIdListCond, NfTypeCond, ServiceNameCond, ServiceNameListCond, AmfCond, GuamiListCond, NetworkSliceCond, NfGroupCond, NfGroupListCond, NfSetCond, NfServiceSetCond, UpfCond, ScpDomainCond, NwdafCond, NefCond, or DccfCond."
+    ]
+  },
+  {
+    "name": "Subscription with NfInstanceIdCond missing nfInstanceId",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://consumer.example.com/nf-status",
+        "subscrCond": {
+          "condType": "NfInstanceIdCond"
+        }
+      }
+    },
+    "violated_constraints": [
+      "If subscrCond is NfInstanceIdCond, the nfInstanceId property is required."
+    ]
+  },
+  {
+    "name": "Subscription with NfInstanceIdListCond but empty nfInstanceIdList",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://client.example.com/notify",
+        "subscrCond": {
+          "NfInstanceIdListCond": {
+            "nfInstanceIdList": []
+          }
+        }
+      }
+    },
+    "violated_constraints": [
+      "If subscrCond is NfInstanceIdListCond, the nfInstanceIdList property is required and it MUST contain at least 1 item."
+    ]
+  },
+  {
+    "name": "Subscription with NfTypeCond including forbidden nfGroupId",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/nnrf-nfm/v1/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://consumer.example.com/notify",
+        "subscrCond": {
+          "conditionType": "NfTypeCond",
+          "nfType": "AMF",
+          "nfGroupId": "forbidden-group-1"
+        }
+      }
+    },
+    "violated_constraints": [
+      "If subscrCond is NfTypeCond, the nfType property is required and the presence of nfGroupId (or the pair conditionType + nfGroupIdList) is explicitly prohibited."
+    ]
+  },
+  {
+    "name": "Subscription missing serviceName when subscrCond is ServiceNameCond",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://client.example.com/nf-status-callback",
+        "subscrCond": {
+          "condType": "ServiceNameCond"
+        }
+      }
+    },
+    "violated_constraints": [
+      "If subscrCond is ServiceNameCond, the serviceName property is required."
+    ]
+  },
+  {
+    "name": "Subscription with empty serviceNameList for ServiceNameListCond",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://consumer.example.com/nf-status",
+        "subscrCond": {
+          "conditionType": "SERVICE_NAME_LIST_COND",
+          "serviceNameList": []
+        }
+      }
+    },
+    "violated_constraints": [
+      "If subscrCond is ServiceNameListCond, both conditionType and serviceNameList properties are required and conditionType MUST have the value 'SERVICE_NAME_LIST_COND', and serviceNameList MUST contain at least 1 item."
+    ]
+  },
+  {
+    "name": "Subscription with AmfCond but missing amfSetId and amfRegionId",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://consumer.example.com/nrf-status-callback",
+        "subscrCond": {
+          "amfCond": {}
+        }
+      }
+    },
+    "violated_constraints": [
+      "If subscrCond is AmfCond, at least one of amfSetId or amfRegionId MUST be present."
+    ]
+  },
+  {
+    "name": "SubscrCond GuamiListCond with empty guamiList",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/nnrf-nfm/v1/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://consumer.example.org/notify",
+        "subscrCond": {
+          "guamiListCond": {
+            "guamiList": []
+          }
+        }
+      }
+    },
+    "violated_constraints": [
+      "If subscrCond is GuamiListCond, guamiList is required and it MUST contain at least 1 item."
+    ]
+  },
+  {
+    "name": "NetworkSliceCond with empty snssaiList",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://consumer.example.org/nf-status",
+        "subscrCond": {
+          "snssaiList": []
+        }
+      }
+    },
+    "violated_constraints": [
+      "If subscrCond is NetworkSliceCond, snssaiList is required and it MUST contain at least 1 item; if nsiList is present it MUST contain at least 1 item."
+    ]
+  },
+  {
+    "name": "Subscription with NfGroupCond using invalid nfType value",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/nnrf-nfm/v1/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://consumer.example.org/notify",
+        "subscrCond": {
+          "type": "NfGroupCond",
+          "nfType": "AMF",
+          "nfGroupId": "group-1"
+        }
+      }
+    },
+    "violated_constraints": [
+      "If subscrCond is NfGroupCond, both nfType and nfGroupId are required and nfType is restricted to the enum [UDM, AUSF, UDR, PCF, CHF, HSS, BSF, UDSF]."
+    ]
+  },
+  {
+    "name": "subscrCond NfGroupListCond with invalid conditionType and empty nfGroupIdList",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://subscriber.example.com/nf-status",
+        "subscrCond": {
+          "conditionType": "WRONG_COND_TYPE",
+          "nfType": "AMF",
+          "nfGroupIdList": []
+        }
+      }
+    },
+    "violated_constraints": [
+      "If subscrCond is NfGroupListCond, conditionType, nfType and nfGroupIdList are required and conditionType MUST have the value 'NF_GROUP_LIST_COND' and nfGroupIdList MUST contain at least 1 item."
+    ]
+  },
+  {
+    "name": "Missing nfSetId when subscrCond is NfSetCond",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://callback.example.com/nfstatus",
+        "subscrCond": {
+          "nfSetCond": {}
+        }
+      }
+    },
+    "violated_constraints": [
+      "If subscrCond is NfSetCond, nfSetId is required."
+    ]
+  },
+  {
+    "name": "Subscribe with NfServiceSetCond but missing nfServiceSetId",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://client.example.com/nf-status-callback",
+        "subscrCond": {
+          "type": "NfServiceSetCond"
+        }
+      }
+    },
+    "violated_constraints": [
+      "If subscrCond is NfServiceSetCond, nfServiceSetId is required."
+    ]
+  },
+  {
+    "name": "subscrCond UpfCond with incorrect conditionType",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/nnrf-nfm/v1/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://client.example.com/notify",
+        "reqNfType": "NRF",
+        "subscrCond": {
+          "upfInfo": {
+            "upfId": "upf-12345"
+          },
+          "conditionType": "INVALID_VALUE"
+        }
+      }
+    },
+    "violated_constraints": [
+      "If subscrCond is UpfCond, conditionType is required and MUST equal 'UPF_COND'."
+    ]
+  },
+  {
+    "name": "SubscrCond NwdafCond with incorrect conditionType",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/nnrf-nfm/v1/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://consumer.example/notify",
+        "subscrCond": {
+          "conditionType": "INVALID_COND",
+          "nwdafInfo": {
+            "eventFilter": "trafficVolume"
+          }
+        }
+      }
+    },
+    "violated_constraints": [
+      "If subscrCond is NwdafCond, conditionType is required and MUST equal 'NWDAF_COND'."
+    ]
+  },
+  {
+    "name": "subscrCond NefCond with incorrect conditionType",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://consumer.example/notify",
+        "subscrCond": {
+          "nefCond": {
+            "someNefField": "someValue"
+          },
+          "conditionType": "INVALID_COND"
+        },
+        "reqNfType": "NRF"
+      }
+    },
+    "violated_constraints": [
+      "If subscrCond is NefCond, conditionType is required and MUST equal 'NEF_COND'."
+    ]
+  },
+  {
+    "name": "SubscrCond DccfCond missing required conditionType",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://consumer.example/notify",
+        "subscrCond": {
+          "dccfCond": {}
+        }
+      }
+    },
+    "violated_constraints": [
+      "If subscrCond is DccfCond, conditionType is required and MUST equal 'DCCF_COND'."
+    ]
+  },
+  {
+    "name": "notifCondition contains both monitoredAttributes and unmonitoredAttributes",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/nnrf-nfm/v1/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "https://example.com/notify",
+        "notifCondition": {
+          "monitoredAttributes": [
+            "nfProfile",
+            "nfLoad"
+          ],
+          "unmonitoredAttributes": [
+            "nfInstanceId"
+          ]
+        }
+      }
+    },
+    "violated_constraints": [
+      "notifCondition, if present, MUST NOT contain both monitoredAttributes and unmonitoredAttributes at the same time (the schema disallows both being present simultaneously)."
+    ]
+  },
+  {
+    "name": "Subscription with non-HTTP callback URI (mailto)",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfStatusNotificationUri": "mailto:alerts@example.com"
+      }
+    },
+    "violated_constraints": [
+      "The nfStatusNotificationUri value provided in the request body is used as the callback endpoint for notifications (the callback definition uses '{$request.body#/nfStatusNotificationUri}' as the callback URI to POST NotificationData)."
+    ]
+  }
+]
