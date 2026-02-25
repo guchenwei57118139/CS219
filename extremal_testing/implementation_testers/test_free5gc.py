@@ -84,41 +84,6 @@ def check_nrf_health(base_url: str) -> bool:
             return False
 
 
-def reset_nrf_state(base_url: str, headers: Dict[str, str]) -> None:
-    """Reset the NRF state by deregistering all NF instances."""
-    try:
-        list_url = base_url.rstrip('/') + '/nf-instances'
-        response = requests.get(list_url, headers=headers, timeout=10)
-        
-        if response.status_code == 200:
-            try:
-                data = response.json()
-                if isinstance(data, list):
-                    instance_ids = data
-                elif isinstance(data, dict) and '_links' in data:
-                    links = data.get('_links', {})
-                    instance_ids = []
-                    for key, value in links.items():
-                        if isinstance(value, dict) and 'href' in value:
-                            href = value['href']
-                            if '/nf-instances/' in href:
-                                instance_id = href.split('/nf-instances/')[-1].split('/')[0]
-                                instance_ids.append(instance_id)
-                else:
-                    instance_ids = []
-                
-                for instance_id in instance_ids:
-                    deregister_url = f"{base_url.rstrip('/')}/nf-instances/{instance_id}"
-                    try:
-                        requests.delete(deregister_url, headers=headers, timeout=5)
-                    except requests.RequestException:
-                        pass
-            except (json.JSONDecodeError, KeyError):
-                pass
-    except requests.RequestException:
-        pass
-
-
 def execute_driving_state(driving_state: Optional[Dict[str, Any]], base_url: str, headers: Dict[str, str]) -> Tuple[Optional[str], Optional[str]]:
     """Execute the driving state request and return (subscription_data, oauth_token) tuple."""
     if not driving_state:
@@ -265,8 +230,6 @@ def run_nrf_tests(test_cases_file: str, base_url: str = "http://localhost:7778/n
         print(f"  Constraint: {constraint_text[:80]}...")
         
         test_headers = {"Content-Type": "application/json"}
-        
-        reset_nrf_state(base_url, test_headers)
         
         driving_state = test_case.get('driving_state')
         driving_state_data = None

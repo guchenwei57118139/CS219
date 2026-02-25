@@ -18,11 +18,10 @@ extremal_testing/
 │       └── nrf_test_results_*.json
 ├── llm_prompts/                   # LLM-based generation scripts
 │   ├── generate_operations_metadata.py  # Extract operations from spec segments
-│   ├── extract_operation_schemas.py     # Extract schemas and constraints
+│   ├── generate_operation_schemas.py    # Generate schemas and constraints
 │   └── generate_test_cases.py          # Generate test cases
 ├── utils/                         # Utility scripts
 │   ├── parse_spec.py              # Parse spec documents into segments
-│   ├── generate_input_format.py  # Generate input formats
 │   └── postprocess_dependencies.py # Post-process dependencies
 └── implementation_testers/        # Test execution scripts
     └── test_free5gc.py            # Free5GC NRF tester
@@ -40,8 +39,8 @@ extremal_testing/
 - Input: `data/specs/segments/section_*.txt`
 - Output: `data/generated/AllOpsMetaData.json`
 
-### 3. Extract Operation Schemas
-- Run `llm_prompts/extract_operation_schemas.py`
+### 3. Generate Operation Schemas
+- Run `llm_prompts/generate_operation_schemas.py`
 - Input: `data/generated/AllOpsMetaData.json`, `data/specs/original/nrf_management_api.txt`
 - Output: `data/generated/operation_schemas.json`
 
