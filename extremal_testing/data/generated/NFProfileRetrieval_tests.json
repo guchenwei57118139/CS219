@@ -1,0 +1,138 @@
+[
+  {
+    "name": "Missing required path parameter nfInstanceID",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances",
+      "method": "GET",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    },
+    "violated_constraints": [
+      "The path parameter 'nfInstanceID' is required for the request to /nf-instances/{nfInstanceID}."
+    ]
+  },
+  {
+    "name": "Get NF Profile with invalid nfInstanceID path parameter format",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/invalid-nf-id-123",
+      "method": "GET",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    },
+    "violated_constraints": [
+      "The schema of the 'nfInstanceID' path parameter is defined by the reference 'TS29571_CommonData.yaml#/components/schemas/NfInstanceId'."
+    ]
+  },
+  {
+    "name": "Invalid requester-features as JSON object",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000?requester-features=%7B%22invalidFeature%22%3Atrue%7D",
+      "method": "GET",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    },
+    "violated_constraints": [
+      "The query parameter 'requester-features' must conform to the 'SupportedFeatures' schema (TS29571_CommonData.yaml#/components/schemas/SupportedFeatures); this request provides a JSON object (%7B\"invalidFeature\":true%7D) which does not match the required schema."
+    ]
+  },
+  {
+    "name": "GET request with a request body for NFProfileRetrieval",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "GET",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "unexpected": "payload",
+        "extraInfo": {
+          "reason": "invalid body in GET"
+        }
+      }
+    },
+    "violated_constraints": [
+      "This GET operation does not define a request body (no request payload is required)."
+    ]
+  },
+  {
+    "name": "Missing OAuth2 client credentials on NFProfile retrieval",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "GET",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    },
+    "violated_constraints": [
+      "Request does not provide required OAuth2 client credentials with scope 'nnrf-nfm' or 'nnrf-nfm:nf-instances:read' as declared in the operation security requirements."
+    ]
+  }
+]

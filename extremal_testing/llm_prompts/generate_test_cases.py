@@ -248,17 +248,9 @@ Return your response as a valid JSON object (not an array) representing a single
         # Ensure output directory exists
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
-        # Filter to only NFStatusSubscribe
-        filtered_operations = [op for op in self.operations if op.operation == "NFStatusSubscribe"]
-        if not filtered_operations:
-            print(f"[!] Error: NFStatusSubscribe operation not found", flush=True)
-            return
-        
-        print(f"[*] Filtered to {len(filtered_operations)} operation(s) (NFStatusSubscribe only)", flush=True)
-        
         # Generate test cases for each operation
-        for i, operation in enumerate(filtered_operations, 1):
-            print(f"\n[{i}/{len(filtered_operations)}] Processing {operation.operation}...", flush=True)
+        for i, operation in enumerate(self.operations, 1):
+            print(f"\n[{i}/{len(self.operations)}] Processing {operation.operation}...", flush=True)
             print(f"  → Path: {operation.method} {operation.path}", flush=True)
             print(f"  → Dependencies: {', '.join(operation.depends_on) if operation.depends_on else 'None'}", flush=True)
             

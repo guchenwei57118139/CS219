@@ -1,0 +1,91 @@
+[
+  {
+    "name": "Missing subscriptionId in path",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "callbackReference": {
+          "notifyUri": "https://example.client/callback"
+        },
+        "eventTypes": [
+          "NF_STATUS_CHANGE"
+        ],
+        "duration": 3600,
+        "targetNfType": "NRF"
+      }
+    },
+    "request": {
+      "resource_url": "/nnrf-nfm/v1/subscriptions",
+      "method": "DELETE",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    },
+    "violated_constraints": [
+      "The 'subscriptionID' path parameter is required and must be provided."
+    ]
+  },
+  {
+    "name": "Delete subscription with invalid subscriptionID containing hyphen",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    "request": {
+      "resource_url": "/nnrf-nfm/v1/subscriptions/invalid-subscription",
+      "method": "DELETE",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    },
+    "violated_constraints": [
+      "The 'subscriptionID' path parameter must be a string matching the regular expression '^([0-9]{5,6}-(x3Lf57A:nid=[A-Fa-f0-9]{11}:)?)?[^-]+$'."
+    ]
+  },
+  {
+    "name": "Unsubscribe DELETE with request body (invalid)",
+    "driving_state": {
+      "resource_url": "/nnrf-nfm/v1/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "subscriptionId": "sub12345",
+        "callbackReference": "https://example.nrf/callback",
+        "filter": {
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED"
+        },
+        "targetNfType": "NRF"
+      }
+    },
+    "request": {
+      "resource_url": "/nnrf-nfm/v1/subscriptions/sub12345",
+      "method": "DELETE",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "request_body": {
+        "reason": "Attempting to include a body in DELETE",
+        "force": true
+      }
+    },
+    "violated_constraints": [
+      "This DELETE operation does not define or accept a request body."
+    ]
+  }
+]
