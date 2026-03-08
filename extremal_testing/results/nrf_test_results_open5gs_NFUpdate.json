@@ -1,0 +1,588 @@
+{
+  "results": [
+    {
+      "test_case_index": 0,
+      "name": "Invalid nfInstanceID in path (non-UUID)",
+      "constraint": "The path parameter 'nfInstanceID' is required and must conform to the schema referenced by TS29571_CommonData.yaml#/components/schemas/NfInstanceId.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.001286,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:16 GMT",
+        "content-length": "110",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No NFProfile.NFStatus\",\"status\":400,\"instance\":\"/nf-instances/invalid-id-123\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 1,
+      "name": "Request body does not contain an NFProfile object",
+      "constraint": "The request body is required and must be sent as 'application/json' containing an NFProfile object (schema reference '#/components/schemas/NFProfile').",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.001048,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:16 GMT",
+        "content-length": "50",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+      "error": null
+    },
+    {
+      "test_case_index": 2,
+      "name": "NFProfile provided as string instead of object",
+      "constraint": "The NFProfile object MUST be of type object.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.002702,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:16 GMT",
+        "content-length": "50",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+      "error": null
+    },
+    {
+      "test_case_index": 3,
+      "name": "Update NFProfile missing nfType and nfStatus",
+      "constraint": "An NFProfile MUST include the properties 'nfInstanceId', 'nfType', and 'nfStatus'.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.000936,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:16 GMT",
+        "content-length": "50",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+      "error": null
+    },
+    {
+      "test_case_index": 4,
+      "status_code": null,
+      "reason_phrase": "Server disconnected",
+      "response_time": null,
+      "response_headers": null,
+      "response_body": null,
+      "error": "Server disconnected",
+      "error_type": "RemoteProtocolError"
+    },
+    {
+      "test_case_index": 5,
+      "name": "collocatedNfInstances present as empty array (violates minItems)",
+      "constraint": "If present, 'collocatedNfInstances' must be an array with at least 1 item and each item must conform to the CollocatedNfInstance schema.",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.002563,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:22 GMT",
+        "content-length": "178",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"collocatedNfInstances\":[],\"heartBeatTimer\":10,\"fqdn\":\"nrf.example.3gppnetwork.org\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 6,
+      "name": "heartBeatTimer below minimum (0)",
+      "constraint": "If present, 'heartBeatTimer' must be an integer with a minimum value of 1.",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.001285,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:22 GMT",
+        "content-length": "150",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"heartBeatTimer\":0,\"fqdn\":\"nrf.example.3gppnetwork.org\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 7,
+      "name": "plmnList contains item not conforming to PlmnId schema",
+      "constraint": "If present, 'plmnList' must be an array with at least 1 item and each item must conform to TS29571_CommonData.yaml#/components/schemas/PlmnId.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.001169,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:22 GMT",
+        "content-length": "50",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+      "error": null
+    },
+    {
+      "test_case_index": 8,
+      "name": "snpnList present but empty array",
+      "constraint": "If present, 'snpnList' must be an array with at least 1 item and each item must conform to TS29571_CommonData.yaml#/components/schemas/PlmnIdNid.",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.001437,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:22 GMT",
+        "content-length": "165",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"heartBeatTimer\":10,\"snpnList\":[],\"fqdn\":\"nrf.example.3gppnetwork.org\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 9,
+      "name": "sNssais present as empty array (violates minItems)",
+      "constraint": "If present, 'sNssais' must be an array with at least 1 item and each item must conform to TS29571_CommonData.yaml#/components/schemas/ExtSnssai.",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.00113,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:22 GMT",
+        "content-length": "164",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"heartBeatTimer\":10,\"sNssais\":[],\"fqdn\":\"nrf.example.3gppnetwork.org\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 10,
+      "name": "perPlmnSnssaiList empty array (violates minItems)",
+      "constraint": "If present, 'perPlmnSnssaiList' must be an array with at least 1 item and each item must conform to '#/components/schemas/PlmnSnssai'.",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.001201,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:23 GMT",
+        "content-length": "174",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"heartBeatTimer\":10,\"perPlmnSnssaiList\":[],\"fqdn\":\"nrf.example.3gppnetwork.org\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 11,
+      "name": "nsiList present but empty array (violates minItems)",
+      "constraint": "If present, 'nsiList' must be an array of strings with at least 1 item.",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.001219,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:23 GMT",
+        "content-length": "164",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"heartBeatTimer\":10,\"nsiList\":[],\"fqdn\":\"nrf.example.3gppnetwork.org\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 12,
+      "status_code": null,
+      "reason_phrase": "Server disconnected",
+      "response_time": null,
+      "response_headers": null,
+      "response_body": null,
+      "error": "Server disconnected",
+      "error_type": "RemoteProtocolError"
+    },
+    {
+      "test_case_index": 13,
+      "name": "Invalid ipv6Addresses item format",
+      "constraint": "If present, 'ipv6Addresses' must be an array with at least 1 item and each item must conform to TS29571_CommonData.yaml#/components/schemas/Ipv6Addr.",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.01387,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:28 GMT",
+        "content-length": "192",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"heartBeatTimer\":10,\"fqdn\":\"nrf.example.3gppnetwork.org\",\"ipv6Addresses\":[\"invalid-ipv6-address\"]}",
+      "error": null
+    },
+    {
+      "test_case_index": 14,
+      "name": "Update with empty allowedPlmns array",
+      "constraint": "If present, 'allowedPlmns' must be an array with at least 1 item and each item must conform to TS29571_CommonData.yaml#/components/schemas/PlmnId.",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.00171,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:29 GMT",
+        "content-length": "169",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"heartBeatTimer\":10,\"fqdn\":\"nrf.example.3gppnetwork.org\",\"allowedPlmns\":[]}",
+      "error": null
+    },
+    {
+      "test_case_index": 15,
+      "name": "allowedSnpns empty array (violates minItems)",
+      "constraint": "If present, 'allowedSnpns' must be an array with at least 1 item and each item must conform to TS29571_CommonData.yaml#/components/schemas/PlmnIdNid.",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.001147,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:29 GMT",
+        "content-length": "169",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"heartBeatTimer\":10,\"fqdn\":\"nrf.example.3gppnetwork.org\",\"allowedSnpns\":[]}",
+      "error": null
+    },
+    {
+      "test_case_index": 16,
+      "name": "Empty allowedNfTypes array (violates minItems constraint)",
+      "constraint": "If present, 'allowedNfTypes' must be an array with at least 1 item and each item must conform to '#/components/schemas/NFType'.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.001282,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:29 GMT",
+        "content-length": "50",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+      "error": null
+    },
+    {
+      "test_case_index": 17,
+      "name": "allowedNfDomains present as empty array",
+      "constraint": "If present, 'allowedNfDomains' must be an array of strings with at least 1 item.",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.00125,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:29 GMT",
+        "content-length": "173",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"heartBeatTimer\":10,\"fqdn\":\"nrf.example.3gppnetwork.org\",\"allowedNfDomains\":[]}",
+      "error": null
+    },
+    {
+      "test_case_index": 18,
+      "name": "Empty allowedNssais array (violates minItems)",
+      "constraint": "If present, 'allowedNssais' must be an array with at least 1 item and each item must conform to TS29571_CommonData.yaml#/components/schemas/ExtSnssai.",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.001299,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:29 GMT",
+        "content-length": "170",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"heartBeatTimer\":10,\"fqdn\":\"nrf.example.3gppnetwork.org\",\"allowedNssais\":[]}",
+      "error": null
+    },
+    {
+      "test_case_index": 19,
+      "name": "allowedRuleSet present but empty (violates minProperties)",
+      "constraint": "If present, 'allowedRuleSet' must be an object whose additional properties conform to '#/components/schemas/RuleSet' and it must have at least 1 property.",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.00122,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:29 GMT",
+        "content-length": "151",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"heartBeatTimer\":10,\"fqdn\":\"nrf.example.3gppnetwork.org\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 20,
+      "name": "Update NFProfile with out-of-range priority",
+      "constraint": "If present, 'priority' must be an integer between 0 and 65535 inclusive.",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.00191,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:29 GMT",
+        "content-length": "168",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"heartBeatTimer\":10,\"fqdn\":\"nrf.example.3gppnetwork.org\",\"priority\":70000}",
+      "error": null
+    },
+    {
+      "test_case_index": 21,
+      "name": "Update with capacity exceeding maximum allowed",
+      "constraint": "If present, 'capacity' must be an integer between 0 and 65535 inclusive.",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.001544,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:29 GMT",
+        "content-length": "168",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"heartBeatTimer\":10,\"fqdn\":\"nrf.example.3gppnetwork.org\",\"capacity\":70000}",
+      "error": null
+    },
+    {
+      "test_case_index": 22,
+      "name": "Load value above maximum (150)",
+      "constraint": "If present, 'load' must be an integer between 0 and 100 inclusive.",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.001637,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:30 GMT",
+        "content-length": "162",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"heartBeatTimer\":10,\"fqdn\":\"nrf.example.3gppnetwork.org\",\"load\":150}",
+      "error": null
+    },
+    {
+      "test_case_index": 23,
+      "name": "extLocality contains non-string values",
+      "constraint": "If present, 'extLocality' must be an object with string values and at least 1 property when present.",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.001382,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:30 GMT",
+        "content-length": "151",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"heartBeatTimer\":10,\"fqdn\":\"nrf.example.3gppnetwork.org\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 24,
+      "name": "Empty udrInfoList object violates minProperties",
+      "constraint": "When present, map-like properties such as 'udrInfoList' MUST be objects with at least 1 property (minProperties: 1).",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.001277,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:30 GMT",
+        "content-length": "168",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"heartBeatTimer\":10,\"fqdn\":\"nrf.example.3gppnetwork.org\",\"udrInfoList\":{}}",
+      "error": null
+    },
+    {
+      "test_case_index": 25,
+      "name": "nfServices present as empty array (violates minItems)",
+      "constraint": "If present, 'nfServices' (deprecated) must be an array with at least 1 item and each item must conform to '#/components/schemas/NFService'.",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.001097,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:30 GMT",
+        "content-length": "167",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"heartBeatTimer\":10,\"fqdn\":\"nrf.example.3gppnetwork.org\",\"nfServices\":[]}",
+      "error": null
+    },
+    {
+      "test_case_index": 26,
+      "name": "Empty defaultNotificationSubscriptions array",
+      "constraint": "If present, 'defaultNotificationSubscriptions' must be an array with at least 1 item and each item must conform to '#/components/schemas/DefaultNotificationSubscription'.",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.001074,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:30 GMT",
+        "content-length": "189",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"heartBeatTimer\":10,\"fqdn\":\"nrf.example.3gppnetwork.org\",\"defaultNotificationSubscriptions\":[]}",
+      "error": null
+    },
+    {
+      "test_case_index": 27,
+      "name": "Update with empty nfSetIdList (violates minItems)",
+      "constraint": "If present, 'nfSetIdList' must be an array with at least 1 item and each item must conform to TS29571_CommonData.yaml#/components/schemas/NfSetId.",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.00111,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:30 GMT",
+        "content-length": "168",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"heartBeatTimer\":10,\"fqdn\":\"nrf.example.3gppnetwork.org\",\"nfSetIdList\":[]}",
+      "error": null
+    },
+    {
+      "test_case_index": 28,
+      "name": "Update with empty servingScope array",
+      "constraint": "If present, 'servingScope' must be an array of strings with at least 1 item.",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.001123,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:30 GMT",
+        "content-length": "169",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"heartBeatTimer\":10,\"fqdn\":\"nrf.example.3gppnetwork.org\",\"servingScope\":[]}",
+      "error": null
+    },
+    {
+      "test_case_index": 29,
+      "name": "Empty nfSetRecoveryTimeList (violates minProperties requirement)",
+      "constraint": "If present, 'nfSetRecoveryTimeList' and 'serviceSetRecoveryTimeList' must be objects whose additional properties conform to TS29571_CommonData.yaml#/components/schemas/DateTime and each such map must have at least 1 property.",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.001486,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:30 GMT",
+        "content-length": "178",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"heartBeatTimer\":10,\"fqdn\":\"nrf.example.3gppnetwork.org\",\"nfSetRecoveryTimeList\":{}}",
+      "error": null
+    },
+    {
+      "test_case_index": 30,
+      "name": "scpDomains empty array violates minItems constraint",
+      "constraint": "If present, 'scpDomains' must be an array of strings with at least 1 item.",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.001274,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:30 GMT",
+        "content-length": "167",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"heartBeatTimer\":10,\"fqdn\":\"nrf.example.3gppnetwork.org\",\"scpDomains\":[]}",
+      "error": null
+    },
+    {
+      "test_case_index": 31,
+      "name": "supportedVendorSpecificFeatures property with empty array value",
+      "constraint": "If present, 'supportedVendorSpecificFeatures' must be an object with at least 1 property; each value must be an array with at least 1 VendorSpecificFeature item.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.001235,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:31 GMT",
+        "content-length": "50",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+      "error": null
+    },
+    {
+      "test_case_index": 32,
+      "name": "Empty hniList array (violates minItems requirement)",
+      "constraint": "If present, 'hniList' must be an array with at least 1 FQDN item.",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.001143,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:31 GMT",
+        "content-length": "164",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"heartBeatTimer\":10,\"fqdn\":\"nrf.example.3gppnetwork.org\",\"hniList\":[]}",
+      "error": null
+    },
+    {
+      "test_case_index": 33,
+      "name": "Update with non-UUID sharedProfileDataId",
+      "constraint": "If present, 'sharedProfileDataId' must be a UUID-formatted string.",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.001113,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:31 GMT",
+        "content-length": "151",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"heartBeatTimer\":10,\"fqdn\":\"nrf.example.3gppnetwork.org\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 34,
+      "name": "Invalid shutdownTime format in NFUpdate",
+      "constraint": "If present, 'shutdownTime' must conform to TS29571_CommonData.yaml#/components/schemas/DateTime.",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.001136,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:31 GMT",
+        "content-length": "151",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"heartBeatTimer\":10,\"fqdn\":\"nrf.example.3gppnetwork.org\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 35,
+      "name": "SupportedRcfs present as empty array (violates minItems)",
+      "constraint": "If present, 'supportedRcfs' must be an array with at least 1 item and each item must conform to '#/components/schemas/RcfId'.",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.001338,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:31 GMT",
+        "content-length": "151",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"heartBeatTimer\":10,\"fqdn\":\"nrf.example.3gppnetwork.org\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 36,
+      "name": "Invalid nested NFService object in nfServiceList (missing required referenced-schema field)",
+      "constraint": "When present, nested properties that reference other schemas must conform to their referenced-schema constraints. The object provided in 'nfServiceList' under key 'service1' does not satisfy the NFService schema (missing required property 'serviceInstanceId').",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.001298,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:17:31 GMT",
+        "content-length": "185",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"heartBeatTimer\":10,\"fqdn\":\"nrf.example.3gppnetwork.org\",\"nfServiceList\":{\"service1\":null}}",
+      "error": null
+    }
+  ],
+  "last_completed_index": 36,
+  "timestamp": "2026-03-08T16:17:31.775047",
+  "total_test_cases": 37,
+  "completed_test_cases": 37
+}

@@ -1,0 +1,70 @@
+{
+  "results": [
+    {
+      "test_case_index": 0,
+      "name": "Missing path parameter nfInstanceID",
+      "constraint": "The path parameter 'nfInstanceID' is required.",
+      "status_code": 404,
+      "reason_phrase": "Not Found",
+      "response_time": 0.001194,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Fri, 06 Mar 2026 19:22:38 GMT",
+        "content-length": "83",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Not found\",\"status\":404,\"instance\":\"/nf-instances\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 1,
+      "name": "Deregister with non-conforming nfInstanceID path parameter",
+      "constraint": "The 'nfInstanceID' path parameter must conform to the schema referenced at 'TS29571_CommonData.yaml#/components/schemas/NfInstanceId'.",
+      "status_code": 404,
+      "reason_phrase": "Not Found",
+      "response_time": 0.001167,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Fri, 06 Mar 2026 19:22:38 GMT",
+        "content-length": "130",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Not found\",\"status\":404,\"detail\":\"invalid-nf-id-123\",\"instance\":\"/nf-instances/invalid-nf-id-123\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 2,
+      "name": "DELETE with unexpected request body",
+      "constraint": "This operation does not define a request body; no request body is required for the DELETE request.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.003656,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Fri, 06 Mar 2026 19:22:38 GMT",
+        "content-length": "50",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+      "error": null
+    },
+    {
+      "test_case_index": 3,
+      "name": "DELETE without oAuth2 client credentials scope",
+      "constraint": "The caller must be authorized using the oAuth2ClientCredentials security scheme with the scope 'nnrf-nfm:nf-instance:write'.",
+      "status_code": 204,
+      "reason_phrase": "No Content",
+      "response_time": 0.000934,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Fri, 06 Mar 2026 19:22:38 GMT"
+      },
+      "response_body": null,
+      "error": null
+    }
+  ],
+  "last_completed_index": 3,
+  "timestamp": "2026-03-06T11:22:38.801768",
+  "total_test_cases": 4,
+  "completed_test_cases": 4
+}

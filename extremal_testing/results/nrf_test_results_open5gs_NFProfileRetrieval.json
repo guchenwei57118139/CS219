@@ -1,0 +1,88 @@
+{
+  "results": [
+    {
+      "test_case_index": 0,
+      "name": "Missing required path parameter nfInstanceID",
+      "constraint": "The path parameter 'nfInstanceID' is required for the request to /nf-instances/{nfInstanceID}.",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.001084,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:18:21 GMT",
+        "content-length": "1175",
+        "content-type": "application/3gppHal+json"
+      },
+      "response_body": "{\"_links\":{\"item\":[{\"href\":\"http://172.22.0.12:7777/nnrf-nfm/v1/nf-instances/f6dc5746-1b44-41f1-a57a-f5e5c68335fe\"},{\"href\":\"http://172.22.0.12:7777/nnrf-nfm/v1/nf-instances/c1a65798-1b44-41f1-b10e-57eb83a97989\"},{\"href\":\"http://172.22.0.12:7777/nnrf-nfm/v1/nf-instances/c7be9c58-1b44-41f1-aaaa-bfa9f3ca6c9d\"},{\"href\":\"http://172.22.0.12:7777/nnrf-nfm/v1/nf-instances/c7c41976-1b44-41f1-9a01-375a212331c9\"},{\"href\":\"http://172.22.0.12:7777/nnrf-nfm/v1/nf-instances/c1ce7714-1b44-41f1-aa45-03985c978a64\"},{\"href\":\"http://172.22.0.12:7777/nnrf-nfm/v1/nf-instances/c7ce058a-1b44-41f1-9f63-19ccc5b95f08\"},{\"href\":\"http://172.22.0.12:7777/nnrf-nfm/v1/nf-instances/c1d45f76-1b44-41f1-bdec-03fabfb25402\"},{\"href\":\"http://172.22.0.12:7777/nnrf-nfm/v1/nf-instances/c1d8cd18-1b44-41f1-86e3-67768ed9437a\"},{\"href\":\"http://172.22.0.12:7777/nnrf-nfm/v1/nf-instances/c1f05e42-1b44-41f1-a42e-21172905d253\"},{\"href\":\"http://172.22.0.12:7777/nnrf-nfm/v1/nf-instances/c24c65ac-1b44-41f1-83a0-7d9fb84d843b\"},{\"href\":\"http://172.22.0.12:7777/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000\"}],\"self\":{\"href\":\"http://172.22.0.12:7777/nnrf-nfm/v1/nf-instances\"},\"totalItemCount\":11}}",
+      "error": null
+    },
+    {
+      "test_case_index": 1,
+      "name": "Get NF Profile with invalid nfInstanceID path parameter format",
+      "constraint": "The schema of the 'nfInstanceID' path parameter is defined by the reference 'TS29571_CommonData.yaml#/components/schemas/NfInstanceId'.",
+      "status_code": 404,
+      "reason_phrase": "Not Found",
+      "response_time": 0.001418,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:18:21 GMT",
+        "content-length": "130",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Not found\",\"status\":404,\"detail\":\"invalid-nf-id-123\",\"instance\":\"/nf-instances/invalid-nf-id-123\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 2,
+      "name": "Invalid requester-features as JSON object",
+      "constraint": "The query parameter 'requester-features' must conform to the 'SupportedFeatures' schema (TS29571_CommonData.yaml#/components/schemas/SupportedFeatures); this request provides a JSON object (%7B\"invalidFeature\":true%7D) which does not match the required schema.",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.003244,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:18:21 GMT",
+        "content-length": "226",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"heartBeatTimer\":10,\"plmnList\":[{\"mcc\":\"001\",\"mnc\":\"01\"}],\"fqdn\":\"nrf.example.3gppnetwork.org\",\"priority\":0,\"capacity\":100,\"load\":0}",
+      "error": null
+    },
+    {
+      "test_case_index": 3,
+      "name": "GET request with a request body for NFProfileRetrieval",
+      "constraint": "This GET operation does not define a request body (no request payload is required).",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.00101,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:18:21 GMT",
+        "content-length": "226",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"heartBeatTimer\":10,\"plmnList\":[{\"mcc\":\"001\",\"mnc\":\"01\"}],\"fqdn\":\"nrf.example.3gppnetwork.org\",\"priority\":0,\"capacity\":100,\"load\":0}",
+      "error": null
+    },
+    {
+      "test_case_index": 4,
+      "name": "Missing OAuth2 client credentials on NFProfile retrieval",
+      "constraint": "Request does not provide required OAuth2 client credentials with scope 'nnrf-nfm' or 'nnrf-nfm:nf-instances:read' as declared in the operation security requirements.",
+      "status_code": 200,
+      "reason_phrase": "OK",
+      "response_time": 0.000985,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:18:21 GMT",
+        "content-length": "226",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"REGISTERED\",\"heartBeatTimer\":10,\"plmnList\":[{\"mcc\":\"001\",\"mnc\":\"01\"}],\"fqdn\":\"nrf.example.3gppnetwork.org\",\"priority\":0,\"capacity\":100,\"load\":0}",
+      "error": null
+    }
+  ],
+  "last_completed_index": 4,
+  "timestamp": "2026-03-08T16:18:21.993839",
+  "total_test_cases": 5,
+  "completed_test_cases": 5
+}

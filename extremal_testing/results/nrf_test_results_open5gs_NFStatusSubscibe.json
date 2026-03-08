@@ -1,0 +1,571 @@
+{
+  "results": [
+    {
+      "test_case_index": 0,
+      "name": "Empty subscription body missing nfStatusNotificationUri",
+      "constraint": "The request body MUST be present and MUST conform to the SubscriptionData schema.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.000962,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:31 GMT",
+        "content-length": "94",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscriptionData\",\"status\":400,\"instance\":\"/subscriptions\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 1,
+      "name": "Missing required nfStatusNotificationUri in subscription request",
+      "constraint": "The nfStatusNotificationUri property is required in the SubscriptionData request body.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.001113,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:31 GMT",
+        "content-length": "50",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+      "error": null
+    },
+    {
+      "test_case_index": 2,
+      "name": "Subscription creation with non-JSON Content-Type",
+      "constraint": "The request body content type for the subscription creation MUST be application/json.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.003409,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:31 GMT",
+        "content-length": "50",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+      "error": null
+    },
+    {
+      "test_case_index": 3,
+      "name": "sharedDataIds present but empty array",
+      "constraint": "If sharedDataIds is present, it MUST be an array containing at least 1 item.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.00108,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:31 GMT",
+        "content-length": "121",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 4,
+      "name": "SubscriptionId contains hyphen in final segment (invalid pattern)",
+      "constraint": "The subscriptionId property, when present, MUST match the regular expression '^([0-9]{5,6}-(x3Lf57A:nid=[A-Fa-f0-9]{11}:)?)?[^-]+$'.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.001099,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:31 GMT",
+        "content-length": "121",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 5,
+      "name": "Client provides readOnly subscriptionId in request",
+      "constraint": "The subscriptionId property is readOnly and must not be provided by the client in the request.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.001171,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:32 GMT",
+        "content-length": "121",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 6,
+      "name": "reqNotifEvents contains invalid enum value",
+      "constraint": "If reqNotifEvents is present, it MUST be an array and MUST contain at least 1 item, each item being one of the NotificationEventType enum values (e.g. NF_REGISTERED, NF_DEREGISTERED, NF_PROFILE_CHANGED, SHARED_DATA_CHANGED).",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.001049,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:32 GMT",
+        "content-length": "50",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+      "error": null
+    },
+    {
+      "test_case_index": 7,
+      "name": "reqSnssais present but empty array",
+      "constraint": "If reqSnssais is present, it MUST be an array containing at least 1 ExtSnssai item.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.001055,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:32 GMT",
+        "content-length": "121",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 8,
+      "name": "reqPerPlmnSnssais present but empty array",
+      "constraint": "If reqPerPlmnSnssais is present, it MUST be an array containing at least 1 PlmnSnssai item.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.001031,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:32 GMT",
+        "content-length": "121",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 9,
+      "name": "reqPlmnList present but empty array",
+      "constraint": "If reqPlmnList is present, it MUST be an array containing at least 1 PlmnId item.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.00105,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:32 GMT",
+        "content-length": "121",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 10,
+      "name": "reqSnpnList present but empty array",
+      "constraint": "If reqSnpnList is present, it MUST be an array containing at least 1 PlmnIdNid item.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.001051,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:32 GMT",
+        "content-length": "121",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 11,
+      "name": "servingScope present as empty array",
+      "constraint": "If servingScope is present, it MUST be an array containing at least 1 string item.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.005842,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:32 GMT",
+        "content-length": "121",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 12,
+      "name": "Invalid requesterFeatures type in subscription request",
+      "constraint": "The requesterFeatures property is writeOnly and is defined by the SupportedFeatures schema, meaning it can be provided by the client in the request (but will not be returned in read responses).",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.001353,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:32 GMT",
+        "content-length": "50",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+      "error": null
+    },
+    {
+      "test_case_index": 13,
+      "name": "Client supplies readOnly nrfSupportedFeatures in subscription",
+      "constraint": "The nrfSupportedFeatures property is readOnly and is defined by the SupportedFeatures schema, meaning it is provided by the server (not by the client in the request).",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.000976,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:32 GMT",
+        "content-length": "50",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+      "error": null
+    },
+    {
+      "test_case_index": 14,
+      "name": "extPreferredLocality with empty array property",
+      "constraint": "extPreferredLocality, when present, MUST be an object containing at least one property; each property value MUST be an array of LocalityDescription items and each such array MUST contain at least 1 item.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.000916,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:33 GMT",
+        "content-length": "121",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 15,
+      "name": "completeProfileSubscription non-boolean value",
+      "constraint": "completeProfileSubscription MUST be a boolean value.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.000986,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:33 GMT",
+        "content-length": "121",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 16,
+      "name": "subscrCond with invalid type (not matching any SubscrCond variant)",
+      "constraint": "subscrCond, if present, MUST conform to one of the SubscrCond variants (oneOf): NfInstanceIdCond, NfInstanceIdListCond, NfTypeCond, ServiceNameCond, ServiceNameListCond, AmfCond, GuamiListCond, NetworkSliceCond, NfGroupCond, NfGroupListCond, NfSetCond, NfServiceSetCond, UpfCond, ScpDomainCond, NwdafCond, NefCond, or DccfCond.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.00104,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:33 GMT",
+        "content-length": "116",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Requested SubscrCond is not supported yet\",\"status\":400,\"instance\":\"/subscriptions\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 17,
+      "name": "Subscription with NfInstanceIdCond missing nfInstanceId",
+      "constraint": "If subscrCond is NfInstanceIdCond, the nfInstanceId property is required.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.000888,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:33 GMT",
+        "content-length": "116",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Requested SubscrCond is not supported yet\",\"status\":400,\"instance\":\"/subscriptions\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 18,
+      "name": "Subscription with NfInstanceIdListCond but empty nfInstanceIdList",
+      "constraint": "If subscrCond is NfInstanceIdListCond, the nfInstanceIdList property is required and it MUST contain at least 1 item.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.00094,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:33 GMT",
+        "content-length": "116",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Requested SubscrCond is not supported yet\",\"status\":400,\"instance\":\"/subscriptions\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 19,
+      "name": "Subscription with NfTypeCond including forbidden nfGroupId",
+      "constraint": "If subscrCond is NfTypeCond, the nfType property is required and the presence of nfGroupId (or the pair conditionType + nfGroupIdList) is explicitly prohibited.",
+      "status_code": 201,
+      "reason_phrase": "Created",
+      "response_time": 0.001178,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:33 GMT",
+        "content-length": "260",
+        "location": "http://172.22.0.12:7777/nnrf-nfm/v1/subscriptions/d8ec21c6-1b44-41f1-a08f-4be36aca6ecd",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfStatusNotificationUri\":\"https://consumer.example.com/notify\",\"subscrCond\":{\"nfType\":\"AMF\",\"nfGroupId\":\"forbidden-group-1\"},\"subscriptionId\":\"d8ec21c6-1b44-41f1-a08f-4be36aca6ecd\",\"validityTime\":\"2026-03-09T16:16:33.627705-07:00\",\"nrfSupportedFeatures\":\"1\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 20,
+      "name": "Subscription missing serviceName when subscrCond is ServiceNameCond",
+      "constraint": "If subscrCond is ServiceNameCond, the serviceName property is required.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.001071,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:33 GMT",
+        "content-length": "116",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Requested SubscrCond is not supported yet\",\"status\":400,\"instance\":\"/subscriptions\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 21,
+      "name": "Subscription with empty serviceNameList for ServiceNameListCond",
+      "constraint": "If subscrCond is ServiceNameListCond, both conditionType and serviceNameList properties are required and conditionType MUST have the value 'SERVICE_NAME_LIST_COND', and serviceNameList MUST contain at least 1 item.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.001187,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:33 GMT",
+        "content-length": "116",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Requested SubscrCond is not supported yet\",\"status\":400,\"instance\":\"/subscriptions\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 22,
+      "name": "Subscription with AmfCond but missing amfSetId and amfRegionId",
+      "constraint": "If subscrCond is AmfCond, at least one of amfSetId or amfRegionId MUST be present.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.001097,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:33 GMT",
+        "content-length": "116",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Requested SubscrCond is not supported yet\",\"status\":400,\"instance\":\"/subscriptions\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 23,
+      "name": "SubscrCond GuamiListCond with empty guamiList",
+      "constraint": "If subscrCond is GuamiListCond, guamiList is required and it MUST contain at least 1 item.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.001386,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:34 GMT",
+        "content-length": "116",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Requested SubscrCond is not supported yet\",\"status\":400,\"instance\":\"/subscriptions\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 24,
+      "name": "NetworkSliceCond with empty snssaiList",
+      "constraint": "If subscrCond is NetworkSliceCond, snssaiList is required and it MUST contain at least 1 item; if nsiList is present it MUST contain at least 1 item.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.00136,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:34 GMT",
+        "content-length": "116",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Requested SubscrCond is not supported yet\",\"status\":400,\"instance\":\"/subscriptions\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 25,
+      "name": "Subscription with NfGroupCond using invalid nfType value",
+      "constraint": "If subscrCond is NfGroupCond, both nfType and nfGroupId are required and nfType is restricted to the enum [UDM, AUSF, UDR, PCF, CHF, HSS, BSF, UDSF].",
+      "status_code": 201,
+      "reason_phrase": "Created",
+      "response_time": 0.001875,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:34 GMT",
+        "content-length": "250",
+        "location": "http://172.22.0.12:7777/nnrf-nfm/v1/subscriptions/d9571b3e-1b44-41f1-a08f-4be36aca6ecd",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfStatusNotificationUri\":\"https://consumer.example.org/notify\",\"subscrCond\":{\"nfType\":\"AMF\",\"nfGroupId\":\"group-1\"},\"subscriptionId\":\"d9571b3e-1b44-41f1-a08f-4be36aca6ecd\",\"validityTime\":\"2026-03-09T16:16:34.328852-07:00\",\"nrfSupportedFeatures\":\"1\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 26,
+      "name": "subscrCond NfGroupListCond with invalid conditionType and empty nfGroupIdList",
+      "constraint": "If subscrCond is NfGroupListCond, conditionType, nfType and nfGroupIdList are required and conditionType MUST have the value 'NF_GROUP_LIST_COND' and nfGroupIdList MUST contain at least 1 item.",
+      "status_code": 201,
+      "reason_phrase": "Created",
+      "response_time": 0.001407,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:34 GMT",
+        "content-length": "233",
+        "location": "http://172.22.0.12:7777/nnrf-nfm/v1/subscriptions/d969e96c-1b44-41f1-a08f-4be36aca6ecd",
+        "content-type": "application/json"
+      },
+      "response_body": "{\"nfStatusNotificationUri\":\"https://subscriber.example.com/nf-status\",\"subscrCond\":{\"nfType\":\"AMF\"},\"subscriptionId\":\"d969e96c-1b44-41f1-a08f-4be36aca6ecd\",\"validityTime\":\"2026-03-09T16:16:34.452041-07:00\",\"nrfSupportedFeatures\":\"1\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 27,
+      "name": "Missing nfSetId when subscrCond is NfSetCond",
+      "constraint": "If subscrCond is NfSetCond, nfSetId is required.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.001243,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:34 GMT",
+        "content-length": "116",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Requested SubscrCond is not supported yet\",\"status\":400,\"instance\":\"/subscriptions\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 28,
+      "name": "Subscribe with NfServiceSetCond but missing nfServiceSetId",
+      "constraint": "If subscrCond is NfServiceSetCond, nfServiceSetId is required.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.001297,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:34 GMT",
+        "content-length": "116",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Requested SubscrCond is not supported yet\",\"status\":400,\"instance\":\"/subscriptions\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 29,
+      "name": "subscrCond UpfCond with incorrect conditionType",
+      "constraint": "If subscrCond is UpfCond, conditionType is required and MUST equal 'UPF_COND'.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.001107,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:34 GMT",
+        "content-length": "116",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Requested SubscrCond is not supported yet\",\"status\":400,\"instance\":\"/subscriptions\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 30,
+      "name": "SubscrCond NwdafCond with incorrect conditionType",
+      "constraint": "If subscrCond is NwdafCond, conditionType is required and MUST equal 'NWDAF_COND'.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.001162,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:34 GMT",
+        "content-length": "116",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Requested SubscrCond is not supported yet\",\"status\":400,\"instance\":\"/subscriptions\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 31,
+      "name": "subscrCond NefCond with incorrect conditionType",
+      "constraint": "If subscrCond is NefCond, conditionType is required and MUST equal 'NEF_COND'.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.001808,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:35 GMT",
+        "content-length": "116",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Requested SubscrCond is not supported yet\",\"status\":400,\"instance\":\"/subscriptions\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 32,
+      "name": "SubscrCond DccfCond missing required conditionType",
+      "constraint": "If subscrCond is DccfCond, conditionType is required and MUST equal 'DCCF_COND'.",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.001349,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:35 GMT",
+        "content-length": "116",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Requested SubscrCond is not supported yet\",\"status\":400,\"instance\":\"/subscriptions\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 33,
+      "name": "notifCondition contains both monitoredAttributes and unmonitoredAttributes",
+      "constraint": "notifCondition, if present, MUST NOT contain both monitoredAttributes and unmonitoredAttributes at the same time (the schema disallows both being present simultaneously).",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.001212,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:35 GMT",
+        "content-length": "121",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+      "error": null
+    },
+    {
+      "test_case_index": 34,
+      "name": "Subscription with non-HTTP callback URI (mailto)",
+      "constraint": "The nfStatusNotificationUri value provided in the request body is used as the callback endpoint for notifications (the callback definition uses '{$request.body#/nfStatusNotificationUri}' as the callback URI to POST NotificationData).",
+      "status_code": 400,
+      "reason_phrase": "Bad Request",
+      "response_time": 0.001395,
+      "response_headers": {
+        "server": "Open5GS v2.7.6-131-g782a97e",
+        "date": "Sun, 08 Mar 2026 23:16:35 GMT",
+        "content-length": "121",
+        "content-type": "application/problem+json"
+      },
+      "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+      "error": null
+    }
+  ],
+  "last_completed_index": 34,
+  "timestamp": "2026-03-08T16:16:35.494245",
+  "total_test_cases": 35,
+  "completed_test_cases": 35
+}
