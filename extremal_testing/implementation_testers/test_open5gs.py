@@ -63,7 +63,7 @@ def execute_driving_state(client, driving_state, base_url, base_headers):
     """
     Execute the driving_state request (if present) and return a subscriptionId if it can be parsed.
 
-    This function does NOT perform OAuth; it only sends the request and tries to extract the
+    This function does not perform token-based auth; it only sends the request and tries to extract the
     subscription identifier from the response.
     """
     if not driving_state:

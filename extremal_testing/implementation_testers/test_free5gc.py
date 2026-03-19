@@ -7,41 +7,7 @@ import requests
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple
-from urllib.parse import urlparse, urlencode
-
-
-def get_oauth_token(base_url: str, nf_instance_id: str, nf_type: str = "NRF", scope: str = "nnrf-nfm", target_nf_type: Optional[str] = None) -> Optional[str]:
-    """Get an OAuth token from the NRF's token endpoint."""
-    parsed = urlparse(base_url)
-    token_url = f"{parsed.scheme}://{parsed.netloc}/oauth2/token"
-    
-    if target_nf_type is None:
-        target_nf_type = nf_type
-    
-    data = {
-        "grant_type": "client_credentials",
-        "nfInstanceId": nf_instance_id,
-        "nfType": nf_type,
-        "targetNfType": target_nf_type,
-        "scope": scope
-    }
-    
-    headers = {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Accept": "application/json"
-    }
-    
-    try:
-        response = requests.post(token_url, data=urlencode(data), headers=headers, timeout=10)
-        if response.status_code == 200:
-            token_data = response.json()
-            access_token = token_data.get("access_token")
-            if access_token:
-                return access_token
-        return None
-    except requests.RequestException:
-        return None
-
+from urllib.parse import urlparse
 
 def build_full_url(resource_url: str, base_url: str) -> str:
     """Build a full URL from a resource URL and base URL."""
@@ -84,10 +50,10 @@ def check_nrf_health(base_url: str) -> bool:
             return False
 
 
-def execute_driving_state(driving_state: Optional[Dict[str, Any]], base_url: str, headers: Dict[str, str]) -> Tuple[Optional[str], Optional[str]]:
-    """Execute the driving state request and return (subscription_data, oauth_token) tuple."""
+def execute_driving_state(driving_state: Optional[Dict[str, Any]], base_url: str, headers: Dict[str, str]) -> Optional[str]:
+    """Execute the driving state request and return subscription_data (if any)."""
     if not driving_state:
-        return None, None
+        return None
     
     resource_url = driving_state.get('resource_url', '')
     method = driving_state.get('method', 'GET').upper()
@@ -96,15 +62,10 @@ def execute_driving_state(driving_state: Optional[Dict[str, Any]], base_url: str
     
     is_nf_registration = method == 'PUT' and '/nf-instances/' in resource_url and request_body
     
-    if is_nf_registration:
-        fresh_nf_id = str(uuid.uuid4())
-        request_body = request_body.copy()
-        request_body["nfInstanceId"] = fresh_nf_id
-        resource_url = replace_nf_instance_id_in_url(resource_url, fresh_nf_id)
+    # Approach #1: keep the nfInstanceId from the test case (do not generate a fresh one)
     
     full_url = build_full_url(resource_url, base_url)
     subscription_data = None
-    oauth_token = None
     
     try:
         if method == 'PUT':
@@ -114,15 +75,9 @@ def execute_driving_state(driving_state: Optional[Dict[str, Any]], base_url: str
         elif method == 'GET':
             response = requests.get(full_url, headers=driving_headers, timeout=10)
         elif method == 'DELETE':
-            response = requests.delete(full_url, headers=driving_headers, timeout=10)
+            response = requests.delete(full_url, headers=driving_headers, json=request_body if request_body else None, timeout=10)
         else:
-            return None, None
-        
-        if is_nf_registration and response.status_code in [200, 201, 204]:
-            nf_instance_id = request_body.get("nfInstanceId")
-            nf_type = request_body.get("nfType", "NRF")
-            time.sleep(1.5)
-            oauth_token = get_oauth_token(base_url, nf_instance_id, nf_type, target_nf_type="NRF")
+            return None
         
         if response.status_code in [200, 201, 204]:
             location = response.headers.get('Location', '')
@@ -138,9 +93,9 @@ def execute_driving_state(driving_state: Optional[Dict[str, Any]], base_url: str
                 except (json.JSONDecodeError, KeyError):
                     pass
         
-        return subscription_data, oauth_token
+        return subscription_data
     except requests.RequestException:
-        return None, oauth_token
+        return None
 
 
 def execute_test_request(request: Dict[str, Any], base_url: str, headers: Dict[str, str], driving_state_data: Optional[str] = None) -> Dict[str, Any]:
@@ -166,7 +121,7 @@ def execute_test_request(request: Dict[str, Any], base_url: str, headers: Dict[s
         elif method == 'GET':
             response = requests.get(full_url, headers=test_headers, timeout=10)
         elif method == 'DELETE':
-            response = requests.delete(full_url, headers=test_headers, timeout=10)
+            response = requests.delete(full_url, headers=test_headers, json=request_body if request_body else None, timeout=10)
         else:
             return {
                 "status_code": None,
@@ -235,9 +190,7 @@ def run_nrf_tests(test_cases_file: str, base_url: str = "http://localhost:7778/n
         driving_state_data = None
         
         if driving_state:
-            driving_state_data, oauth_token = execute_driving_state(driving_state, base_url, test_headers)
-            if oauth_token:
-                test_headers["Authorization"] = f"Bearer {oauth_token}"
+            driving_state_data = execute_driving_state(driving_state, base_url, test_headers)
         
         request = test_case.get('request', {})
         if not request:

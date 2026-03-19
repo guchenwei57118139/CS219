@@ -17,6 +17,23 @@ from urllib.parse import urlparse
 DEFAULT_TIMEOUT = httpx.Timeout(30.0, connect=30.0, read=30.0, write=30.0, pool=30.0)
 
 
+def normalize_http_headers(headers: Optional[Dict[str, Any]]) -> Dict[str, str]:
+    """httpx requires header values to be str or bytes; JSON tests may use int (e.g. Content-Length)."""
+    if not headers:
+        return {}
+    out: Dict[str, str] = {}
+    for key, val in headers.items():
+        if val is None:
+            continue
+        if isinstance(val, bytes):
+            out[key] = val.decode("latin-1", errors="replace")
+        elif isinstance(val, str):
+            out[key] = val
+        else:
+            out[key] = str(val)
+    return out
+
+
 def build_full_url(resource_url: str, base_url: str) -> str:
     """Build a full URL from a resource URL and base URL."""
     if resource_url.startswith('/nnrf-nfm/v1'):
@@ -48,27 +65,18 @@ def execute_driving_state(
     base_url: str, 
     headers: Dict[str, str],
     client: httpx.Client
-) -> Tuple[Optional[str], Optional[str]]:
-    """Execute the driving state request and return (subscription_data, oauth_token) tuple."""
+) -> Optional[str]:
+    """Execute the driving state request and return subscription_data (if any)."""
     if not driving_state:
-        return None, None
+        return None
     
     resource_url = driving_state.get('resource_url', '')
     method = driving_state.get('method', 'GET').upper()
     request_body = driving_state.get('request_body', {})
-    driving_headers = {**headers, **driving_state.get('headers', {})}
-    
-    is_nf_registration = method == 'PUT' and '/nf-instances/' in resource_url and request_body
-    
-    if is_nf_registration:
-        fresh_nf_id = str(uuid.uuid4())
-        request_body = request_body.copy()
-        request_body["nfInstanceId"] = fresh_nf_id
-        resource_url = replace_nf_instance_id_in_url(resource_url, fresh_nf_id)
+    driving_headers = normalize_http_headers({**headers, **driving_state.get("headers", {})})
     
     full_url = build_full_url(resource_url, base_url)
     subscription_data = None
-    oauth_token = None
     
     try:
         if method == 'PUT':
@@ -80,7 +88,7 @@ def execute_driving_state(
         elif method == 'DELETE':
             response = client.delete(full_url, headers=driving_headers, timeout=DEFAULT_TIMEOUT)
         else:
-            return None, None
+            return None
         
         if response.status_code in [200, 201, 204]:
             location = response.headers.get('Location', '')
@@ -96,13 +104,13 @@ def execute_driving_state(
                 except (json.JSONDecodeError, KeyError):
                     pass
         
-        return subscription_data, oauth_token
+        return subscription_data
     except httpx.TimeoutException as e:
         print(f"  [DEBUG] Timeout in execute_driving_state: {method} {resource_url} - {str(e)}")
-        return None, oauth_token
+        return None
     except httpx.RequestError as e:
         print(f"  [DEBUG] Request error in execute_driving_state: {method} {resource_url} - {str(e)}")
-        return None, oauth_token
+        return None
 
 
 def execute_test_request(
@@ -116,7 +124,7 @@ def execute_test_request(
     resource_url = request.get('resource_url', '')
     method = request.get('method', 'GET').upper()
     request_body = request.get('request_body', {})
-    test_headers = {**headers, **request.get('headers', {})}
+    test_headers = normalize_http_headers({**headers, **request.get("headers", {})})
     
     if driving_state_data and '{subscriptionId}' in resource_url:
         resource_url = resource_url.replace('{subscriptionId}', driving_state_data)
@@ -203,6 +211,9 @@ def run_nrf_tests(
     results = []
     headers = {"Content-Type": "application/json"}
     total_cases = len(test_cases)
+
+    # Suite-level driving-state cache: avoid repeating the exact same setup request
+    driving_cache: Dict[str, Optional[str]] = {}
     
     # Process test cases
     for i, test_case in enumerate(test_cases, 1):
@@ -225,9 +236,12 @@ def run_nrf_tests(
             
             if driving_state:
                 try:
-                    driving_state_data, oauth_token = execute_driving_state(driving_state, base_url, test_headers, client)
-                    if oauth_token:
-                        test_headers["Authorization"] = f"Bearer {oauth_token}"
+                    cache_key = json.dumps(driving_state, sort_keys=True, ensure_ascii=False)
+                    if cache_key in driving_cache:
+                        driving_state_data = driving_cache[cache_key]
+                    else:
+                        driving_state_data = execute_driving_state(driving_state, base_url, test_headers, client)
+                        driving_cache[cache_key] = driving_state_data
                 except Exception as e:
                     driving_state_error = f"Exception in execute_driving_state: {str(e)}"
                     print(f"  [DEBUG] {driving_state_error}")
