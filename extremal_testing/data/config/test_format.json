@@ -1,48 +1,112 @@
 {
-  "description": "CRITICAL: Only include the fields listed below. Do NOT add any other fields. The LLM must generate test cases with ONLY these fields.",
-  "test_case_structure": {
-    "name": "REQUIRED - Short descriptive name of the test case",
-    "driving_state": {
-      "description": "REQUIRED if operation has dependencies, otherwise null. Contains ONLY the fields needed to execute a valid setup request.",
-      "resource_url": "REQUIRED - Full resource URL (e.g., '/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000')",
-      "method": "REQUIRED - HTTP method (PUT, POST, GET, DELETE)",
-      "headers": {
-        "Content-Type": "REQUIRED - Always 'application/json'"
-      },
-      "request_body": "REQUIRED - Valid JSON request body that would succeed. Omit if method is GET or DELETE."
-    },
-    "request": {
-      "description": "REQUIRED - The invalid request that violates the constraint. Contains ONLY the fields needed to execute the HTTP request.",
-      "resource_url": "REQUIRED - Full resource URL (e.g., '/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000')",
-      "method": "REQUIRED - HTTP method (PUT, POST, GET, DELETE)",
-      "headers": {
-        "Content-Type": "REQUIRED - Always 'application/json'"
-      },
-      "request_body": "REQUIRED - Invalid JSON request body that violates the constraint. Omit if method is GET or DELETE."
-    },
-    "violated_constraints": "REQUIRED - Array with exactly one string: the constraint being violated"
-  },
-  "critical_instructions": {
-    "do_not_include": [
-      "description field in test case",
-      "notes field",
-      "operation field in driving_state",
-      "query_parameters (unless absolutely necessary for GET requests)",
-      "Accept header",
-      "Content-Encoding header",
-      "Accept-Encoding header",
-      "Any other fields not explicitly listed above"
+  "description": "CRITICAL: The generator must emit one suite object per operation. Shared setup and cleanup live at the suite level. Individual tests only contain the invalid request and the violated constraint text.",
+  "suite_structure": {
+    "operation": "REQUIRED - Operation name, such as NFRegister or NFStatusSubscribe",
+    "path": "REQUIRED - Operation path from the API specification",
+    "method": "REQUIRED - HTTP method for the operation",
+    "setup": [
+      {
+        "description": "REQUIRED - Shared setup request executed before every test in this operation suite. Use an empty array if no setup is needed.",
+        "resource_url": "REQUIRED - Full resource URL for the setup step",
+        "method": "REQUIRED - HTTP method",
+        "headers": {
+          "Content-Type": "REQUIRED - Always 'application/json'"
+        },
+        "request_body": "REQUIRED - Valid JSON request body for the setup step. Omit if method is GET or DELETE."
+      }
     ],
-    "focus_only_on": [
-      "name - test case name",
-      "driving_state - if needed, only resource_url, method, headers.Content-Type, request_body",
-      "request - only resource_url, method, headers.Content-Type, request_body",
-      "violated_constraints - array with one constraint string"
+    "cleanup": [
+      {
+        "description": "REQUIRED - Shared cleanup request executed after every test in this operation suite. Use an empty array if no cleanup is needed.",
+        "resource_url": "REQUIRED - Full resource URL for the cleanup step",
+        "method": "REQUIRED - HTTP method",
+        "headers": {
+          "Content-Type": "REQUIRED - Always 'application/json'"
+        },
+        "request_body": "OPTIONAL - Only include if the cleanup step needs a body."
+      }
+    ],
+    "tests": [
+      {
+        "name": "REQUIRED - Short descriptive name of the invalid test case",
+        "request": {
+          "description": "REQUIRED - The invalid request for this test case. Do not include driving_state or setup data here.",
+          "resource_url": "REQUIRED - Full resource URL for the invalid request",
+          "method": "REQUIRED - HTTP method",
+          "headers": {
+            "Content-Type": "REQUIRED - Always 'application/json'"
+          },
+          "request_body": "REQUIRED - Invalid JSON request body that violates the constraint. Omit if method is GET or DELETE."
+        },
+        "violated_constraints": [
+          "REQUIRED - A single string describing the constraint violated by the test"
+        ]
+      }
+    ]
+  },
+  "example_suite": {
+    "operation": "NFStatusSubscribe",
+    "path": "/subscriptions",
+    "method": "POST",
+    "setup": [
+      {
+        "resource_url": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+        "method": "PUT",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "request_body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org"
+        }
+      }
+    ],
+    "cleanup": [
+      {
+        "resource_url": "/nnrf-nfm/v1/subscriptions/{subscriptionId}",
+        "method": "DELETE",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      },
+      {
+        "resource_url": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+        "method": "DELETE",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    ],
+    "tests": [
+      {
+        "name": "Subscription with invalid callback URI scheme",
+        "request": {
+          "resource_url": "/nnrf-nfm/v1/subscriptions",
+          "method": "POST",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "request_body": {
+            "callbackReference": {
+              "notifyUri": "ftp://invalid.example/callback"
+            },
+            "eventTypes": [
+              "NF_STATUS_CHANGE"
+            ],
+            "duration": 3600,
+            "targetNfType": "NRF"
+          }
+        },
+        "violated_constraints": [
+          "The callbackReference.notifyUri value must use a valid HTTPS URI."
+        ]
+      }
     ]
   },
   "example_test_case": {
     "name": "Missing required field nfType",
-    "driving_state": null,
     "request": {
       "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
       "method": "PUT",
@@ -57,32 +121,6 @@
     },
     "violated_constraints": [
       "An NFProfile MUST include the properties 'nfInstanceId', 'nfType', and 'nfStatus'."
-    ]
-  },
-  "example_with_driving_state": {
-    "name": "Invalid nfInstanceId format in path",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "AMF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "amf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/invalid-id-123",
-      "method": "DELETE",
-      "headers": {
-        "Content-Type": "application/json"
-      }
-    },
-    "violated_constraints": [
-      "The path parameter 'nfInstanceID' must conform to UUID format."
     ]
   }
 }

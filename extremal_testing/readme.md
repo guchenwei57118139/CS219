@@ -47,10 +47,11 @@ extremal_testing/
 ### 4. Generate Test Cases
 - Run `llm_prompts/generate_test_cases.py`
 - Input: `data/generated/operation_schemas.json`, `data/config/test_format.json`
-- Output: `data/generated/{Operation}_tests.json`
+- Output: `data/generated/{Operation}_tests.json` as a suite object with one shared setup, shared cleanup, and a `tests` array
 
 ### 5. Run Tests
 - Run `implementation_testers/test_free5gc.py data/generated/{Operation}_tests.json`
+- The runner executes the shared suite setup before each test, runs the invalid request, then clears NF state
 - Output: `data/results/nrf_test_results_*.json`
 
 ## Configuration

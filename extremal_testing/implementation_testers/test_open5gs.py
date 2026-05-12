@@ -1,12 +1,24 @@
+#!/usr/bin/env python3
 import json
-import sys
-import httpx
 import os
 import subprocess
+import sys
 import time
 from datetime import datetime
-from urllib.parse import urlparse
 from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+import httpx
+
+from extremal_testing.implementation_testers.common import (
+    build_request_details,
+    load_suite_or_legacy_tests,
+    seed_context_from_step,
+    update_context_from_response,
+)
+
+
+DEFAULT_TIMEOUT = httpx.Timeout(30.0, connect=30.0, read=30.0, write=30.0, pool=30.0)
 
 
 def restart_nrf_container():
@@ -20,17 +32,16 @@ def restart_nrf_container():
             ["docker", "restart", "nrf"],
             capture_output=True,
             text=True,
-            check=True
+            check=True,
         )
         if result.returncode == 0:
             print("NRF container restart successful")
             print("Waiting 5 seconds for NRF to initialize...")
-            time.sleep(5)  # Give more time for NRF to fully initialize
+            time.sleep(5)
             return True
-        else:
-            print("Failed to restart NRF container")
-            print(f"Error: {result.stderr}")
-            return False
+        print("Failed to restart NRF container")
+        print(f"Error: {result.stderr}")
+        return False
     except subprocess.CalledProcessError as e:
         print("Failed to restart NRF container")
         print(f"Error: {e.stderr}")
@@ -41,158 +52,116 @@ def restart_nrf_container():
         return False
 
 
-def build_full_url(resource_url, base_url):
-    """
-    Build a full URL from a resource path and a base URL.
+def execute_step(
+    client: httpx.Client,
+    step: Dict[str, Any],
+    base_url: str,
+    headers: Dict[str, str],
+    context: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Execute a single setup, test, or cleanup step."""
+    seed_context_from_step(step, context)
+    request_details = build_request_details(step, base_url, headers, context)
+    method = request_details["method"]
+    full_url = request_details["full_url"]
+    request_body = request_details["request_body"]
+    request_headers = request_details["headers"]
 
-    Supported patterns:
-    - '/nnrf-nfm/v1/...' absolute API path (use base_url scheme+host)
-    - Other paths starting with '/' (append to base_url)
-    - Relative paths without a leading '/' (treat as a sub-path)
-    """
-    if resource_url.startswith("/nnrf-nfm/v1"):
-        parsed = urlparse(base_url)
-        return f"{parsed.scheme}://{parsed.netloc}{resource_url}"
-    elif resource_url.startswith("/"):
-        return base_url.rstrip("/") + resource_url
-    else:
-        return base_url.rstrip("/") + "/" + resource_url
+    try:
+        if method == "PUT":
+            response = client.put(full_url, headers=request_headers, json=request_body if request_body is not None else None, timeout=DEFAULT_TIMEOUT)
+        elif method == "POST":
+            response = client.post(full_url, headers=request_headers, json=request_body if request_body is not None else None, timeout=DEFAULT_TIMEOUT)
+        elif method == "GET":
+            response = client.get(full_url, headers=request_headers, timeout=DEFAULT_TIMEOUT)
+        elif method == "DELETE":
+            response = client.request("DELETE", full_url, headers=request_headers, json=request_body if request_body is not None else None, timeout=DEFAULT_TIMEOUT)
+        else:
+            return {
+                "status_code": None,
+                "status_message": f"Unsupported method: {method}",
+                "response_body": None,
+                "response_headers": {},
+                "response_time": None,
+                "error": f"Unsupported HTTP method: {method}",
+            }
 
-
-def execute_driving_state(client, driving_state, base_url, base_headers):
-    """
-    Execute the driving_state request (if present) and return a subscriptionId if it can be parsed.
-
-    This function does not perform token-based auth; it only sends the request and tries to extract the
-    subscription identifier from the response.
-    """
-    if not driving_state:
-        return None
-
-    resource_url = driving_state.get("resource_url", "")
-    method = driving_state.get("method", "GET").upper()
-    body = driving_state.get("request_body", {})
-    headers = dict(base_headers)
-    headers.update(driving_state.get("headers", {}))
-
-    full_url = build_full_url(resource_url, base_url)
-
-    if method == "PUT":
-        resp = client.put(full_url, headers=headers, json=body or None, timeout=10.0)
-    elif method == "POST":
-        resp = client.post(full_url, headers=headers, json=body or None, timeout=10.0)
-    elif method == "GET":
-        resp = client.get(full_url, headers=headers, timeout=10.0)
-    elif method == "DELETE":
-        resp = client.delete(full_url, headers=headers, timeout=10.0)
-    else:
-        print(f"  [driving_state] Unsupported method: {method}")
-        return None
-
-    print(f"  [driving_state] {method} {full_url} -> {resp.status_code}")
-
-    sub_id = None
-    if resp.status_code in (200, 201, 204):
-        # 1) Extract .../subscriptions/{id} from the Location header.
-        loc = resp.headers.get("Location", "")
-        if loc and "subscriptions" in loc:
-            sub_id = loc.split("subscriptions/")[-1].split("/")[0]
-
-        # 2) Fall back to searching for 'subscriptionId' in JSON response body.
-        if not sub_id:
-            try:
-                body_json = resp.json()
-                if isinstance(body_json, dict) and "subscriptionId" in body_json:
-                    sub_id = body_json["subscriptionId"]
-            except ValueError:
-                pass
-
-    return sub_id
-
-
-def execute_test_request(client, request_def, base_url, base_headers, driving_state_data=None):
-    """
-    Execute the actual test request (the 'request' field).
-
-    Supports injecting a subscriptionId obtained from driving_state into the request URL.
-    Returns a dict with status_code / reason_phrase / response_time / headers / body / error.
-    """
-    resource_url = request_def.get("resource_url", "")
-    method = request_def.get("method", "GET").upper()
-    body = request_def.get("request_body", {})
-    headers = dict(base_headers)
-    headers.update(request_def.get("headers", {}))
-
-    # Inject subscriptionId into URL if needed.
-    if driving_state_data and "{subscriptionId}" in resource_url:
-        resource_url = resource_url.replace("{subscriptionId}", driving_state_data)
-    elif driving_state_data and "subscriptions" in resource_url and "{subscriptionId}" not in resource_url:
-        if resource_url.rstrip("/").endswith("/subscriptions"):
-            resource_url = resource_url.rstrip("/") + f"/{driving_state_data}"
-
-    full_url = build_full_url(resource_url, base_url)
-
-    if method == "PUT":
-        resp = client.put(full_url, headers=headers, json=body or None, timeout=10.0)
-    elif method == "POST":
-        resp = client.post(full_url, headers=headers, json=body or None, timeout=10.0)
-    elif method == "GET":
-        resp = client.get(full_url, headers=headers, timeout=10.0)
-    elif method == "DELETE":
-        #resp = client.delete(full_url, headers=headers, json=body or None, timeout=10.0)
-        resp = client.request("DELETE", full_url, headers=headers, json=body or None, timeout=10.0)
-    else:
+        payload = {
+            "status_code": response.status_code,
+            "status_message": response.reason_phrase,
+            "response_body": response.text if response.text else None,
+            "response_headers": dict(response.headers),
+            "response_time": response.elapsed.total_seconds() if hasattr(response, "elapsed") else None,
+        }
+        update_context_from_response(context, payload["response_headers"], payload["response_body"])
+        return payload
+    except httpx.TimeoutException as exc:
         return {
             "status_code": None,
-            "reason_phrase": f"Unsupported method: {method}",
-            "response_time": None,
-            "response_headers": None,
+            "status_message": str(exc),
             "response_body": None,
-            "error": f"Unsupported HTTP method: {method}",
+            "response_headers": {},
+            "response_time": None,
+            "error": f"Timeout: {str(exc)}",
+            "error_type": "TimeoutException",
+            "error_location": f"{method} {request_details['resource_url']}",
+        }
+    except httpx.RequestError as exc:
+        return {
+            "status_code": None,
+            "status_message": str(exc),
+            "response_body": None,
+            "response_headers": {},
+            "response_time": None,
+            "error": str(exc),
+            "error_type": exc.__class__.__name__,
+            "error_location": f"{method} {request_details['resource_url']}",
         }
 
+
+def execute_steps(
+    steps: List[Dict[str, Any]],
+    base_url: str,
+    headers: Dict[str, str],
+    client: httpx.Client,
+    context: Dict[str, Any],
+    stop_on_error: bool,
+) -> Dict[str, Any]:
+    step_results: List[Dict[str, Any]] = []
+    for step in steps:
+        result = execute_step(client, step, base_url, headers, context)
+        step_results.append(result)
+        if stop_on_error and result.get("status_code") is None:
+            break
     return {
-        "status_code": resp.status_code,
-        "reason_phrase": resp.reason_phrase,
-        "response_time": resp.elapsed.total_seconds(),
-        "response_headers": dict(resp.headers),
-        "response_body": resp.text if resp.text else None,
-        "error": None,
+        "step_results": step_results,
+        "status_code": step_results[-1].get("status_code") if step_results else None,
+        "status_message": step_results[-1].get("status_message") if step_results else None,
+        "error": next((item.get("error") for item in step_results if item.get("error")), None),
     }
 
 
 def run_nrf_tests(test_cases_file, resume_file=None, auto_restart=True, max_restarts=10):
     """
     Run NRF tests using HTTPX with HTTP/2 prior knowledge.
-    Supports JSON test cases that include driving_state + request, such as:
-    - testing_cases/NFStatusSubscibe_tests.json
-    - testing_cases/NFDeregister_tests.json
-    - testing_cases/NFRegister_tests.json
-    - testing_cases/NFStatusNotify_tests.json
+    Supports both the new suite format and legacy JSON arrays.
     """
-    # Load test cases from the JSON file
     try:
-        with open(test_cases_file, 'r') as f:
-            content = f.read()
-            test_cases = json.loads(content)
-    except json.JSONDecodeError as e:
-        print(f"Error parsing JSON file: {e}")
-        sys.exit(1)
-    except FileNotFoundError:
-        print(f"File not found: {test_cases_file}")
+        suite = load_suite_or_legacy_tests(test_cases_file, Path(test_cases_file).stem.replace("_tests", ""))
+    except (json.JSONDecodeError, OSError, ValueError) as exc:
+        print(f"Error parsing JSON file: {exc}")
         sys.exit(1)
 
-    if not isinstance(test_cases, list):
-        print("Error: Test cases file must contain a JSON array")
+    tests = suite.get("tests", [])
+    if not isinstance(tests, list):
+        print("Error: Test cases file must contain a suite tests array")
         sys.exit(1)
 
-    # Base URL and default headers.
     base_url = "http://localhost:7777/nnrf-nfm/v1"
     base_headers = {"Content-Type": "application/json"}
 
-    # Determine results file name based on input file name.
     test_path = Path(test_cases_file)
-    stem = test_path.stem  # e.g. 'NFStatusSubscibe_tests'
+    stem = test_path.stem
     if "_tests" in stem:
         input_name = stem.split("_tests", 1)[0]
     elif "_test" in stem:
@@ -205,165 +174,138 @@ def run_nrf_tests(test_cases_file, resume_file=None, auto_restart=True, max_rest
     results_dir.mkdir(parents=True, exist_ok=True)
     results_file = str(results_dir / f"nrf_test_results_open5gs_{input_name}.json")
 
-    # Results container and starting index
     results = []
     start_index = 0
     restart_count = 0
+    shared_setup = suite.get("setup", [])
+    shared_cleanup = suite.get("cleanup", [])
 
-    # If resume file is provided, load previous results and determine starting index
     if resume_file and os.path.exists(resume_file):
         try:
-            with open(resume_file, 'r') as f:
-                resume_data = json.loads(f.read())
+            with open(resume_file, "r", encoding="utf-8") as f:
+                resume_data = json.load(f)
                 if isinstance(resume_data, dict) and "results" in resume_data:
-                    # New format with metadata
                     results = resume_data["results"]
                     if "crash_info" in resume_data:
                         print(f"\nPrevious crash detected at test case index: {resume_data['crash_info']['crash_index']}")
                         print("Crashed payload:")
                         print(json.dumps(resume_data["crash_info"]["crashed_payload"], indent=2))
                 else:
-                    # Old format (just an array of results)
                     results = resume_data
 
                 if results:
-                    # Find the highest test case index that was completed
                     start_index = max(r.get("test_case_index", -1) for r in results) + 1
-                    print(f"Resuming from test case {start_index+1}")
+                    print(f"Resuming from test case {start_index + 1}")
         except Exception as e:
             print(f"Error loading resume file: {e}")
             print("Starting from the beginning")
 
-    # Save progress function
     def save_progress(crashed_payload=None):
-        # Add crash information if available
         progress_data = {
             "results": results,
             "last_completed_index": results[-1]["test_case_index"] if results else -1,
             "timestamp": datetime.now().isoformat(),
-            "total_test_cases": len(test_cases),
-            "completed_test_cases": len(results)
+            "total_test_cases": len(tests),
+            "completed_test_cases": len(results),
         }
 
         if crashed_payload is not None:
             progress_data["crash_info"] = {
                 "crashed_payload": crashed_payload,
-                "crash_index": results[-1]["test_case_index"] if results else -1
+                "crash_index": results[-1]["test_case_index"] if results else -1,
             }
 
-        with open(results_file, 'w') as f:
+        with open(results_file, "w", encoding="utf-8") as f:
             json.dump(progress_data, f, indent=2)
         print(f"\nProgress saved to {results_file}")
 
-    # Process test cases
+    def should_restart(summary: Dict[str, Any]) -> bool:
+        error = summary.get("error")
+        return bool(error and "Server disconnected" in str(error))
+
     try:
         i = start_index
-        while i < len(test_cases):
-            # Create new client for each test case to handle potential crashes
-            with httpx.Client(http1=False, http2=True) as client:
-                test_case = test_cases[i]
-                print(f"\nProcessing test case {i+1}/{len(test_cases)}")
+        while i < len(tests):
+            with httpx.Client(http1=False, http2=True, timeout=DEFAULT_TIMEOUT) as client:
+                test_case = tests[i]
+                print(f"\nProcessing test case {i + 1}/{len(tests)}")
 
-                name = test_case.get("name", f"Test case {i+1}")
+                name = test_case.get("name", f"Test case {i + 1}")
                 violated_constraints = test_case.get("violated_constraints", [])
                 constraint_text = violated_constraints[0] if violated_constraints else ""
 
-                driving_state = test_case.get("driving_state")
+                context: Dict[str, Any] = {}
+                setup_steps = list(shared_setup)
+                legacy_setup = test_case.get("driving_state")
+                if legacy_setup:
+                    setup_steps.append(legacy_setup)
+
+                setup_summary = execute_steps(setup_steps, base_url, base_headers, client, context, stop_on_error=True)
+
                 request_def = test_case.get("request", {})
-
-                try:
-                    # 1) Execute driving_state (if any) to obtain subscriptionId, etc.
-                    driving_state_data = None
-                    if driving_state:
-                        driving_state_data = execute_driving_state(
-                            client, driving_state, base_url, base_headers
-                        )
-
-                    # 2) Execute the actual request.
-                    if not request_def:
-                        resp_info = {
-                            "status_code": None,
-                            "reason_phrase": "No request in test case",
-                            "response_time": None,
-                            "response_headers": None,
-                            "response_body": None,
-                            "error": "Missing request field",
-                        }
-                    else:
-                        resp_info = execute_test_request(
-                            client,
-                            request_def,
-                            base_url,
-                            base_headers,
-                            driving_state_data=driving_state_data,
-                        )
-
-                    # 3) Record results.
-                    result = {
-                        "test_case_index": i,
-                        "name": name,
-                        "constraint": constraint_text,
-                        "status_code": resp_info.get("status_code"),
-                        "reason_phrase": resp_info.get("reason_phrase"),
-                        "response_time": resp_info.get("response_time"),
-                        "response_headers": resp_info.get("response_headers"),
-                        "response_body": resp_info.get("response_body"),
-                        "error": resp_info.get("error"),
-                    }
-                    results.append(result)
-
-                    if result["status_code"] is not None:
-                        print(f"  Status: {result['status_code']} {result['reason_phrase']}")
-                    else:
-                        print(f"  Error: {result['error']}")
-
-                except httpx.RequestError as e:
-                    # Handle request exceptions
-                    result = {
-                        "test_case_index": i,
+                if not request_def:
+                    resp_info = {
                         "status_code": None,
-                        "reason_phrase": str(e),
+                        "reason_phrase": "No request in test case",
                         "response_time": None,
                         "response_headers": None,
                         "response_body": None,
-                        "error": str(e),
-                        "error_type": e.__class__.__name__,
+                        "error": "Missing request field",
                     }
-                    results.append(result)
-                    print(f"  HTTPX Error: {e}")
+                else:
+                    seed_context_from_step(request_def, context)
+                    resp_info = execute_step(client, request_def, base_url, base_headers, context)
 
-                    # Detect crash when "Server disconnected" appears
-                    if "Server disconnected" in str(e) and auto_restart:
-                        print("\n*** NRF SERVICE CRASH DETECTED ***")
-                        print("Crashed test case payload:")
-                        print(json.dumps(test_case, indent=2))
-                        save_progress(test_case)
+                update_context_from_response(context, resp_info.get("response_headers"), resp_info.get("response_body"))
+                cleanup_context = dict(context)
+                cleanup_summary = execute_steps(shared_cleanup, base_url, base_headers, client, cleanup_context, stop_on_error=False)
 
-                        # Automatically restart NRF
-                        restart_count += 1
-                        if restart_count <= max_restarts:
-                            print(f"\nAutomatically restarting NRF (restart #{restart_count})...")
-                            restart_nrf_container()
-                        else:
-                            print("Maximum restart attempts reached, stopping further restarts.")
+                result = {
+                    "test_case_index": i,
+                    "name": name,
+                    "constraint": constraint_text,
+                    "setup_status_code": setup_summary.get("status_code"),
+                    "setup_status_message": setup_summary.get("status_message"),
+                    "setup_error": setup_summary.get("error"),
+                    "status_code": resp_info.get("status_code"),
+                    "reason_phrase": resp_info.get("status_message"),
+                    "response_time": resp_info.get("response_time"),
+                    "response_headers": resp_info.get("response_headers"),
+                    "response_body": resp_info.get("response_body"),
+                    "cleanup_status_code": cleanup_summary.get("status_code"),
+                    "cleanup_status_message": cleanup_summary.get("status_message"),
+                    "cleanup_error": cleanup_summary.get("error"),
+                    "error": resp_info.get("error"),
+                }
+                results.append(result)
 
-                # Save progress periodically (every 20 test cases)
+                if result["status_code"] is not None:
+                    print(f"  Status: {result['status_code']} {result['reason_phrase']}")
+                else:
+                    print(f"  Error: {result['error']}")
+
+                if any(should_restart(summary) for summary in (setup_summary, resp_info, cleanup_summary)) and auto_restart:
+                    print("\n*** NRF SERVICE CRASH DETECTED ***")
+                    print("Crashed test case payload:")
+                    print(json.dumps(test_case, indent=2))
+                    save_progress(test_case)
+                    restart_count += 1
+                    if restart_count <= max_restarts:
+                        print(f"\nAutomatically restarting NRF (restart #{restart_count})...")
+                        restart_nrf_container()
+                    else:
+                        print("Maximum restart attempts reached, stopping further restarts.")
+
                 if (i + 1) % 20 == 0:
                     save_progress()
 
-                # Small delay between requests to avoid overwhelming the server
                 time.sleep(0.1)
-
-                # Always move to the next test case, even after a crash
                 i += 1
-
     except KeyboardInterrupt:
         print("\nTest interrupted by user.")
     finally:
-        # Always save results before exiting
         save_progress()
 
-    # Print summary
     success_count = sum(1 for r in results if r.get("status_code") in [200, 201, 204])
     print(f"\nTest complete. Results saved to {results_file}")
     print(f"Summary: {success_count}/{len(results)} tests successful")
@@ -376,12 +318,12 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="NRF Testing Tool with automatic recovery (Open5GS, driving_state-aware)"
+        description="NRF Testing Tool with automatic recovery (Open5GS, suite-aware)"
     )
     parser.add_argument(
         "test_cases_file",
         help=(
-            "JSON file containing test cases "
+            "JSON file containing a suite object or legacy array "
             "(e.g., testing_cases/NFStatusSubscibe_tests.json, "
             "testing_cases/NFDeregister_tests.json, "
             "testing_cases/NFRegister_tests.json, or "
