@@ -43,5 +43,5 @@ ENV/
 Thumbs.db
 
 # Test run outputs and analysis artifacts
-extremal_testing/data/results/
+extremal_testing/data/results/*
 
