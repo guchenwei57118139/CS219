@@ -12,7 +12,7 @@ from extremal_testing.implementation_testers.base import BaseNRFTester
 
 class OAINRFTester(BaseNRFTester):
     implementation_name = "oai"
-    default_base_url = "http://localhost:8080/nnrf-nfm/v1"
+    default_base_url = "http://localhost:29511/nnrf-nfm/v1"
     results_prefix = "nrf_test_results_oai_"
     request_timeout = 10
 

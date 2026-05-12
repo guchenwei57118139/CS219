@@ -12,7 +12,7 @@ from extremal_testing.implementation_testers.base import BaseNRFTester
 
 class Open5GSNRFTester(BaseNRFTester):
     implementation_name = "open5gs"
-    default_base_url = "http://localhost:7777/nnrf-nfm/v1"
+    default_base_url = "http://localhost:29512/nnrf-nfm/v1"
     results_prefix = "nrf_test_results_open5gs_"
     request_timeout = 10
 

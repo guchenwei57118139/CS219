@@ -12,7 +12,7 @@ from extremal_testing.implementation_testers.base import BaseNRFTester
 
 class Free5GCNRFTester(BaseNRFTester):
     implementation_name = "free5gc"
-    default_base_url = "http://localhost:7778/nnrf-nfm/v1"
+    default_base_url = "http://localhost:29510/nnrf-nfm/v1"
     results_prefix = "nrf_test_results_free5gc_"
     request_timeout = 10
 

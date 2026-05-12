@@ -42,7 +42,7 @@ class BaseNRFTester(ABC):
         return {}
 
     def build_results_file(self, operation_name: str) -> Path:
-        results_dir = Path(__file__).resolve().parent.parent / "data" / "results"
+        results_dir = Path(__file__).resolve().parent.parent / "data" / "results" / self.implementation_name
         results_dir.mkdir(parents=True, exist_ok=True)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         return results_dir / f"{self.results_prefix}{operation_name}_{timestamp}.json"
@@ -193,4 +193,3 @@ class BaseNRFTester(ABC):
         with open(results_file, "w", encoding="utf-8") as f:
             json.dump(results, f, indent=2, ensure_ascii=False)
         return str(results_file)
-
