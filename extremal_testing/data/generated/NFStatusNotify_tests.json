@@ -1,8 +1,14 @@
-[
-  {
-    "name": "Notification body is an array instead of an object",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+{
+  "operation": "NFStatusNotify",
+  "path": "{nfStatusNotificationUri}",
+  "method": "POST",
+  "depends_on": [
+    "NFRegister",
+    "NFStatusSubscribe"
+  ],
+  "setup": [
+    {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
       "method": "PUT",
       "headers": {
         "Content-Type": "application/json"
@@ -14,379 +20,292 @@
         "fqdn": "nrf.example.3gppnetwork.org"
       }
     },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000/status-notify",
+    {
+      "resource_url": "/nnrf-nfm/v1/subscriptions",
       "method": "POST",
       "headers": {
         "Content-Type": "application/json"
       },
-      "request_body": [
-        {
-          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-          "nfStatus": "UNREACHABLE"
-        }
+      "request_body": {
+        "callbackReference": {
+          "notifyUri": "https://example.client/callback"
+        },
+        "eventTypes": [
+          "NF_STATUS_CHANGE"
+        ],
+        "duration": 3600,
+        "targetNfType": "NRF"
+      }
+    }
+  ],
+  "cleanup": [
+    {
+      "resource_url": "/nnrf-nfm/v1/subscriptions/{subscriptionId}",
+      "method": "DELETE",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+      "method": "DELETE",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    }
+  ],
+  "tests": [
+    {
+      "name": "Invalid body type: array instead of NotificationData object",
+      "request": {
+        "method": "POST",
+        "resource_url": "{nfStatusNotificationUri}",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": [
+          "NF_STATUS_CHANGE",
+          {
+            "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+            "nfType": "NRF",
+            "nfStatus": "REGISTERED"
+          }
+        ]
+      },
+      "violated_constraints": [
+        "The request body must be a JSON object conforming to the NotificationData schema ($ref: '#/components/schemas/NotificationData')."
       ]
     },
-    "violated_constraints": [
-      "The request body must be a JSON object conforming to the NotificationData schema ($ref: '#/components/schemas/NotificationData')."
-    ]
-  },
-  {
-    "name": "NFStatusNotify with non-JSON Content-Type",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
+    {
+      "name": "NFStatusNotify with non-JSON Content-Type",
+      "request": {
+        "resource_url": "{nfStatusNotificationUri}",
+        "method": "POST",
+        "headers": {
+          "Content-Type": "text/plain"
+        },
+        "request_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"DEREGISTERED\"}"
       },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
+      "violated_constraints": [
+        "The request body content type must be 'application/json'."
+      ]
     },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000/status/notification",
-      "method": "POST",
-      "headers": {
-        "Content-Type": "application/xml"
-      },
-      "request_body": "<NotificationData><nfInstanceId>550e8400-e29b-41d4-a716-446655440000</nfInstanceId><nfStatus>UNAVAILABLE</nfStatus></NotificationData>"
-    },
-    "violated_constraints": [
-      "The request body content type must be 'application/json'."
-    ]
-  },
-  {
-    "name": "Notification missing required 'event' and 'nfInstanceUri'",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000/status-notify",
-      "method": "POST",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "timestamp": "2026-03-02T12:00:00Z",
-        "details": {
-          "info": "Periodic status update without required fields"
+    {
+      "name": "NFStatusNotify_missing_event_and_nfInstanceUri",
+      "request": {
+        "method": "POST",
+        "resource_url": "{nfStatusNotificationUri}",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "timestamp": "2026-05-12T08:30:00Z",
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "status": "UNAVAILABLE",
+          "details": {
+            "reason": "Heartbeat missed"
+          }
         }
-      }
-    },
-    "violated_constraints": [
-      "The NotificationData object MUST include the properties 'event' and 'nfInstanceUri'."
-    ]
-  },
-  {
-    "name": "Notification with invalid event value",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
       },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
+      "violated_constraints": [
+        "The NotificationData object requires the 'event' and 'nfInstanceUri' properties."
+      ]
     },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000/notifications",
-      "method": "POST",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "event": "NF_REBOOTED",
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "eventTime": "2026-03-02T12:00:00Z",
-        "details": {
-          "reason": "Routine restart"
+    {
+      "name": "NFStatusNotify - invalid event value",
+      "request": {
+        "method": "POST",
+        "resource_url": "{nfStatusNotificationUri}",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "event": "NF_REBOOTED",
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED"
         }
-      }
-    },
-    "violated_constraints": [
-      "The 'event' property must be one of the NotificationEventType values: NF_REGISTERED, NF_DEREGISTERED, NF_PROFILE_CHANGED, or SHARED_DATA_CHANGED."
-    ]
-  },
-  {
-    "name": "NF_PROFILE_CHANGED missing profile fields",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
       },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
+      "violated_constraints": [
+        "The 'event' property must be one of the NotificationEventType values: NF_REGISTERED, NF_DEREGISTERED, NF_PROFILE_CHANGED, or SHARED_DATA_CHANGED. Provided value: 'NF_REBOOTED'."
+      ]
     },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/notifications",
-      "method": "POST",
-      "headers": {
-        "Content-Type": "application/json"
+    {
+      "name": "NF_PROFILE_CHANGED event with missing profile fields",
+      "request": {
+        "method": "POST",
+        "resource_url": "{nfStatusNotificationUri}",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "request_body": {
+          "event": "NF_PROFILE_CHANGED",
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "timeStamp": "2026-05-12T12:00:00Z"
+        }
       },
-      "request_body": {
-        "event": "NF_PROFILE_CHANGED",
-        "timeStamp": "2026-03-02T12:00:00Z",
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000"
-      }
+      "violated_constraints": [
+        "If 'event' is 'NF_PROFILE_CHANGED', then at least one of 'nfProfile', 'profileChanges', or 'completeNfProfile' must be present in the NotificationData object."
+      ]
     },
-    "violated_constraints": [
-      "If 'event' is 'NF_PROFILE_CHANGED', then at least one of 'nfProfile', 'profileChanges', or 'completeNfProfile' must be present in the NotificationData object."
-    ]
-  },
-  {
-    "name": "NF_REGISTERED event without nfProfile or completeNfProfile",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfProfile": {
+    {
+      "name": "NFStatusNotify_Invalid_MissingNfProfileForRegister",
+      "request": {
+        "resource_url": "{nfStatusNotificationUri}",
+        "method": "POST",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "event": "NF_REGISTERED",
           "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
           "nfType": "NRF",
           "nfStatus": "REGISTERED",
-          "fqdn": "nrf.example.3gppnetwork.org"
+          "timestamp": "2026-05-12T12:00:00Z"
         }
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-status/notifications",
-      "method": "POST",
-      "headers": {
-        "Content-Type": "application/json"
       },
-      "request_body": {
-        "event": "NF_REGISTERED",
-        "timestamp": "2026-03-02T12:00:00Z",
-        "notificationType": "NF_STATUS_CHANGE"
-      }
+      "violated_constraints": [
+        "If 'event' is 'NF_REGISTERED', then at least one of 'nfProfile' or 'completeNfProfile' must be present in the NotificationData object."
+      ]
     },
-    "violated_constraints": [
-      "If 'event' is 'NF_REGISTERED', then at least one of 'nfProfile' or 'completeNfProfile' must be present in the NotificationData object."
-    ]
-  },
-  {
-    "name": "SHARED_DATA_CHANGED event missing sharedDataChanges",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000/status-notify",
-      "method": "POST",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "event": "SHARED_DATA_CHANGED",
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "eventTimestamp": "2026-03-02T12:00:00Z"
-      }
-    },
-    "violated_constraints": [
-      "If 'event' is 'SHARED_DATA_CHANGED', then 'sharedDataChanges' must be present in the NotificationData object."
-    ]
-  },
-  {
-    "name": "ProfileChanges present but empty array",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/notifications/nf-status",
-      "method": "POST",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "profileChanges": []
-      }
-    },
-    "violated_constraints": [
-      "When present, 'profileChanges' must be an array with at least one item and each item must conform to ChangeItem ($ref: 'TS29571_CommonData.yaml#/components/schemas/ChangeItem')."
-    ]
-  },
-  {
-    "name": "Empty sharedDataChanges array in NFStatusNotify",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000/status-notify",
-      "method": "POST",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "notificationType": "NF_STATUS_CHANGE",
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "sharedDataChanges": []
-      }
-    },
-    "violated_constraints": [
-      "When present, 'sharedDataChanges' must be an array with at least one item and each item must conform to ChangeItem ($ref: 'TS29571_CommonData.yaml#/components/schemas/ChangeItem')."
-    ]
-  },
-  {
-    "name": "NFStatusNotify with non-conforming nfProfile (missing nfType)",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000/status",
-      "method": "POST",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "notificationType": "NF_STATUS_CHANGE",
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfProfile": {
+    {
+      "name": "NFStatusNotify invalid: SHARED_DATA_CHANGED without sharedDataChanges",
+      "request": {
+        "method": "POST",
+        "url": "{nfStatusNotificationUri}",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "event": "SHARED_DATA_CHANGED",
           "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-          "nfStatus": "REGISTERED",
-          "fqdn": "nrf.example.3gppnetwork.org"
-        }
-      }
-    },
-    "violated_constraints": [
-      "If 'nfProfile' is present, it must conform to NFProfile ($ref: '#/components/schemas/NFProfile')."
-    ]
-  },
-  {
-    "name": "Notification includes prohibited allowedNfTypes in nfProfile.nfServices",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/123e4567-e89b-12d3-a456-426614174000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "123e4567-e89b-12d3-a456-426614174000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-status-notifications",
-      "method": "POST",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfProfile": {
-          "nfInstanceId": "123e4567-e89b-12d3-a456-426614174000",
           "nfType": "NRF",
-          "nfStatus": "SUSPENDED",
-          "nfServices": [
-            {
-              "nfServiceCollectionId": "svc-1",
-              "serviceName": "exampleService",
-              "allowedNfTypes": [
-                "AMF"
-              ]
-            }
+          "time": "2026-05-12T12:00:00Z"
+        }
+      },
+      "violated_constraints": [
+        "If 'event' is 'SHARED_DATA_CHANGED', then 'sharedDataChanges' must be present in the NotificationData object."
+      ]
+    },
+    {
+      "name": "NFStatusNotify with empty profileChanges array (violates minItems)",
+      "request": {
+        "method": "POST",
+        "path": "{nfStatusNotificationUri}",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "notificationType": "NF_STATUS_CHANGE",
+          "profileChanges": []
+        }
+      },
+      "violated_constraints": [
+        "When present, 'profileChanges' must be an array with at least one item and each item must conform to ChangeItem ($ref: 'TS29571_CommonData.yaml#/components/schemas/ChangeItem')."
+      ]
+    },
+    {
+      "name": "NFStatusNotify_sharedDataChanges_emptyArray_invalid",
+      "request": {
+        "method": "POST",
+        "path": "{nfStatusNotificationUri}",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "sharedDataChanges": []
+        }
+      },
+      "violated_constraints": [
+        "When present, 'sharedDataChanges' must be an array with at least one item and each item must conform to ChangeItem ($ref: 'TS29571_CommonData.yaml#/components/schemas/ChangeItem')."
+      ]
+    },
+    {
+      "name": "NFStatusNotify - invalid nfProfile type (string instead of object)",
+      "request": {
+        "method": "POST",
+        "resource_url": "{nfStatusNotificationUri}",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "notificationType": "NF_STATUS_CHANGE",
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfStatus": "UNREGISTERED",
+          "nfProfile": "this-must-be-an-object-conforming-to-NFProfile-not-a-string"
+        }
+      },
+      "violated_constraints": [
+        "If 'nfProfile' is present, it must conform to NFProfile ($ref: '#/components/schemas/NFProfile')."
+      ]
+    },
+    {
+      "name": "NFStatusNotify with forbidden allowedPlmns in nfProfile.nfServices",
+      "request": {
+        "method": "POST",
+        "resource": "{nfStatusNotificationUri}",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "event": "NF_STATUS_CHANGE",
+          "nfInstanceUri": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+          "nfProfile": {
+            "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+            "nfType": "NRF",
+            "nfStatus": "SUSPENDED",
+            "fqdn": "nrf.example.3gppnetwork.org",
+            "nfServices": [
+              {
+                "nfServiceName": "nf-discovery",
+                "versions": [
+                  {
+                    "apiVersionInUri": true,
+                    "apiFullVersion": "v1"
+                  }
+                ],
+                "allowedPlmns": [
+                  {
+                    "mcc": "001",
+                    "mnc": "01"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "violated_constraints": [
+        "When 'nfProfile' is included in a notification, the nfProfile object and any NFService objects contained in nfProfile.nfServices (array items) or nfProfile.nfServiceList (additionalProperties) must not include the properties allowedPlmns, allowedSnpns, allowedNfTypes, allowedNfDomains, or allowedNssais."
+      ]
+    },
+    {
+      "name": "NFStatusNotify_Invalid_ContentEncoding_NonString",
+      "request": {
+        "resource_url": "{nfStatusNotificationUri}",
+        "method": "POST",
+        "headers": {
+          "Content-Type": "application/json",
+          "Content-Encoding": [
+            "gzip",
+            "deflate"
           ]
+        },
+        "request_body": {
+          "notificationType": "NF_STATUS_CHANGE",
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "UNAVAILABLE"
         }
-      }
-    },
-    "violated_constraints": [
-      "When 'nfProfile' is included in a notification, the nfProfile object and any NFService objects contained in nfProfile.nfServices (array items) or nfProfile.nfServiceList (additionalProperties) must not include the properties allowedPlmns, allowedSnpns, allowedNfTypes, allowedNfDomains, or allowedNssais."
-    ]
-  },
-  {
-    "name": "Invalid Content-Encoding header type in NFStatusNotify callback",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
       },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/notifications/nf-status",
-      "method": "POST",
-      "headers": {
-        "Content-Type": "application/json",
-        "Content-Encoding": 123
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfStatus": "UNREGISTERED"
-      }
-    },
-    "violated_constraints": [
-      "The callback request may include a 'Content-Encoding' header of type string (Content-Encoding, described in IETF RFC 9110)."
-    ]
-  }
-]
+      "violated_constraints": [
+        "The callback request may include a 'Content-Encoding' header of type string (Content-Encoding, described in IETF RFC 9110)."
+      ]
+    }
+  ]
+}

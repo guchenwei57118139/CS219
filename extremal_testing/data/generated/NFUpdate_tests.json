@@ -1,8 +1,13 @@
-[
-  {
-    "name": "Invalid nfInstanceID in path (non-UUID)",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+{
+  "operation": "NFUpdate",
+  "path": "/nf-instances/{nfInstanceId}",
+  "method": "PUT",
+  "depends_on": [
+    "NFRegister"
+  ],
+  "setup": [
+    {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
       "method": "PUT",
       "headers": {
         "Content-Type": "application/json"
@@ -13,1210 +18,786 @@
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org"
       }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/invalid-id-123",
-      "method": "PUT",
+    }
+  ],
+  "cleanup": [
+    {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+      "method": "DELETE",
       "headers": {
         "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "OPERATIONAL",
-        "fqdn": "nrf-updated.example.3gppnetwork.org"
       }
-    },
-    "violated_constraints": [
-      "The path parameter 'nfInstanceID' is required and must conform to the schema referenced by TS29571_CommonData.yaml#/components/schemas/NfInstanceId."
-    ]
-  },
-  {
-    "name": "Request body does not contain an NFProfile object",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "unexpectedField": "this is not an NFProfile"
-      }
-    },
-    "violated_constraints": [
-      "The request body is required and must be sent as 'application/json' containing an NFProfile object (schema reference '#/components/schemas/NFProfile')."
-    ]
-  },
-  {
-    "name": "NFProfile provided as string instead of object",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": "this NFProfile is a plain string, not a JSON object"
-    },
-    "violated_constraints": [
-      "The NFProfile object MUST be of type object."
-    ]
-  },
-  {
-    "name": "Update NFProfile missing nfType and nfStatus",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/123e4567-e89b-12d3-a456-426614174000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "123e4567-e89b-12d3-a456-426614174000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/123e4567-e89b-12d3-a456-426614174000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "123e4567-e89b-12d3-a456-426614174000",
-        "nfInstanceName": "NRF Instance Without Type/Status",
-        "fqdn": "nrf-updated.example.3gppnetwork.org"
-      }
-    },
-    "violated_constraints": [
-      "An NFProfile MUST include the properties 'nfInstanceId', 'nfType', and 'nfStatus'."
-    ]
-  },
-  {
-    "name": "Update NFProfile missing address fields (violates anyOf)",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED"
-      }
-    },
-    "violated_constraints": [
-      "The NFProfile object MUST contain at least one of the following properties: 'fqdn', 'ipv4Addresses', or 'ipv6Addresses' (anyOf constraint)."
-    ]
-  },
-  {
-    "name": "collocatedNfInstances present as empty array (violates minItems)",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "collocatedNfInstances": []
-      }
-    },
-    "violated_constraints": [
-      "If present, 'collocatedNfInstances' must be an array with at least 1 item and each item must conform to the CollocatedNfInstance schema."
-    ]
-  },
-  {
-    "name": "heartBeatTimer below minimum (0)",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "heartBeatTimer": 0
-      }
-    },
-    "violated_constraints": [
-      "If present, 'heartBeatTimer' must be an integer with a minimum value of 1."
-    ]
-  },
-  {
-    "name": "plmnList contains item not conforming to PlmnId schema",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "plmnList": [
-          "invalid-plmn-string"
-        ]
-      }
-    },
-    "violated_constraints": [
-      "If present, 'plmnList' must be an array with at least 1 item and each item must conform to TS29571_CommonData.yaml#/components/schemas/PlmnId."
-    ]
-  },
-  {
-    "name": "snpnList present but empty array",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "snpnList": []
-      }
-    },
-    "violated_constraints": [
-      "If present, 'snpnList' must be an array with at least 1 item and each item must conform to TS29571_CommonData.yaml#/components/schemas/PlmnIdNid."
-    ]
-  },
-  {
-    "name": "sNssais present as empty array (violates minItems)",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "sNssais": []
-      }
-    },
-    "violated_constraints": [
-      "If present, 'sNssais' must be an array with at least 1 item and each item must conform to TS29571_CommonData.yaml#/components/schemas/ExtSnssai."
-    ]
-  },
-  {
-    "name": "perPlmnSnssaiList empty array (violates minItems)",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "perPlmnSnssaiList": []
-      }
-    },
-    "violated_constraints": [
-      "If present, 'perPlmnSnssaiList' must be an array with at least 1 item and each item must conform to '#/components/schemas/PlmnSnssai'."
-    ]
-  },
-  {
-    "name": "nsiList present but empty array (violates minItems)",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "nsiList": []
-      }
-    },
-    "violated_constraints": [
-      "If present, 'nsiList' must be an array of strings with at least 1 item."
-    ]
-  },
-  {
-    "name": "Invalid ipv4Addresses item format",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "ipv4Addresses": [
-          "not-an-ip"
-        ]
-      }
-    },
-    "violated_constraints": [
-      "If present, 'ipv4Addresses' must be an array with at least 1 item and each item must conform to TS29571_CommonData.yaml#/components/schemas/Ipv4Addr."
-    ]
-  },
-  {
-    "name": "Invalid ipv6Addresses item format",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "ipv6Addresses": [
-          "invalid-ipv6-address"
-        ]
-      }
-    },
-    "violated_constraints": [
-      "If present, 'ipv6Addresses' must be an array with at least 1 item and each item must conform to TS29571_CommonData.yaml#/components/schemas/Ipv6Addr."
-    ]
-  },
-  {
-    "name": "Update with empty allowedPlmns array",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "allowedPlmns": []
-      }
-    },
-    "violated_constraints": [
-      "If present, 'allowedPlmns' must be an array with at least 1 item and each item must conform to TS29571_CommonData.yaml#/components/schemas/PlmnId."
-    ]
-  },
-  {
-    "name": "allowedSnpns empty array (violates minItems)",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "allowedSnpns": []
-      }
-    },
-    "violated_constraints": [
-      "If present, 'allowedSnpns' must be an array with at least 1 item and each item must conform to TS29571_CommonData.yaml#/components/schemas/PlmnIdNid."
-    ]
-  },
-  {
-    "name": "Empty allowedNfTypes array (violates minItems constraint)",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "allowedNfTypes": []
-      }
-    },
-    "violated_constraints": [
-      "If present, 'allowedNfTypes' must be an array with at least 1 item and each item must conform to '#/components/schemas/NFType'."
-    ]
-  },
-  {
-    "name": "allowedNfDomains present as empty array",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "allowedNfDomains": []
-      }
-    },
-    "violated_constraints": [
-      "If present, 'allowedNfDomains' must be an array of strings with at least 1 item."
-    ]
-  },
-  {
-    "name": "Empty allowedNssais array (violates minItems)",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "allowedNssais": []
-      }
-    },
-    "violated_constraints": [
-      "If present, 'allowedNssais' must be an array with at least 1 item and each item must conform to TS29571_CommonData.yaml#/components/schemas/ExtSnssai."
-    ]
-  },
-  {
-    "name": "allowedRuleSet present but empty (violates minProperties)",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "allowedRuleSet": {}
-      }
-    },
-    "violated_constraints": [
-      "If present, 'allowedRuleSet' must be an object whose additional properties conform to '#/components/schemas/RuleSet' and it must have at least 1 property."
-    ]
-  },
-  {
-    "name": "Update NFProfile with out-of-range priority",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "priority": 70000
-      }
-    },
-    "violated_constraints": [
-      "If present, 'priority' must be an integer between 0 and 65535 inclusive."
-    ]
-  },
-  {
-    "name": "Update with capacity exceeding maximum allowed",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "capacity": 70000
-      }
-    },
-    "violated_constraints": [
-      "If present, 'capacity' must be an integer between 0 and 65535 inclusive."
-    ]
-  },
-  {
-    "name": "Load value above maximum (150)",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "load": 150
-      }
-    },
-    "violated_constraints": [
-      "If present, 'load' must be an integer between 0 and 100 inclusive."
-    ]
-  },
-  {
-    "name": "extLocality contains non-string values",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "extLocality": {
-          "zone": 5,
-          "rack": 100
+    }
+  ],
+  "tests": [
+    {
+      "name": "NFUpdate - invalid path parameter nfInstanceID (not a UUID)",
+      "request": {
+        "method": "PUT",
+        "path": "/nf-instances/invalid-uuid",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org"
         }
-      }
-    },
-    "violated_constraints": [
-      "If present, 'extLocality' must be an object with string values and at least 1 property when present."
-    ]
-  },
-  {
-    "name": "Empty udrInfoList object violates minProperties",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
       },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
+      "violated_constraints": [
+        "The path parameter 'nfInstanceID' is required and must conform to TS29571_CommonData.yaml#/components/schemas/NfInstanceId (expected UUID); provided value 'invalid-uuid' does not match the schema."
+      ]
     },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "udrInfoList": {}
-      }
-    },
-    "violated_constraints": [
-      "When present, map-like properties such as 'udrInfoList' MUST be objects with at least 1 property (minProperties: 1)."
-    ]
-  },
-  {
-    "name": "nfServices present as empty array (violates minItems)",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "nfServices": []
-      }
-    },
-    "violated_constraints": [
-      "If present, 'nfServices' (deprecated) must be an array with at least 1 item and each item must conform to '#/components/schemas/NFService'."
-    ]
-  },
-  {
-    "name": "Empty defaultNotificationSubscriptions array",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "defaultNotificationSubscriptions": []
-      }
-    },
-    "violated_constraints": [
-      "If present, 'defaultNotificationSubscriptions' must be an array with at least 1 item and each item must conform to '#/components/schemas/DefaultNotificationSubscription'."
-    ]
-  },
-  {
-    "name": "Update with empty nfSetIdList (violates minItems)",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "nfSetIdList": []
-      }
-    },
-    "violated_constraints": [
-      "If present, 'nfSetIdList' must be an array with at least 1 item and each item must conform to TS29571_CommonData.yaml#/components/schemas/NfSetId."
-    ]
-  },
-  {
-    "name": "Update with empty servingScope array",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "servingScope": []
-      }
-    },
-    "violated_constraints": [
-      "If present, 'servingScope' must be an array of strings with at least 1 item."
-    ]
-  },
-  {
-    "name": "Empty nfSetRecoveryTimeList (violates minProperties requirement)",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "nfSetRecoveryTimeList": {}
-      }
-    },
-    "violated_constraints": [
-      "If present, 'nfSetRecoveryTimeList' and 'serviceSetRecoveryTimeList' must be objects whose additional properties conform to TS29571_CommonData.yaml#/components/schemas/DateTime and each such map must have at least 1 property."
-    ]
-  },
-  {
-    "name": "scpDomains empty array violates minItems constraint",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "scpDomains": []
-      }
-    },
-    "violated_constraints": [
-      "If present, 'scpDomains' must be an array of strings with at least 1 item."
-    ]
-  },
-  {
-    "name": "supportedVendorSpecificFeatures property with empty array value",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "supportedVendorSpecificFeatures": {
-          "424242": []
+    {
+      "name": "NFUpdate - Missing required NFProfile fields (nfInstanceId, nfStatus)",
+      "request": {
+        "resource_url": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "method": "PUT",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "request_body": {
+          "nfType": "NRF",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "nfInstanceName": "Test NRF"
         }
-      }
-    },
-    "violated_constraints": [
-      "If present, 'supportedVendorSpecificFeatures' must be an object with at least 1 property; each value must be an array with at least 1 VendorSpecificFeature item."
-    ]
-  },
-  {
-    "name": "Empty hniList array (violates minItems requirement)",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
       },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
+      "violated_constraints": [
+        "The request body is required and must be sent as 'application/json' containing an NFProfile object (schema reference '#/components/schemas/NFProfile')."
+      ]
     },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
+    {
+      "name": "NFUpdate_Invalid_NFProfileNotObject",
+      "request": {
+        "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "method": "PUT",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "request_body": [
+          "invalid-nfprofile-type",
+          {
+            "nfType": "NRF",
+            "nfStatus": "REGISTERED",
+            "fqdn": "nrf.example.3gppnetwork.org"
+          }
+        ]
       },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "hniList": []
-      }
+      "violated_constraints": [
+        "The NFProfile object MUST be of type object."
+      ]
     },
-    "violated_constraints": [
-      "If present, 'hniList' must be an array with at least 1 FQDN item."
-    ]
-  },
-  {
-    "name": "Update with non-UUID sharedProfileDataId",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
+    {
+      "name": "NFUpdate_missing_nfStatus",
+      "request": {
+        "resource_url": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "method": "PUT",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "request_body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "fqdn": "nrf.example.3gppnetwork.org"
+        }
       },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
+      "violated_constraints": [
+        "The NFProfile object MUST contain the properties 'nfInstanceId', 'nfType', and 'nfStatus'."
+      ]
     },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
+    {
+      "name": "NFUpdate_Invalid_MissingAddressAndFqdn",
+      "request": {
+        "method": "PUT",
+        "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "path_parameters": {
+          "nfInstanceID": "550e8400-e29b-41d4-a716-446655440000"
+        },
+        "body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "nfInstanceName": "nrf-example",
+          "capacity": 1000
+        }
       },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "sharedProfileDataId": "invalid-uuid-1234"
-      }
+      "violated_constraints": [
+        "The NFProfile object MUST contain at least one of the following properties: 'fqdn', 'ipv4Addresses', or 'ipv6Addresses' (anyOf constraint)."
+      ]
     },
-    "violated_constraints": [
-      "If present, 'sharedProfileDataId' must be a UUID-formatted string."
-    ]
-  },
-  {
-    "name": "Invalid shutdownTime format in NFUpdate",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
+    {
+      "name": "NFUpdate with empty collocatedNfInstances array (violates minItems)",
+      "request": {
+        "method": "PUT",
+        "resource_url": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+        "path_parameters": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "collocatedNfInstances": []
+        }
       },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
+      "violated_constraints": [
+        "If present, 'collocatedNfInstances' must be an array with at least 1 item and each item must conform to the CollocatedNfInstance schema."
+      ]
     },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
+    {
+      "name": "NFUpdate_Invalid_HeartBeatTimer_Zero",
+      "request": {
+        "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "method": "PUT",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "heartBeatTimer": 0
+        }
       },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "shutdownTime": "not-a-datetime"
-      }
+      "violated_constraints": [
+        "If present, 'heartBeatTimer' must be an integer with a minimum value of 1."
+      ]
     },
-    "violated_constraints": [
-      "If present, 'shutdownTime' must conform to TS29571_CommonData.yaml#/components/schemas/DateTime."
-    ]
-  },
-  {
-    "name": "SupportedRcfs present as empty array (violates minItems)",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
+    {
+      "name": "NFUpdate_Invalid_PlmnList_EmptyArray",
+      "request": {
+        "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "method": "PUT",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "plmnList": []
+        }
       },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
+      "violated_constraints": [
+        "If present, 'plmnList' must be an array with at least 1 item and each item must conform to TS29571_CommonData.yaml#/components/schemas/PlmnId."
+      ]
     },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
+    {
+      "name": "NFUpdate - invalid empty snpnList",
+      "request": {
+        "resource_url": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "method": "PUT",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "request_body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "snpnList": []
+        }
       },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "supportedRcfs": []
-      }
+      "violated_constraints": [
+        "If present, 'snpnList' must be an array with at least 1 item and each item must conform to TS29571_CommonData.yaml#/components/schemas/PlmnIdNid."
+      ]
     },
-    "violated_constraints": [
-      "If present, 'supportedRcfs' must be an array with at least 1 item and each item must conform to '#/components/schemas/RcfId'."
-    ]
-  },
-  {
-    "name": "Invalid nested NFService object in nfServiceList (missing required referenced-schema field)",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
+    {
+      "name": "NFUpdate with empty sNssais array (violates minItems)",
+      "request": {
+        "method": "PUT",
+        "resource_url": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "sNssais": []
+        }
       },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
+      "violated_constraints": [
+        "If present, 'sNssais' must be an array with at least 1 item and each item must conform to TS29571_CommonData.yaml#/components/schemas/ExtSnssai."
+      ]
     },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
+    {
+      "name": "NFUpdate_Invalid_perPlmnSnssaiList_EmptyArray",
+      "request": {
+        "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "method": "PUT",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "request_body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "perPlmnSnssaiList": []
+        }
       },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "nfServiceList": {
-          "service1": {
-            "serviceName": "example-service"
+      "violated_constraints": [
+        "If present, 'perPlmnSnssaiList' must be an array with at least 1 item and each item must conform to '#/components/schemas/PlmnSnssai'."
+      ]
+    },
+    {
+      "name": "NFUpdate_Invalid_NsiList_EmptyArray",
+      "request": {
+        "resource_url": "/nf-instances/{nfInstanceId}",
+        "method": "PUT",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "path_parameters": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000"
+        },
+        "request_body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "nsiList": []
+        }
+      },
+      "violated_constraints": [
+        "If present, 'nsiList' must be an array of strings with at least 1 item."
+      ]
+    },
+    {
+      "name": "NFUpdate_ipv4Addresses_empty_array_violates_minItems",
+      "request": {
+        "method": "PUT",
+        "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "request_body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "ipv4Addresses": []
+        }
+      },
+      "violated_constraints": [
+        "If present, 'ipv4Addresses' must be an array with at least 1 item and each item must conform to TS29571_CommonData.yaml#/components/schemas/Ipv4Addr."
+      ]
+    },
+    {
+      "name": "NFUpdate_Invalid_ipv6Addresses_empty_array",
+      "request": {
+        "method": "PUT",
+        "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "ipv6Addresses": []
+        }
+      },
+      "violated_constraints": [
+        "If present, 'ipv6Addresses' must be an array with at least 1 item and each item must conform to TS29571_CommonData.yaml#/components/schemas/Ipv6Addr."
+      ]
+    },
+    {
+      "name": "NFUpdate invalid - allowedPlmns empty array",
+      "request": {
+        "method": "PUT",
+        "resource_url": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "request_body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "allowedPlmns": []
+        }
+      },
+      "violated_constraints": [
+        "If present, 'allowedPlmns' must be an array with at least 1 item and each item must conform to TS29571_CommonData.yaml#/components/schemas/PlmnId."
+      ]
+    },
+    {
+      "name": "NFUpdate - allowedSnpns present as empty array (violates minItems)",
+      "request": {
+        "resource_url": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "method": "PUT",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "request_body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "allowedSnpns": []
+        }
+      },
+      "violated_constraints": "If present, 'allowedSnpns' must be an array with at least 1 item and each item must conform to TS29571_CommonData.yaml#/components/schemas/PlmnIdNid."
+    },
+    {
+      "name": "NFUpdate_invalid_allowedNfTypes_empty_array",
+      "request": {
+        "resource_url": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "method": "PUT",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "request_body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "allowedNfTypes": []
+        }
+      },
+      "violated_constraints": [
+        "If present, 'allowedNfTypes' must be an array with at least 1 item and each item must conform to '#/components/schemas/NFType'."
+      ]
+    },
+    {
+      "name": "NFUpdate - invalid allowedNfDomains (empty array)",
+      "request": {
+        "method": "PUT",
+        "resource_url": "/nf-instances/{nfInstanceId}",
+        "path_parameters": {
+          "nfInstanceID": "550e8400-e29b-41d4-a716-446655440000"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "allowedNfDomains": []
+        }
+      },
+      "violated_constraints": [
+        "If present, 'allowedNfDomains' must be an array of strings with at least 1 item."
+      ]
+    },
+    {
+      "name": "NFUpdate - invalid allowedNssais empty array",
+      "request": {
+        "resource_url": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "method": "PUT",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "path_parameters": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000"
+        },
+        "request_body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "allowedNssais": []
+        }
+      },
+      "violated_constraints": [
+        "If present, 'allowedNssais' must be an array with at least 1 item and each item must conform to TS29571_CommonData.yaml#/components/schemas/ExtSnssai."
+      ]
+    },
+    {
+      "name": "NFUpdate invalid - allowedRuleSet empty object",
+      "request": {
+        "resource_url": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+        "method": "PUT",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "path_parameters": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000"
+        },
+        "request_body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "allowedRuleSet": {}
+        }
+      },
+      "violated_constraints": [
+        "If present, 'allowedRuleSet' must be an object with at least 1 property (minProperties: 1) and its additional properties must conform to '#/components/schemas/RuleSet'. The provided 'allowedRuleSet' is an empty object."
+      ]
+    },
+    {
+      "name": "NFUpdate_Invalid_Priority_TooHigh",
+      "request": {
+        "method": "PUT",
+        "resource_url": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "path_parameters": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000"
+        },
+        "request_body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "priority": 70000
+        }
+      },
+      "violated_constraints": [
+        "If present, 'priority' must be an integer between 0 and 65535 inclusive."
+      ]
+    },
+    {
+      "name": "NFUpdate_Invalid_Capacity_TooHigh",
+      "request": {
+        "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "method": "PUT",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "request_body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "capacity": 70000
+        }
+      },
+      "violated_constraints": [
+        "If present, 'capacity' must be an integer between 0 and 65535 inclusive."
+      ]
+    },
+    {
+      "name": "NFUpdate_Invalid_Load_OutOfRange",
+      "request": {
+        "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "method": "PUT",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "request_body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "load": 150
+        }
+      },
+      "violated_constraints": [
+        "If present, 'load' must be an integer between 0 and 100 inclusive."
+      ]
+    },
+    {
+      "name": "NFUpdate with empty extLocality (violates minProperties)",
+      "request": {
+        "resource_url": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "method": "PUT",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "request_body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "extLocality": {}
+        }
+      },
+      "violated_constraints": [
+        "If present, 'extLocality' must be an object with string values and at least 1 property when present."
+      ]
+    },
+    {
+      "name": "NFUpdate invalid - empty udrInfoList (violates minProperties)",
+      "request": {
+        "method": "PUT",
+        "resource_url": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "request_body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "udrInfoList": {}
+        }
+      },
+      "violated_constraints": [
+        "The 'udrInfoList' property is defined as an object with minProperties: 1. Providing an empty object '{}' violates the requirement that the map-like '*InfoList' contain at least one property (minProperties: 1)."
+      ]
+    },
+    {
+      "name": "NFUpdate_Invalid_EmptyNfServices",
+      "request": {
+        "resource_url": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "method": "PUT",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "request_body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "nfServices": []
+        }
+      },
+      "violated_constraints": [
+        "If present, 'nfServices' (deprecated) must be an array with at least 1 item and each item must conform to '#/components/schemas/NFService'."
+      ]
+    },
+    {
+      "name": "NFUpdate - defaultNotificationSubscriptions empty array (violates minItems)",
+      "request": {
+        "method": "PUT",
+        "resource_url": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "defaultNotificationSubscriptions": []
+        }
+      },
+      "violated_constraints": [
+        "If present, 'defaultNotificationSubscriptions' must be an array with at least 1 item and each item must conform to '#/components/schemas/DefaultNotificationSubscription'. Provided an empty array which violates the minimum item constraint."
+      ]
+    },
+    {
+      "name": "NFUpdate - invalid empty nfSetIdList",
+      "request": {
+        "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "method": "PUT",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "nfSetIdList": []
+        }
+      },
+      "violated_constraints": [
+        "If present, 'nfSetIdList' must be an array with at least 1 item and each item must conform to TS29571_CommonData.yaml#/components/schemas/NfSetId."
+      ]
+    },
+    {
+      "name": "NFUpdate - servingScope present as empty array (violates minItems)",
+      "request": {
+        "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "method": "PUT",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "request_body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "servingScope": []
+        }
+      },
+      "violated_constraints": [
+        "If present, 'servingScope' must be an array of strings with at least 1 item."
+      ]
+    },
+    {
+      "name": "NFUpdate - invalid empty nfSetRecoveryTimeList (violates minProperties)",
+      "request": {
+        "resource_url": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "method": "PUT",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "request_body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "nfSetRecoveryTimeList": {}
+        }
+      },
+      "violated_constraints": [
+        "If present, 'nfSetRecoveryTimeList' must be an object with at least 1 property whose values conform to TS29571_CommonData.yaml#/components/schemas/DateTime (violated: nfSetRecoveryTimeList is an empty object)"
+      ]
+    },
+    {
+      "name": "NFUpdate_invalid_empty_scpDomains",
+      "request": {
+        "method": "PUT",
+        "resource_url": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "path_parameters": {
+          "nfInstanceID": "550e8400-e29b-41d4-a716-446655440000"
+        },
+        "request_body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "scpDomains": []
+        }
+      },
+      "violated_constraints": [
+        "If present, 'scpDomains' must be an array of strings with at least 1 item."
+      ]
+    },
+    {
+      "name": "NFUpdate - supportedVendorSpecificFeatures value empty array (invalid)",
+      "request": {
+        "method": "PUT",
+        "resource_url": "/nf-instances/{nfInstanceId}",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "path_parameters": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000"
+        },
+        "request_body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "supportedVendorSpecificFeatures": {
+            "12345": []
           }
         }
-      }
+      },
+      "violated_constraints": [
+        "supportedVendorSpecificFeatures must be an object with at least 1 property; each value must be an array with at least 1 VendorSpecificFeature item (property '12345' has an empty array)"
+      ]
     },
-    "violated_constraints": [
-      "When present, nested properties that reference other schemas must conform to their referenced-schema constraints. The object provided in 'nfServiceList' under key 'service1' does not satisfy the NFService schema (missing required property 'serviceInstanceId')."
-    ]
-  }
-]
+    {
+      "name": "NFUpdate_Invalid_HniList_EmptyArray",
+      "request": {
+        "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "method": "PUT",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "request_body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "hniList": []
+        }
+      },
+      "violated_constraints": [
+        "If present, 'hniList' must be an array with at least 1 FQDN item."
+      ]
+    },
+    {
+      "name": "NFUpdate_invalid_sharedProfileDataId_not_uuid",
+      "request": {
+        "resource_url": "/nf-instances/{nfInstanceId}",
+        "method": "PUT",
+        "path_parameters": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "request_body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "sharedProfileDataId": "invalid-uuid-string"
+        }
+      },
+      "violated_constraints": [
+        "If present, 'sharedProfileDataId' must be a UUID-formatted string."
+      ]
+    },
+    {
+      "name": "NFUpdate_Invalid_ShutdownTime_Format",
+      "request": {
+        "method": "PUT",
+        "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "shutdownTime": "invalid-datetime"
+        }
+      },
+      "violated_constraints": [
+        "If present, 'shutdownTime' must conform to TS29571_CommonData.yaml#/components/schemas/DateTime."
+      ]
+    },
+    {
+      "name": "NFUpdate - supportedRcfs present as empty array (violates minItems)",
+      "request": {
+        "method": "PUT",
+        "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "request_body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "supportedRcfs": []
+        }
+      },
+      "violated_constraints": [
+        "If present, 'supportedRcfs' must be an array with at least 1 item and each item must conform to '#/components/schemas/RcfId' (violated: empty array with 0 items)"
+      ]
+    },
+    {
+      "name": "NFUpdate_Invalid_allowedNfTypes_enum_value",
+      "request": {
+        "resource_url": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+        "method": "PUT",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "path_parameters": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000"
+        },
+        "request_body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "allowedNfTypes": [
+            "INVALID_TYPE"
+          ]
+        }
+      },
+      "violated_constraints": [
+        "A nested component property ('allowedNfTypes') references the NFType schema; the item value 'INVALID_TYPE' violates the referenced NFType constraints (invalid enum value). Referenced-schema validation must apply when such properties are present."
+      ]
+    }
+  ]
+}

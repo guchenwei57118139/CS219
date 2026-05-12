@@ -1,8 +1,13 @@
-[
-  {
-    "name": "Missing required path parameter nfInstanceID",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+{
+  "operation": "NFProfileRetrieval",
+  "path": "/nf-instances/{nfInstanceId}",
+  "method": "GET",
+  "depends_on": [
+    "NFRegister"
+  ],
+  "setup": [
+    {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
       "method": "PUT",
       "headers": {
         "Content-Type": "application/json"
@@ -13,126 +18,104 @@
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org"
       }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances",
-      "method": "GET",
+    }
+  ],
+  "cleanup": [
+    {
+      "resource_url": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+      "method": "DELETE",
       "headers": {
         "Content-Type": "application/json"
       }
-    },
-    "violated_constraints": [
-      "The path parameter 'nfInstanceID' is required for the request to /nf-instances/{nfInstanceID}."
-    ]
-  },
-  {
-    "name": "Get NF Profile with invalid nfInstanceID path parameter format",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/invalid-nf-id-123",
-      "method": "GET",
-      "headers": {
-        "Content-Type": "application/json"
-      }
-    },
-    "violated_constraints": [
-      "The schema of the 'nfInstanceID' path parameter is defined by the reference 'TS29571_CommonData.yaml#/components/schemas/NfInstanceId'."
-    ]
-  },
-  {
-    "name": "Invalid requester-features as JSON object",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000?requester-features=%7B%22invalidFeature%22%3Atrue%7D",
-      "method": "GET",
-      "headers": {
-        "Content-Type": "application/json"
-      }
-    },
-    "violated_constraints": [
-      "The query parameter 'requester-features' must conform to the 'SupportedFeatures' schema (TS29571_CommonData.yaml#/components/schemas/SupportedFeatures); this request provides a JSON object (%7B\"invalidFeature\":true%7D) which does not match the required schema."
-    ]
-  },
-  {
-    "name": "GET request with a request body for NFProfileRetrieval",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "GET",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "request_body": {
-        "unexpected": "payload",
-        "extraInfo": {
-          "reason": "invalid body in GET"
+    }
+  ],
+  "tests": [
+    {
+      "name": "GET without required nfInstanceID path parameter",
+      "request": {
+        "method": "GET",
+        "resource_url": "/nf-instances",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "query": {
+          "requester-features": "featureA"
         }
-      }
-    },
-    "violated_constraints": [
-      "This GET operation does not define a request body (no request payload is required)."
-    ]
-  },
-  {
-    "name": "Missing OAuth2 client credentials on NFProfile retrieval",
-    "driving_state": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
       },
-      "request_body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
+      "violated_constraints": [
+        "The path parameter 'nfInstanceID' is required for the request to /nf-instances/{nfInstanceID}."
+      ]
     },
-    "request": {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "method": "GET",
-      "headers": {
-        "Content-Type": "application/json"
-      }
+    {
+      "name": "Invalid nfInstanceID format (not UUID)",
+      "request": {
+        "method": "GET",
+        "path": "/nf-instances/not-a-uuid",
+        "headers": {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        "path_parameters": {
+          "nfInstanceID": "not-a-uuid"
+        },
+        "query_parameters": {}
+      },
+      "violated_constraints": [
+        "The schema of the 'nfInstanceID' path parameter is defined by the reference 'TS29571_CommonData.yaml#/components/schemas/NfInstanceId' and requires a UUID-formatted string. Provided value 'not-a-uuid' does not conform to the UUID format."
+      ]
     },
-    "violated_constraints": [
-      "Request does not provide required OAuth2 client credentials with scope 'nnrf-nfm' or 'nnrf-nfm:nf-instances:read' as declared in the operation security requirements."
-    ]
-  }
-]
+    {
+      "name": "Invalid requester-features type (array provided instead of SupportedFeatures)",
+      "request": {
+        "method": "GET",
+        "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "query": {
+          "requester-features": [
+            "featureA",
+            "featureB"
+          ]
+        }
+      },
+      "violated_constraints": [
+        "The query parameter 'requester-features' must conform to the schema TS29571_CommonData.yaml#/components/schemas/SupportedFeatures; providing an array violates the required schema/type."
+      ]
+    },
+    {
+      "name": "GET with unexpected request body",
+      "request": {
+        "method": "GET",
+        "resource_url": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "request_body": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "REGISTERED",
+          "fqdn": "nrf.example.3gppnetwork.org"
+        }
+      },
+      "violated_constraints": [
+        "This GET operation does not define a request body (no request payload is required)."
+      ]
+    },
+    {
+      "name": "Invalid - OAuth2 token with insufficient scopes",
+      "request": {
+        "method": "GET",
+        "url": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+        "headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJucmYtdGVzdC1jbGllbnQiLCJzY29wZXMiOlsibm5yZi1uZm06d3JpdGUiXSwiZXhwIjoxNjk5OTk5OTk5fQ.signature"
+        },
+        "query": {}
+      },
+      "violated_constraints": [
+        "The request provides an OAuth2 client credentials token that does not include any of the required scopes 'nnrf-nfm' or 'nnrf-nfm:nf-instances:read' declared in the operation's security requirements."
+      ]
+    }
+  ]
+}
