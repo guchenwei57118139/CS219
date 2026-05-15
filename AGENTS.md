@@ -68,6 +68,7 @@ Do not print, copy, or commit secret values from `.env` or the shell environment
 - Assume the worktree may already contain unrelated generated/result changes. Do not revert them unless the user explicitly asks.
 - Mention before rerunning generator scripts when the run will overwrite existing generated files.
 - Prefer targeted commands over broad churn. Avoid reprocessing the whole pipeline unless the task requires it.
+- Any new LLM-assisted stage or CLI entrypoint must print progress updates to standard output so tool execution is easy to track.
 
 # Implementation Notes And Gotchas
 
