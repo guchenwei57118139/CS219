@@ -1,0 +1,746 @@
+{
+  "operation": "NFStatusSubscribe",
+  "source_tests_file": "/Users/adimehta/Desktop/School/ExtremalTesting/CS219/extremal_testing/data/generated/NFStatusSubscribe_tests.json",
+  "implementation_order": [
+    "free5gc",
+    "oai",
+    "open5gs"
+  ],
+  "tests": [
+    {
+      "test_case_index": 0,
+      "test_name": "Missing nfStatusNotificationUri",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"\",\"reqNfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"subscriptionId\":\"f15f6360a30a34da29e8be74b3017be7\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 1,
+      "test_name": "Missing nfStatusNotificationUri",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"\",\"reqNfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"subscriptionId\":\"3f7cb9418586e5d766c032ec495b322a\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 2,
+      "test_name": "Invalid Content-Type Header",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"subscriptionId\":\"ab512294504343f6b9f6335116183e37\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_REGISTERED\",\"NF_DEREGISTERED\"],\"subscrCond\":{\"NfTypeCond\":{\"nfType\":\"UPF\"}},\"subscriptionId\":\"2\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 3,
+      "test_name": "Subscription with empty sharedDataIds",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"subscriptionId\":\"1290ab4b1144c221b321977a7c6cc100\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_REGISTERED\",\"NF_DEREGISTERED\"],\"subscrCond\":{\"NfTypeCond\":{\"nfType\":\"UPF\"}},\"subscriptionId\":\"3\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 4,
+      "test_name": "Invalid subscriptionId with hyphen",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"subscriptionId\":\"868516aeefdfa51ee3f828714ebd2c0c\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_REGISTERED\",\"NF_DEREGISTERED\"],\"subscrCond\":{\"NfTypeCond\":{\"nfType\":\"UPF\"}},\"subscriptionId\":\"4\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 5,
+      "test_name": "Provide readOnly subscriptionId in request",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"subscriptionId\":\"382f7a031df31a0cd3a2e5d33f7c49c0\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_REGISTERED\",\"NF_DEREGISTERED\"],\"subscrCond\":{\"NfTypeCond\":{\"nfType\":\"UPF\"}},\"subscriptionId\":\"5\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 6,
+      "test_name": "Invalid reqNotifEvents - empty array",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"subscriptionId\":\"797767d5531697a4f28529ffa74caf25\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[],\"subscrCond\":{\"NfTypeCond\":{\"nfType\":\"UPF\"}},\"subscriptionId\":\"6\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 7,
+      "test_name": "Invalid reqSnssais Empty Array",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"subscriptionId\":\"f26fe037b89b5352fb18ed9815a432ff\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[],\"reqSnssais\":[],\"subscrCond\":{\"NfTypeCond\":{\"nfType\":\"UPF\"}},\"subscriptionId\":\"7\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 8,
+      "test_name": "Invalid reqPerPlmnSnssais - empty array",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"subscriptionId\":\"ac30bd298528023d78ae2ddceb920ef7\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[],\"reqSnssais\":[],\"subscrCond\":{\"NfTypeCond\":{\"nfType\":\"UPF\"}},\"subscriptionId\":\"8\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 9,
+      "test_name": "Empty reqPlmnList",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"subscriptionId\":\"9b0e89e18891917881ba23c10e2ae23d\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[],\"reqSnssais\":[],\"subscrCond\":{\"NfTypeCond\":{\"nfType\":\"UPF\"}},\"subscriptionId\":\"9\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 10,
+      "test_name": "Empty reqSnpnList (violates minItems)",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"subscriptionId\":\"ff6755dac092e8bcca27204d091a8a0b\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[],\"reqSnssais\":[],\"subscrCond\":{\"NfTypeCond\":{\"nfType\":\"UPF\"}},\"subscriptionId\":\"10\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 11,
+      "test_name": "ServingScope Empty Array",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"subscriptionId\":\"51843de67fe30f08df18cbc14593a6de\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[],\"reqSnssais\":[],\"subscrCond\":{\"NfTypeCond\":{\"nfType\":\"UPF\"}},\"subscriptionId\":\"11\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 12,
+      "test_name": "Include readOnly nrfSupportedFeatures in request",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"nrfSupportedFeatures\":\"0xDEADBEEF\",\"reqNfType\":\"NRF\",\"requesterFeatures\":\"0xABCD1234\",\"subscriptionId\":\"9008a4db1a3c2226718df77d45f4ee7d\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[],\"reqSnssais\":[],\"subscrCond\":{\"NfTypeCond\":{\"nfType\":\"UPF\"}},\"subscriptionId\":\"12\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 13,
+      "test_name": "Provide readOnly nrfSupportedFeatures in subscription request",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"nrfSupportedFeatures\":\"featureA,featureB\",\"reqNfType\":\"NRF\",\"subscriptionId\":\"7eb6d9284b5618e06b12d5d085e114f5\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[],\"reqSnssais\":[],\"subscrCond\":{\"NfTypeCond\":{\"nfType\":\"UPF\"}},\"subscriptionId\":\"13\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 14,
+      "test_name": "Invalid extPreferredLocality Empty Object",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"subscriptionId\":\"a7e982be6dcb7fb5b7eb0fb4c38bdd3c\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[],\"reqSnssais\":[],\"subscrCond\":{\"NfTypeCond\":{\"nfType\":\"UPF\"}},\"subscriptionId\":\"14\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 15,
+      "test_name": "Non-boolean completeProfileSubscription",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"subscriptionId\":\"49cfdbb2897931bdbc4774444ff63eda\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[],\"reqSnssais\":[],\"subscrCond\":{\"NfTypeCond\":{\"nfType\":\"UPF\"}},\"subscriptionId\":\"15\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 16,
+      "test_name": "Invalid subscrCond variant",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"subscrCond\":{\"conditionType\":\"\",\"guamiList\":null,\"nfGroupId\":\"\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":null},\"subscriptionId\":\"f1a8b137fc37520e12b0fb09f97d6255\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[],\"reqSnssais\":[],\"subscrCond\":{\"invalidArray\":\"should-be-array-but-is-string\",\"unexpectedField\":\"this-does-not-match-any-SubscrCond-variant\"},\"subscriptionId\":\"16\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Requested SubscrCond is not supported yet\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 17,
+      "test_name": "Missing nfInstanceId for NfInstanceIdCond",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"subscrCond\":{\"conditionType\":\"NfInstanceIdCond\",\"guamiList\":null,\"nfGroupId\":\"\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":null},\"subscriptionId\":\"4843d9d1961ca23d4a0b7931c0d728d3\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[],\"reqSnssais\":[],\"subscrCond\":{\"conditionType\":\"NfInstanceIdCond\"},\"subscriptionId\":\"17\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Requested SubscrCond is not supported yet\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 18,
+      "test_name": "Empty NfInstanceIdList in SubscrCond",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"subscrCond\":{\"conditionType\":\"\",\"guamiList\":null,\"nfGroupId\":\"\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":[],\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":null},\"subscriptionId\":\"740d7b0484732b9dca07222f00a3ebaa\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[],\"reqSnssais\":[],\"subscrCond\":{\"nfInstanceIdList\":[]},\"subscriptionId\":\"18\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Requested SubscrCond is not supported yet\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 19,
+      "test_name": "SubscrCond NfTypeCond with forbidden nfGroupId",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"subscrCond\":{\"conditionType\":\"NfTypeCond\",\"guamiList\":null,\"nfGroupId\":\"forbidden-group-1\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"NRF\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":null},\"subscriptionId\":\"f1e6391302debc386bbc3bf9affbdb3d\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"conditionType\":\"NfTypeCond\",\"nfGroupId\":\"forbidden-group-1\",\"nfType\":\"NRF\"},\"subscriptionId\":\"19\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 20,
+      "test_name": "Missing serviceName for ServiceNameCond",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"subscrCond\":{\"conditionType\":\"\",\"guamiList\":null,\"nfGroupId\":\"\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":null},\"subscriptionId\":\"1052b8e1a017b4ce46bf210d0c26fca2\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"serviceNameCond\":{}},\"subscriptionId\":\"20\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Requested SubscrCond is not supported yet\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 21,
+      "test_name": "SubscrCond with empty serviceNameList",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"subscrCond\":{\"conditionType\":\"SERVICE_NAME_LIST_COND\",\"guamiList\":null,\"nfGroupId\":\"\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":[],\"snssaiList\":null},\"subscriptionId\":\"1706a1a7a3e06f113f795aed23f89f1d\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"conditionType\":\"SERVICE_NAME_LIST_COND\",\"serviceNameList\":[]},\"subscriptionId\":\"21\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Requested SubscrCond is not supported yet\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 22,
+      "test_name": "SubscrCond AmfCond without amfSetId or amfRegionId",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"subscrCond\":{\"conditionType\":\"\",\"guamiList\":null,\"nfGroupId\":\"\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":null},\"subscriptionId\":\"57d416a46f1930934f1c241ddf0cf406\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"amfCond\":{}},\"subscriptionId\":\"22\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Requested SubscrCond is not supported yet\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 23,
+      "test_name": "SubscrCond GuamiList Empty",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"subscrCond\":{\"conditionType\":\"\",\"guamiList\":null,\"nfGroupId\":\"\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":null},\"subscriptionId\":\"47ae1e7330df205cf2ff279497ee6770\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"guamiListCond\":{\"guamiList\":[]}},\"subscriptionId\":\"23\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Requested SubscrCond is not supported yet\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 24,
+      "test_name": "Invalid NetworkSliceCond with empty snssaiList and nsiList",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"subscrCond\":{\"conditionType\":\"\",\"guamiList\":null,\"nfGroupId\":\"\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":null},\"subscriptionId\":\"4195b2282f523bface3cdb5d3bdefcf3\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"networkSliceCond\":{\"nsiList\":[],\"snssaiList\":[]}},\"subscriptionId\":\"24\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Requested SubscrCond is not supported yet\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 25,
+      "test_name": "subscrCond nfGroupCond with forbidden nfType 'NRF'",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"subscrCond\":{\"conditionType\":\"\",\"guamiList\":null,\"nfGroupId\":\"\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":null},\"subscriptionId\":\"fa6a04cc6e3516b4cda0a1aca4910c90\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"nfGroupCond\":{\"nfGroupId\":\"group-123\",\"nfType\":\"NRF\"}},\"subscriptionId\":\"25\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Requested SubscrCond is not supported yet\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 26,
+      "test_name": "Invalid NfGroupListCond - wrong conditionType and empty nfGroupIdList",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://client.example/callback\",\"subscrCond\":{\"conditionType\":\"INVALID_COND_TYPE\",\"guamiList\":null,\"nfGroupId\":\"\",\"nfGroupIdList\":[],\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"NRF\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":null},\"subscriptionId\":\"a5b923cefd8944e491063d7546dd481e\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://client.example/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"conditionType\":\"INVALID_COND_TYPE\",\"nfGroupIdList\":[],\"nfType\":\"NRF\"},\"subscriptionId\":\"26\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://client.example/callback\",\"subscrCond\":{\"nfType\":\"NRF\"},\"subscriptionId\":\"11217918-4ff4-41f1-b347-39bae1d92074\",\"validityTime\":\"2026-05-16T00:21:50.323442+00:00\",\"nrfSupportedFeatures\":\"1\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 27,
+      "test_name": "Missing nfSetId when subscrCond is NfSetCond",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"subscrCond\":{\"conditionType\":\"\",\"guamiList\":null,\"nfGroupId\":\"\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":null},\"subscriptionId\":\"ed63c74292aa24e6eedf168d6d76266b\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"nfSetCond\":{}},\"subscriptionId\":\"27\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 28,
+      "test_name": "Missing nfServiceSetId when subscrCond is NfServiceSetCond",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"subscrCond\":{\"conditionType\":\"\",\"guamiList\":null,\"nfGroupId\":\"\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":null},\"subscriptionId\":\"8727905a54baeaaa7a9c62762e143e63\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"nfServiceSetCond\":{\"match\":\"all\"}},\"subscriptionId\":\"28\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Requested SubscrCond is not supported yet\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 29,
+      "test_name": "Invalid UpfCond conditionType value",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"subscrCond\":{\"conditionType\":\"INVALID_COND\",\"guamiList\":null,\"nfGroupId\":\"\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":null},\"subscriptionId\":\"01611cae30cdd1d95914dfe7ac5852b3\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"conditionType\":\"INVALID_COND\",\"upfId\":\"upf-550e\"},\"subscriptionId\":\"29\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Requested SubscrCond is not supported yet\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 30,
+      "test_name": "Invalid NwdafCond conditionType",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"subscrCond\":{\"conditionType\":\"\",\"guamiList\":null,\"nfGroupId\":\"\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":null},\"subscriptionId\":\"3d91590a0ca633a2280710fff235dcda\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"nwdafCond\":{\"conditionType\":\"INVALID_CONDITION\"}},\"subscriptionId\":\"30\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Requested SubscrCond is not supported yet\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 31,
+      "test_name": "subscrCond with incorrect conditionType for NefCond",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"subscrCond\":{\"conditionType\":\"INVALID_COND\",\"guamiList\":null,\"nfGroupId\":\"\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":null},\"subscriptionId\":\"bb136065f5a887d940160bed4cd9037b\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"conditionType\":\"INVALID_COND\",\"nefCond\":{\"nfType\":\"NRF\"}},\"subscriptionId\":\"31\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Requested SubscrCond is not supported yet\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 32,
+      "test_name": "Invalid DccfCond conditionType value",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"subscrCond\":{\"conditionType\":\"INVALID_COND\",\"guamiList\":null,\"nfGroupId\":\"\",\"nfGroupIdList\":null,\"nfInstanceId\":\"\",\"nfInstanceIdList\":null,\"nfServiceSetId\":\"\",\"nfSetId\":\"\",\"nfType\":\"\",\"scpDomains\":null,\"serviceName\":\"\",\"serviceNameList\":null,\"snssaiList\":null},\"subscriptionId\":\"0b280fba2e55759430fe32d090e83157\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"conditionType\":\"INVALID_COND\",\"dccfCond\":{\"exampleField\":\"exampleValue\"}},\"subscriptionId\":\"32\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"Requested SubscrCond is not supported yet\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 33,
+      "test_name": "NotifCondition Contains Both Monitored and Unmonitored Attributes",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"notifCondition\":{\"monitoredAttributes\":[\"nfStatus\",\"fqdn\"],\"unmonitoredAttributes\":[\"nfStatusChange\"]},\"reqNfType\":\"NRF\",\"subscriptionId\":\"9c3d7ab1cf7c3ba278e5d0f1ffa5cf0d\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"https://example.client/callback\",\"notifCondition\":{\"monitoredAttributes\":[\"nfStatus\",\"fqdn\"],\"unmonitoredAttributes\":[\"nfStatusChange\"]},\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"conditionType\":\"INVALID_COND\",\"dccfCond\":{\"exampleField\":\"exampleValue\"}},\"subscriptionId\":\"33\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 34,
+      "test_name": "Invalid nfStatusNotificationUri format",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"not-a-valid-uri\",\"reqNfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"reqNfType\":\"NRF\",\"subscriptionId\":\"8c0358ff877f15b370ce6e38910fa2f3\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"not-a-valid-uri\",\"notifCondition\":{\"monitoredAttributes\":[\"nfStatus\",\"fqdn\"],\"unmonitoredAttributes\":[\"nfStatusChange\"]},\"reqNfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"conditionType\":\"INVALID_COND\",\"dccfCond\":{\"exampleField\":\"exampleValue\"}},\"subscriptionId\":\"34\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    }
+  ]
+}

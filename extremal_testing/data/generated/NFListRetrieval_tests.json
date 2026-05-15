@@ -1,0 +1,118 @@
+{
+  "operation": "NFListRetrieval",
+  "path": "/nf-instances",
+  "method": "GET",
+  "setup": [
+    {
+      "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    }
+  ],
+  "cleanup": [
+    {
+      "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+      "method": "DELETE",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    }
+  ],
+  "tests": [
+    {
+      "name": "GET request containing a body",
+      "constraint": "There is no request body for the GET /nf-instances operation.",
+      "method": "GET",
+      "path": "/nf-instances",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    {
+      "name": "Invalid nf-type query value",
+      "constraint": "The query parameter 'nf-type' is optional and, if present, must conform to the NFType schema (i.e., be one of the NF types enumerated by the NFType schema).",
+      "method": "GET",
+      "path": "/nf-instances?nf-type=INVALID_NF",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {}
+    },
+    {
+      "name": "Invalid limit zero",
+      "constraint": "The query parameter 'limit' is optional and, if present, must be an integer with a minimum value of 1.",
+      "method": "GET",
+      "path": "/nf-instances?limit=0&nf-type=NRF",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nf-type": "NRF",
+        "limit": 0
+      }
+    },
+    {
+      "name": "Invalid page-number zero",
+      "constraint": "The query parameter 'page-number' is optional and, if present, must be an integer with a minimum value of 1.",
+      "method": "GET",
+      "path": "/nf-instances?page-number=0",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfType": "NRF",
+        "page-number": 0
+      }
+    },
+    {
+      "name": "Invalid page-size zero",
+      "constraint": "The query parameter 'page-size' is optional and, if present, must be an integer with a minimum value of 1.",
+      "method": "GET",
+      "path": "/nf-instances?nf-type=NRF&page-size=0",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {}
+    },
+    {
+      "name": "Path Parameter Provided Instead of Query Parameter",
+      "constraint": "All parameters for this operation are query parameters and are optional; using a path parameter violates this constraint.",
+      "method": "GET",
+      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    {
+      "name": "Missing OAuth2 Scope",
+      "constraint": "Access requires OAuth2 client credentials with scope 'nnrf-nfm:nf-instances:read'. This request omits that required scope.",
+      "method": "GET",
+      "path": "/nf-instances?nf-type=NRF",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.invalid-noscope"
+      },
+      "body": {}
+    }
+  ]
+}

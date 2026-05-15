@@ -1,0 +1,17 @@
+{
+  "operation": "NFProfileRetrieval",
+  "source_test_results_file": "/Users/adimehta/Desktop/School/ExtremalTesting/CS219/extremal_testing/data/test_results/NFProfileRetrieval.json",
+  "source_tests_file": "/Users/adimehta/Desktop/School/ExtremalTesting/CS219/extremal_testing/data/generated/NFProfileRetrieval_tests.json",
+  "scores": [
+    {
+      "test_id": 2,
+      "comment": "The query parameter 'requester-features' is supposed to be a string per the schema. Open5gs returning 400 (cannot parse HTTP message) is a plausible response if the client sent unencoded braces or the server enforces syntactic checks. free5gc and oai returning 200 and supplying the NF profile indicates they are lenient and not validating the query parameter type/format. This is likely a spec deviation (lack of input validation), though a 400 from the server can also result from an unencoded URL; behavior may depend on how the client encoded the value.",
+      "confidence": 7
+    },
+    {
+      "test_id": 4,
+      "comment": "The request used a token without the required 'nnrf-nfm' scopes. Returning a successful 200 is inconsistent with the security requirements; the server should reject the request (401/403) for missing/insufficient scope. free5gc and oai returning 200 therefore likely violate the RFC. Open5gs returning 400 is also not the correct OAuth error but at least does not accept the request; overall this indicates incorrect handling of OAuth scopes.",
+      "confidence": 9
+    }
+  ]
+}

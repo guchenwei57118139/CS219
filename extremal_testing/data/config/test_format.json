@@ -1,0 +1,39 @@
+{
+  "description": "Use one suite object per operation. Setup, tests, and cleanup are arrays of steps. Every step uses the same field names: method, path, headers, and optional body. Tests add name and constraint.",
+  "suite_structure": {
+    "operation": "NFRegister",
+    "path": "/nf-instances/{nfInstanceId}",
+    "method": "PUT",
+    "setup": [],
+    "tests": [],
+    "cleanup": []
+  },
+  "step_structure": {
+    "method": "PUT",
+    "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+      "nfType": "NRF",
+      "nfStatus": "REGISTERED",
+      "fqdn": "nrf.example.3gppnetwork.org"
+    }
+  },
+  "test_case_structure": {
+    "name": "Invalid NFInstanceId",
+    "constraint": "The path parameter must be a valid NfInstanceId.",
+    "method": "PUT",
+    "path": "/nf-instances/not-a-uuid",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "nfInstanceId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "nfType": "NRF",
+      "nfStatus": "REGISTERED",
+      "fqdn": "nrf.example.com"
+    }
+  }
+}

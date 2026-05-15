@@ -1,0 +1,73 @@
+[
+  {
+    "Operation": "NFRegister",
+    "Description": "Registers an NF, SCP or SEPP Instance profile in the NRF (includes general NF parameters and services).",
+    "Paths": "/nf-instances/{nfInstanceId}",
+    "Method": "PUT"
+  },
+  {
+    "Operation": "NFUpdate",
+    "Description": "Complete replacement of the NF Profile of a given NF Instance in the NRF.",
+    "Paths": "/nf-instances/{nfInstanceId}",
+    "Method": "PUT",
+    "DependsOn": [
+      "NFRegister"
+    ]
+  },
+  {
+    "Operation": "NFDeregister",
+    "Description": "Deregisters an NF Instance from the NRF (removes the NF profile and its services).",
+    "Paths": "/nf-instances/{nfInstanceId}",
+    "Method": "DELETE",
+    "DependsOn": [
+      "NFRegister"
+    ]
+  },
+  {
+    "Operation": "NFStatusSubscribe",
+    "Description": "Creates a subscription so an NF Service Consumer can be notified of registration/deregistration/profile changes of NF (or SCP/SEPP) Instances according to filter criteria.",
+    "Paths": "/subscriptions",
+    "Method": "POST",
+    "DependsOn": [
+      "NFRegister"
+    ]
+  },
+  {
+    "Operation": "NFStatusNotify",
+    "Description": "NRF notifies subscribed NF or SCP Instances of changes (registration, deregistration, profile change) by sending the notification to the subscriber's callback URI.",
+    "Paths": "{nfStatusNotificationUri}",
+    "Method": "POST",
+    "DependsOn": [
+      "NFRegister",
+      "NFStatusSubscribe"
+    ]
+  },
+  {
+    "Operation": "NFStatusUnsubscribe",
+    "Description": "Removes an existing subscription to notifications.",
+    "Paths": "/subscriptions/{subscriptionId}",
+    "Method": "DELETE",
+    "DependsOn": [
+      "NFRegister",
+      "NFStatusSubscribe"
+    ]
+  },
+  {
+    "Operation": "NFListRetrieval",
+    "Description": "Retrieves a list of NF Instances currently registered in the NRF (optionally filtered / paginated).",
+    "Paths": "/nf-instances",
+    "Method": "GET",
+    "DependsOn": [
+      "NFRegister"
+    ]
+  },
+  {
+    "Operation": "NFProfileRetrieval",
+    "Description": "Retrieves the NF profile of a given NF Instance registered in the NRF.",
+    "Paths": "/nf-instances/{nfInstanceId}",
+    "Method": "GET",
+    "DependsOn": [
+      "NFRegister"
+    ]
+  }
+]
