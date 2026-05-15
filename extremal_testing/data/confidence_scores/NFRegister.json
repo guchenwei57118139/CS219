@@ -1,0 +1,67 @@
+{
+  "operation": "NFRegister",
+  "source_test_results_file": "/Users/adimehta/Desktop/School/ExtremalTesting/CS219/extremal_testing/data/test_results/NFRegister.json",
+  "source_tests_file": "/Users/adimehta/Desktop/School/ExtremalTesting/CS219/extremal_testing/data/generated/NFRegister_tests.json",
+  "scores": [
+    {
+      "test_id": 3,
+      "comment": "The RFC requires an NFProfile to include at least one of fqdn, ipv4Addresses or ipv6Addresses. Open5GS rejects the request (400) which matches the spec. free5gc and OAI accept (201); OAI even shows an empty ipv4Addresses array which does not satisfy the \"at least one\" requirement. Unless those implementations are explicitly auto-populating endpoints (not in the request), accepting this input is a protocol violation.",
+      "confidence": 9
+    },
+    {
+      "test_id": 6,
+      "comment": "plmnList if present MUST contain at least one item. Open5GS returns 400 which follows the constraint. free5gc and OAI accept the empty array (201). Treating an explicit empty array as valid violates the requirement (unless the server treats the empty array as if the field were absent, which would be non-standard).",
+      "confidence": 8
+    },
+    {
+      "test_id": 12,
+      "comment": "ipv6Addresses, when present, must be a non-empty array. Open5GS rejects the empty array (400) which is correct. free5gc and OAI accept (201) despite the empty list; that behavior is inconsistent with the constraint and likely non-compliant unless they internally ignore/override the empty field.",
+      "confidence": 9
+    },
+    {
+      "test_id": 15,
+      "comment": "allowedNfTypes must be an array with at least one item if present. Open5GS returns 400 which aligns with the spec. free5gc and OAI accept the empty array (201). Accepting an explicit empty allowedNfTypes is inconsistent with the constraint and likely a spec violation (unless interpreted as omitted by implementation).",
+      "confidence": 8
+    },
+    {
+      "test_id": 25,
+      "comment": "defaultNotificationSubscriptions items MUST include both notificationType and callbackUri. Open5GS and OAI reject (400). free5gc accepts and returns an entry with callbackUri set to an empty string — effectively auto-filling a missing required field. Accepting the request or injecting an empty callbackUri is non-compliant with the requirement to provide the field.",
+      "confidence": 9
+    },
+    {
+      "test_id": 31,
+      "comment": "The payload provides supportedVendorSpecificFeatures.{\"123456\"} = [] which violates the schema (array must have >=1 item). open5gs rejects (400) while free5gc and oai accept (201). free5gc/oai are likely lax and non‑compliant with the RFC/schema (should reject).",
+      "confidence": 8
+    },
+    {
+      "test_id": 32,
+      "comment": "The NFService is missing required properties (versions, scheme, nfServiceStatus). oai and open5gs rejected (400) but free5gc accepted and returned 201 (filling empty/NULL fields). Accepting an incomplete NFService is a likely RFC/schema violation by free5gc.",
+      "confidence": 9
+    },
+    {
+      "test_id": 34,
+      "comment": "This test also uses versions as string values (e.g. \"v1\") which appears to cause free5gc's 400 (type unmarshal error) rather than the ipEndPoints issue. Spec requires ipEndPoints, if present, to have >=1 item; oai and open5gs accepted the payload (201) despite empty ipEndPoints. Those acceptances are likely non‑compliant; free5gc's rejection is justified but due to a different schema error (versions type).",
+      "confidence": 7
+    },
+    {
+      "test_id": 36,
+      "comment": "Port=70000 is out of allowed range (0–65535). free5gc rejected the request but due to a versions type unmarshalling error, not the port. oai and open5gs accepted (201) despite the invalid port. Accepting an out‑of‑range port is a clear RFC/schema violation for those implementations.",
+      "confidence": 9
+    },
+    {
+      "test_id": 37,
+      "comment": "InterfaceUpfInfoItem contains interfaceType but no endpointFqdn/ipv4EndpointAddresses/ipv6EndpointAddresses; spec requires at least one endpoint. open5gs rejects (400) while free5gc and oai accept (201). free5gc/oai acceptance likely violates the RFC/schema (should reject).",
+      "confidence": 8
+    },
+    {
+      "test_id": 38,
+      "comment": "The request contained a PortRange with end=70000 (>65535). open5gs returned 400 (rejecting invalid input), while free5gc and oai returned 201 (accepted). free5gc's response also omitted the portRange and oai did not expose it, suggesting they silently ignored or dropped the invalid field. Per the schema constraint (start/end MUST be 0..65535), accepting or silently accepting malformed PortRange is non‑compliant. open5gs' rejection is the correct behavior.",
+      "confidence": 8
+    },
+    {
+      "test_id": 41,
+      "comment": "The request included an invalid IPv4 address '999.999.999.999'. open5gs returned 400 (rejecting), free5gc returned 201 and echoed the invalid address (violates IPv4 format validation), and oai returned 201 but replaced/normalized the address to '0.0.0.0' (silently altering/ignoring input). The server should validate and reject or explicitly report malformed address; echoing an invalid IPv4 is non‑compliant. open5gs' behavior is preferable.",
+      "confidence": 8
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "operation": "NFStatusUnsubscribe",
+  "source_test_results_file": "/Users/adimehta/Desktop/School/ExtremalTesting/CS219/extremal_testing/data/test_results/NFStatusUnsubscribe.json",
+  "source_tests_file": "/Users/adimehta/Desktop/School/ExtremalTesting/CS219/extremal_testing/data/generated/NFStatusUnsubscribe_tests.json",
+  "scores": [
+    {
+      "test_id": 0,
+      "comment": "free5gc and oai return 404 which is the expected semantics when the required path parameter is missing (resource/route not matched). open5gs returns a 400 \"cannot parse HTTP message\" which indicates it is treating a missing path as a malformed request rather than an unmatched route — that is likely incorrect behavior versus expected 404.",
+      "confidence": 8
+    },
+    {
+      "test_id": 1,
+      "comment": "oai's 404 is reasonable for a non-existent/invalid subscription id. free5gc returning 204 (success) for a clearly invalid id (and one that should likely be rejected or reported not found) is suspicious. open5gs returning 400 parse error again looks like it failed to handle the path correctly. free5gc and open5gs behaviors are likely non-conformant.",
+      "confidence": 7
+    },
+    {
+      "test_id": 2,
+      "comment": "DELETE with an unexpected request body: servers may ignore an unused payload and proceed (free5gc's 204 can be acceptable), or return not-found if the id does not exist (oai's 404). open5gs returning 400 with \"cannot parse HTTP message\" suggests a parsing/implementation error rather than a deliberate semantic rejection of a body—this is likely an implementation bug.",
+      "confidence": 6
+    }
+  ]
+}
