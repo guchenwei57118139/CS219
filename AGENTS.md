@@ -2,21 +2,22 @@
 
 This repository contains an extremal-testing workflow for 5G NRF implementations. The main pipeline is:
 
-`spec source -> parsed sections -> operation metadata -> operation schemas -> generated tests -> implementation test results -> summaries/diff reports`
+`spec source -> parsed sections -> operation metadata -> operation schemas -> generated tests -> implementation test_results -> confidence_scores`
 
 Agents should optimize for small, reversible changes, prefer reading code before editing, and treat generated artifacts and result outputs as derived data unless the task is explicitly about those files.
 
 # Repository Layout
 
-- `README.md`: minimal top-level project description.
+- `README.md`: minimal top-level project description if present.
 - `extremal_testing/readme.md`: human-oriented workflow summary.
 - `extremal_testing/utils`: spec parsing and result analysis utilities.
-- `extremal_testing/llm_prompts`: LLM wrapper plus scripts that generate metadata, schemas, and test cases.
+- `extremal_testing/llm_prompts`: LLM wrapper plus scripts that generate metadata, schemas, test cases, and confidence scores.
 - `extremal_testing/implementation_testers`: implementation-specific NRF test runners for `free5gc`, `oai`, and `open5gs`.
 - `extremal_testing/data/specs/original`: original spec inputs, including `1.docx` and `nrf_management_api.txt`.
 - `extremal_testing/data/specs/segments`: parsed `section_*.txt` files produced by spec parsing.
 - `extremal_testing/data/generated`: generated operation metadata, schemas, and `*_tests.json` files.
-- `extremal_testing/data/results`: current result outputs, summaries, and diff reports.
+- `extremal_testing/data/test_results`: per-operation implementation comparison outputs.
+- `extremal_testing/data/confidence_scores`: per-operation LLM confidence judgments.
 
 # Pipeline And Entry Points
 
@@ -30,6 +31,8 @@ Use the existing scripts as the primary interfaces instead of hand-editing deriv
   `python extremal_testing/llm_prompts/generate_operation_schemas.py`
 - Generate test cases:
   `python extremal_testing/llm_prompts/generate_test_cases.py`
+- Generate confidence scores:
+  `python extremal_testing/llm_prompts/generate_confidence_scores.py`
 - Run Free5GC tests:
   `python extremal_testing/implementation_testers/test_free5gc.py extremal_testing/data/generated/<Operation>_tests.json [base_url]`
 - Run OAI tests:
@@ -39,7 +42,9 @@ Use the existing scripts as the primary interfaces instead of hand-editing deriv
 - Summarize result status codes:
   `python extremal_testing/utils/summarize_results.py [results_dir] --impl {oai,free5gc} [--latest-only] [--json]`
 - Compare implementations:
-  `python extremal_testing/utils/analyze_impl_differences.py [results_dir]`
+  `python extremal_testing/implementation_testers/test_implementations.py [data/generated/<Operation>_tests.json | data/generated/]`
+- Score anomalies by confidence:
+  `python extremal_testing/llm_prompts/generate_confidence_scores.py [--test-results-dir <dir>] [--generated-dir <dir>] [--output-dir <dir>] [--batch-size 5]`
 
 There is no `pyproject.toml`, `requirements.txt`, or other dependency manifest in the repo. Infer runtime dependencies from imports before adding setup instructions or changing package usage.
 
@@ -59,7 +64,7 @@ Do not print, copy, or commit secret values from `.env` or the shell environment
 - Inspect first. Read the relevant script before changing generated JSON or test outputs.
 - Prefer editing source code under `extremal_testing/utils`, `extremal_testing/llm_prompts`, and `extremal_testing/implementation_testers`.
 - Treat `extremal_testing/data/generated/*` as regenerated artifacts, not authoritative hand-maintained source.
-- Treat `extremal_testing/data/results/*` as execution output and analysis artifacts.
+- Treat `extremal_testing/data/test_results/*` and `extremal_testing/data/confidence_scores/*` as execution output and analysis artifacts.
 - Assume the worktree may already contain unrelated generated/result changes. Do not revert them unless the user explicitly asks.
 - Mention before rerunning generator scripts when the run will overwrite existing generated files.
 - Prefer targeted commands over broad churn. Avoid reprocessing the whole pipeline unless the task requires it.
@@ -74,10 +79,10 @@ Do not print, copy, or commit secret values from `.env` or the shell environment
   `test_free5gc.py` uses `requests`
   `test_oai.py` uses `httpx`
   `test_open5gs.py` uses `httpx`
-- Result-path behavior is inconsistent today:
-  most active outputs live under `extremal_testing/data/results/...`
-  `test_open5gs.py` still writes to `extremal_testing/results/`
-  Preserve this unless the task is specifically to normalize paths.
+- Comparison outputs now live under `extremal_testing/data/test_results/`.
+- Confidence scoring outputs now live under `extremal_testing/data/confidence_scores/`.
+- The confidence scorer only considers tests whose returned status codes differ across implementations.
+- Batch anomalies in groups of 5 per LLM call and keep the output one JSON file per operation.
 
 # Validation And Safe Checks
 

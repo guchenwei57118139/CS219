@@ -14,10 +14,10 @@ extremal_testing/
 │   │   ├── AllOpsMetaData.json    # Operations metadata
 │   │   ├── operation_schemas.json # Operation schemas and constraints
 │   │   └── *_tests.json           # Generated test cases
-│   ├── test_results/              # Test execution results
-│   │   └── *.json                 # Per-operation comparison outputs
+│   ├── test_results/              # Per-operation implementation comparison results
+│   │   └── *.json                 # One comparison file per operation
 │   └── confidence_scores/         # LLM confidence judgments
-│       └── *.json                 # Per-operation anomaly scores
+│       └── *.json                 # One confidence file per operation
 ├── llm_prompts/                   # LLM-based generation scripts
 │   ├── generate_operations_metadata.py  # Extract operations from spec segments
 │   ├── generate_operation_schemas.py    # Generate schemas and constraints
@@ -51,8 +51,9 @@ extremal_testing/
 ### 4. Generate Test Cases
 - Run `llm_prompts/generate_test_cases.py`
 - Input: `data/generated/operation_schemas.json`, `data/config/test_format.json`
-- Output: `data/generated/{Operation}_tests.json` as a suite object with `setup`, `tests`, and `cleanup` arrays
-- Each step uses the same fields: `method`, `path`, `headers`, and optional `body`
+- Output: `data/generated/{Operation}_tests.json`
+- Each suite uses `setup`, `tests`, and `cleanup` arrays
+- Each step uses `method`, `path`, `headers`, and optional `body`
 - Each test case adds `name` and `constraint`
 
 ### 5. Run Tests
@@ -64,7 +65,8 @@ extremal_testing/
 - Run `llm_prompts/generate_confidence_scores.py`
 - Input: `data/test_results/{Operation}.json` and `data/generated/{Operation}_tests.json`
 - Only test cases with differing returned status codes are sent to the LLM
-- Anomalies are batched in groups of 5 per LLM call, grouped by operation
+- Anomalies are batched in groups of 5 per LLM call
+- Files are written one per operation
 - Output: `data/confidence_scores/{Operation}.json`
 
 ## Configuration
