@@ -14,16 +14,20 @@ extremal_testing/
 │   │   ├── AllOpsMetaData.json    # Operations metadata
 │   │   ├── operation_schemas.json # Operation schemas and constraints
 │   │   └── *_tests.json           # Generated test cases
-│   └── results/                   # Test execution results
-│       └── nrf_test_results_*.json
+│   ├── test_results/              # Test execution results
+│   │   └── *.json                 # Per-operation comparison outputs
+│   └── confidence_scores/         # LLM confidence judgments
+│       └── *.json                 # Per-operation anomaly scores
 ├── llm_prompts/                   # LLM-based generation scripts
 │   ├── generate_operations_metadata.py  # Extract operations from spec segments
 │   ├── generate_operation_schemas.py    # Generate schemas and constraints
-│   └── generate_test_cases.py          # Generate test cases
+│   ├── generate_test_cases.py          # Generate test cases
+│   └── generate_confidence_scores.py    # Score status-code anomalies with an LLM
 ├── utils/                         # Utility scripts
 │   ├── parse_spec.py              # Parse spec documents into segments
 │   └── postprocess_dependencies.py # Post-process dependencies
 └── implementation_testers/        # Test execution scripts
+    ├── test_implementations.py    # Cross-implementation comparison runner
     └── test_free5gc.py            # Free5GC NRF tester
 ```
 
@@ -47,12 +51,21 @@ extremal_testing/
 ### 4. Generate Test Cases
 - Run `llm_prompts/generate_test_cases.py`
 - Input: `data/generated/operation_schemas.json`, `data/config/test_format.json`
-- Output: `data/generated/{Operation}_tests.json` as a suite object with one shared setup, shared cleanup, and a `tests` array
+- Output: `data/generated/{Operation}_tests.json` as a suite object with `setup`, `tests`, and `cleanup` arrays
+- Each step uses the same fields: `method`, `path`, `headers`, and optional `body`
+- Each test case adds `name` and `constraint`
 
 ### 5. Run Tests
-- Run `implementation_testers/test_free5gc.py data/generated/{Operation}_tests.json`
-- The runner executes the shared suite setup before each test, runs the invalid request, then clears NF state
-- Output: `data/results/nrf_test_results_*.json`
+- Run `implementation_testers/test_implementations.py data/generated/{Operation}_tests.json`
+- The comparison runner executes each test case against `free5gc`, `oai`, and `open5gs`
+- Output: `data/test_results/{Operation}.json`
+
+### 6. Generate Confidence Scores
+- Run `llm_prompts/generate_confidence_scores.py`
+- Input: `data/test_results/{Operation}.json` and `data/generated/{Operation}_tests.json`
+- Only test cases with differing returned status codes are sent to the LLM
+- Anomalies are batched in groups of 5 per LLM call, grouped by operation
+- Output: `data/confidence_scores/{Operation}.json`
 
 ## Configuration
 

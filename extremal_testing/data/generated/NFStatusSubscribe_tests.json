@@ -2,17 +2,14 @@
   "operation": "NFStatusSubscribe",
   "path": "/subscriptions",
   "method": "POST",
-  "depends_on": [
-    "NFRegister"
-  ],
   "setup": [
     {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+      "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
       "method": "PUT",
       "headers": {
         "Content-Type": "application/json"
       },
-      "request_body": {
+      "body": {
         "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
@@ -20,12 +17,12 @@
       }
     },
     {
-      "resource_url": "/nnrf-nfm/v1/subscriptions",
+      "path": "/nnrf-nfm/v1/subscriptions",
       "method": "POST",
       "headers": {
         "Content-Type": "application/json"
       },
-      "request_body": {
+      "body": {
         "callbackReference": {
           "notifyUri": "https://example.client/callback"
         },
@@ -39,14 +36,14 @@
   ],
   "cleanup": [
     {
-      "resource_url": "/nnrf-nfm/v1/subscriptions/{subscriptionId}",
+      "path": "/nnrf-nfm/v1/subscriptions/{subscriptionId}",
       "method": "DELETE",
       "headers": {
         "Content-Type": "application/json"
       }
     },
     {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+      "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
       "method": "DELETE",
       "headers": {
         "Content-Type": "application/json"
@@ -55,691 +52,568 @@
   ],
   "tests": [
     {
-      "name": "Invalid subscription request with empty body (missing required nfStatusNotificationUri)",
-      "request": {
-        "method": "POST",
-        "path": "/nnrf-nfm/v1/subscriptions",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {}
+      "name": "Missing nfStatusNotificationUri",
+      "constraint": "The request body MUST be present and MUST conform to the SubscriptionData schema.",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
       },
-      "violated_constraints": [
-        "The request body MUST be present and MUST conform to the SubscriptionData schema."
-      ]
+      "body": {
+        "reqNfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "reqNfType": "NRF",
+        "reqNotifEvents": [
+          "NF_STATUS_CHANGE"
+        ],
+        "duration": 3600
+      }
     },
     {
-      "name": "NFStatusSubscribe - missing required nfStatusNotificationUri",
-      "request": {
-        "method": "POST",
-        "resource_url": "/nnrf-nfm/v1/subscriptions",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "reqNfType": "NRF"
+      "name": "Missing nfStatusNotificationUri",
+      "constraint": "The nfStatusNotificationUri property is required in the SubscriptionData request body.",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "reqNfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "reqNfType": "NRF",
+        "reqNotifEvents": [
+          "NF_STATUS_CHANGE"
+        ]
+      }
+    },
+    {
+      "name": "Invalid Content-Type Header",
+      "constraint": "The request body content type for the subscription creation MUST be application/json.",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "text/plain"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNfType": "NRF"
+      }
+    },
+    {
+      "name": "Subscription with empty sharedDataIds",
+      "constraint": "If sharedDataIds is present, it MUST be an array containing at least 1 item.",
+      "method": "POST",
+      "path": "/nnrf-nfm/v1/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "sharedDataIds": [],
+        "reqNfType": "NRF"
+      }
+    },
+    {
+      "name": "Invalid subscriptionId with hyphen",
+      "constraint": "The subscriptionId property, when present, MUST match the regular expression '^([0-9]{5,6}-(x3Lf57A:nid=[A-Fa-f0-9]{11}:)?)?[^-]+$'.",
+      "method": "POST",
+      "path": "/nnrf-nfm/v1/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "subscriptionId": "invalid-sub-id",
+        "reqNfType": "NRF"
+      }
+    },
+    {
+      "name": "Provide readOnly subscriptionId in request",
+      "constraint": "The subscriptionId property is readOnly and must not be provided by the client in the request.",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "subscriptionId": "12345-abc",
+        "reqNfType": "NRF"
+      }
+    },
+    {
+      "name": "Invalid reqNotifEvents - empty array",
+      "constraint": "If reqNotifEvents is present, it MUST be an array and MUST contain at least 1 item, each item being one of the NotificationEventType enum values (e.g. NF_REGISTERED, NF_DEREGISTERED, NF_PROFILE_CHANGED, SHARED_DATA_CHANGED).",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNotifEvents": [],
+        "reqNfType": "NRF"
+      }
+    },
+    {
+      "name": "Invalid reqSnssais Empty Array",
+      "constraint": "If reqSnssais is present, it MUST be an array containing at least 1 ExtSnssai item.",
+      "method": "POST",
+      "path": "/nnrf-nfm/v1/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqSnssais": [],
+        "reqNfType": "NRF"
+      }
+    },
+    {
+      "name": "Invalid reqPerPlmnSnssais - empty array",
+      "constraint": "If reqPerPlmnSnssais is present, it MUST be an array containing at least 1 PlmnSnssai item.",
+      "method": "POST",
+      "path": "/nnrf-nfm/v1/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNfType": "NRF",
+        "reqPerPlmnSnssais": []
+      }
+    },
+    {
+      "name": "Empty reqPlmnList",
+      "constraint": "If reqPlmnList is present, it MUST be an array containing at least 1 PlmnId item.",
+      "method": "POST",
+      "path": "/nnrf-nfm/v1/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqPlmnList": []
+      }
+    },
+    {
+      "name": "Empty reqSnpnList (violates minItems)",
+      "constraint": "If reqSnpnList is present, it MUST be an array containing at least 1 PlmnIdNid item.",
+      "method": "POST",
+      "path": "/nnrf-nfm/v1/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNfType": "NRF",
+        "reqSnpnList": []
+      }
+    },
+    {
+      "name": "ServingScope Empty Array",
+      "constraint": "If servingScope is present, it MUST be an array containing at least 1 string item.",
+      "method": "POST",
+      "path": "/nnrf-nfm/v1/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNfType": "NRF",
+        "servingScope": []
+      }
+    },
+    {
+      "name": "Include readOnly nrfSupportedFeatures in request",
+      "constraint": "The requesterFeatures property is writeOnly and is defined by the SupportedFeatures schema, meaning it can be provided by the client in the request (but will not be returned in read responses).",
+      "method": "POST",
+      "path": "/nnrf-nfm/v1/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNfType": "NRF",
+        "requesterFeatures": "0xABCD1234",
+        "nrfSupportedFeatures": "0xDEADBEEF"
+      }
+    },
+    {
+      "name": "Provide readOnly nrfSupportedFeatures in subscription request",
+      "constraint": "The nrfSupportedFeatures property is readOnly and must not be provided by the client in the request.",
+      "method": "POST",
+      "path": "/nnrf-nfm/v1/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNfType": "NRF",
+        "nrfSupportedFeatures": "featureA,featureB"
+      }
+    },
+    {
+      "name": "Invalid extPreferredLocality Empty Object",
+      "constraint": "extPreferredLocality, when present, MUST be an object containing at least one property; each property value MUST be an array with at least one LocalityDescription item.",
+      "method": "POST",
+      "path": "/nnrf-nfm/v1/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNfType": "NRF",
+        "extPreferredLocality": {}
+      }
+    },
+    {
+      "name": "Non-boolean completeProfileSubscription",
+      "constraint": "completeProfileSubscription is a boolean with default false and writeOnly; providing a non-boolean value violates the schema.",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNfType": "NRF",
+        "completeProfileSubscription": "invalid_string_instead_of_boolean"
+      }
+    },
+    {
+      "name": "Invalid subscrCond variant",
+      "constraint": "subscrCond, if present, MUST conform to one of the SubscrCond variants (oneOf): NfInstanceIdCond, NfInstanceIdListCond, NfTypeCond, ServiceNameCond, ServiceNameListCond, AmfCond, GuamiListCond, NetworkSliceCond, NfGroupCond, NfGroupListCond, NfSetCond, NfServiceSetCond, UpfCond, ScpDomainCond, NwdafCond, NefCond, or DccfCond.",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNfType": "NRF",
+        "subscrCond": {
+          "unexpectedField": "this-does-not-match-any-SubscrCond-variant",
+          "invalidArray": "should-be-array-but-is-string"
         }
-      },
-      "violated_constraints": [
-        "The nfStatusNotificationUri property is required in the SubscriptionData request body."
-      ]
+      }
     },
     {
-      "name": "Subscription creation with non-JSON Content-Type",
-      "request": {
-        "resource_url": "/nnrf-nfm/v1/subscriptions",
-        "method": "POST",
-        "headers": {
-          "Content-Type": "application/xml"
+      "name": "Missing nfInstanceId for NfInstanceIdCond",
+      "constraint": "If subscrCond is NfInstanceIdCond, the nfInstanceId property is required.",
+      "method": "POST",
+      "path": "/nnrf-nfm/v1/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "subscrCond": {
+          "conditionType": "NfInstanceIdCond"
         },
-        "request_body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "reqNfType": "NRF",
-          "duration": 3600
+        "reqNfType": "NRF"
+      }
+    },
+    {
+      "name": "Empty NfInstanceIdList in SubscrCond",
+      "constraint": "If subscrCond is NfInstanceIdListCond, the nfInstanceIdList property is required and it MUST contain at least 1 item.",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "subscrCond": {
+          "nfInstanceIdList": []
+        },
+        "reqNfType": "NRF"
+      }
+    },
+    {
+      "name": "SubscrCond NfTypeCond with forbidden nfGroupId",
+      "constraint": "If subscrCond.conditionType is NfTypeCond, subscrCond.nfType is required and subscrCond must not include nfGroupId or the pair conditionType + nfGroupIdList. This test includes a forbidden nfGroupId.",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNfType": "NRF",
+        "reqNotifEvents": [
+          "NF_STATUS_CHANGE"
+        ],
+        "subscrCond": {
+          "conditionType": "NfTypeCond",
+          "nfType": "NRF",
+          "nfGroupId": "forbidden-group-1"
         }
-      },
-      "violated_constraints": [
-        "The request body content type for the subscription creation MUST be application/json."
-      ]
+      }
     },
     {
-      "name": "NFStatusSubscribe - sharedDataIds present as empty array",
-      "request": {
-        "method": "POST",
-        "resource_url": "/nnrf-nfm/v1/subscriptions",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "sharedDataIds": [],
-          "reqNfType": "NRF"
+      "name": "Missing serviceName for ServiceNameCond",
+      "constraint": "If subscrCond is ServiceNameCond, the serviceName property is required.",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "subscrCond": {
+          "serviceNameCond": {}
         }
-      },
-      "violated_constraints": [
-        "If sharedDataIds is present, it MUST be an array containing at least 1 item."
-      ]
+      }
     },
     {
-      "name": "invalid_subscriptionId_contains_hyphen",
-      "request": {
-        "resource_url": "/nnrf-nfm/v1/subscriptions",
-        "method": "POST",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "request_body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "subscriptionId": "invalid-subscription-id",
-          "reqNfType": "NRF"
+      "name": "SubscrCond with empty serviceNameList",
+      "constraint": "If subscrCond is ServiceNameListCond, serviceNameList MUST contain at least 1 item.",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNfType": "NRF",
+        "subscrCond": {
+          "conditionType": "SERVICE_NAME_LIST_COND",
+          "serviceNameList": []
         }
-      },
-      "violated_constraints": [
-        "The subscriptionId property, when present, MUST match the regular expression '^([0-9]{5,6}-(x3Lf57A:nid=[A-Fa-f0-9]{11}:)?)?[^-]+$'."
-      ]
+      }
     },
     {
-      "name": "Invalid_Subscription_Includes_ReadOnly_subscriptionId",
-      "request": {
-        "resource_url": "/nnrf-nfm/v1/subscriptions",
-        "method": "POST",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "request_body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "subscriptionId": "12345clientProvided"
+      "name": "SubscrCond AmfCond without amfSetId or amfRegionId",
+      "constraint": "If subscrCond is AmfCond, at least one of amfSetId or amfRegionId MUST be present.",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNfType": "NRF",
+        "subscrCond": {
+          "amfCond": {}
         }
-      },
-      "violated_constraints": [
-        "The subscriptionId property is marked as readOnly, indicating it is provided by the server (response) rather than the client (request)."
-      ]
+      }
     },
     {
-      "name": "reqNotifEvents as string instead of array",
-      "request": {
-        "resource_url": "/nnrf-nfm/v1/subscriptions",
-        "method": "POST",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "request_body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "reqNotifEvents": "NF_REGISTERED"
-        }
+      "name": "SubscrCond GuamiList Empty",
+      "constraint": "If subscrCond is GuamiListCond, guamiList is required and it MUST contain at least 1 item.",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
       },
-      "violated_constraints": [
-        "If reqNotifEvents is present, it MUST be an array and MUST contain at least 1 item, each item being one of the NotificationEventType enum values (e.g. NF_REGISTERED, NF_DEREGISTERED, NF_PROFILE_CHANGED, SHARED_DATA_CHANGED)."
-      ]
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "subscrCond": {
+          "guamiListCond": {
+            "guamiList": []
+          }
+        },
+        "reqNfType": "NRF"
+      }
     },
     {
-      "name": "Invalid subscription with empty reqSnssais array",
-      "request": {
-        "method": "POST",
-        "path": "/subscriptions",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "reqNfType": "NRF",
-          "reqSnssais": []
-        }
+      "name": "Invalid NetworkSliceCond with empty snssaiList and nsiList",
+      "constraint": "If subscrCond is NetworkSliceCond, snssaiList is required and it MUST contain at least 1 item; if nsiList is present it MUST contain at least 1 item.",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
       },
-      "violated_constraints": [
-        "If reqSnssais is present, it MUST be an array containing at least 1 ExtSnssai item."
-      ]
-    },
-    {
-      "name": "Invalid_reqPerPlmnSnssais_empty_array",
-      "request": {
-        "resource_url": "/nnrf-nfm/v1/subscriptions",
-        "method": "POST",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "request_body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "reqNfType": "NRF",
-          "reqPerPlmnSnssais": []
-        }
-      },
-      "violated_constraints": [
-        "If reqPerPlmnSnssais is present, it MUST be an array containing at least 1 PlmnSnssai item."
-      ]
-    },
-    {
-      "name": "Invalid subscription with empty reqPlmnList",
-      "request": {
-        "resource_url": "/nnrf-nfm/v1/subscriptions",
-        "method": "POST",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "request_body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "reqNfType": "NRF",
-          "reqPlmnList": []
-        }
-      },
-      "violated_constraints": [
-        "If reqPlmnList is present, it MUST be an array containing at least 1 PlmnId item."
-      ]
-    },
-    {
-      "name": "Invalid subscription with empty reqSnpnList",
-      "request": {
-        "resource_url": "/nnrf-nfm/v1/subscriptions",
-        "method": "POST",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "request_body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "reqNfType": "NRF",
-          "reqSnpnList": []
-        }
-      },
-      "violated_constraints": [
-        "If reqSnpnList is present, it MUST be an array containing at least 1 PlmnIdNid item."
-      ]
-    },
-    {
-      "name": "ServingScopeEmptyArray_ViolateMinItems",
-      "request": {
-        "resource_url": "/nnrf-nfm/v1/subscriptions",
-        "method": "POST",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "request_body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "reqNfType": "NRF",
-          "servingScope": []
-        }
-      },
-      "violated_constraints": [
-        "If servingScope is present, it MUST be an array containing at least 1 string item."
-      ]
-    },
-    {
-      "name": "Invalid request including readOnly property nrfSupportedFeatures",
-      "request": {
-        "method": "POST",
-        "url": "/nnrf-nfm/v1/subscriptions",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "reqNfType": "NRF",
-          "requesterFeatures": "0xABCD",
-          "nrfSupportedFeatures": "0x1234"
-        }
-      },
-      "violated_constraints": [
-        "Included readOnly property 'nrfSupportedFeatures' in the request body. 'nrfSupportedFeatures' is defined as readOnly and MUST NOT be provided by the client in requests (requesterFeatures is writeOnly and may be provided)."
-      ]
-    },
-    {
-      "name": "Invalid: client provides readOnly nrfSupportedFeatures in subscription request",
-      "request": {
-        "resource_url": "/nnrf-nfm/v1/subscriptions",
-        "method": "POST",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "request_body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "reqNfType": "NRF",
-          "nrfSupportedFeatures": "0f7a3c"
-        }
-      },
-      "violated_constraints": [
-        "The nrfSupportedFeatures property is readOnly and is defined by the server; it must not be provided by the client in the request."
-      ]
-    },
-    {
-      "name": "extPreferredLocality with empty array violates minItems",
-      "request": {
-        "method": "POST",
-        "resource_url": "/nnrf-nfm/v1/subscriptions",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "request_body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "reqNfType": "NRF",
-          "extPreferredLocality": {
-            "regionA": []
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNfType": "NRF",
+        "subscrCond": {
+          "networkSliceCond": {
+            "snssaiList": [],
+            "nsiList": []
           }
         }
-      },
-      "violated_constraints": "extPreferredLocality property 'regionA' contains an empty array; each property value MUST be an array with at least 1 LocalityDescription item."
+      }
     },
     {
-      "name": "Invalid_completeProfileSubscription_wrong_type_string",
-      "request": {
-        "method": "POST",
-        "resource_url": "/nnrf-nfm/v1/subscriptions",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "reqNfType": "NRF",
-          "completeProfileSubscription": "true"
-        }
+      "name": "subscrCond nfGroupCond with forbidden nfType 'NRF'",
+      "constraint": "If subscrCond is NfGroupCond, both nfType and nfGroupId are required and nfType is restricted to the enum [UDM, AUSF, UDR, PCF, CHF, HSS, BSF, UDSF].",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
       },
-      "violated_constraints": [
-        "completeProfileSubscription must be a boolean (writeOnly); provided type: string"
-      ]
-    },
-    {
-      "name": "Invalid subscrCond - non-conforming object",
-      "request": {
-        "resource_url": "/nnrf-nfm/v1/subscriptions",
-        "method": "POST",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "request_body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "reqNfType": "NRF",
-          "subscrCond": {
-            "invalidField": "this-does-not-match-any-SubscrCond-variant",
-            "anotherInvalid": 42
-          }
-        }
-      },
-      "violated_constraints": [
-        "subscrCond, if present, MUST conform to one of the SubscrCond variants (oneOf): NfInstanceIdCond, NfInstanceIdListCond, NfTypeCond, ServiceNameCond, ServiceNameListCond, AmfCond, GuamiListCond, NetworkSliceCond, NfGroupCond, NfGroupListCond, NfSetCond, NfServiceSetCond, UpfCond, ScpDomainCond, NwdafCond, NefCond, or DccfCond."
-      ]
-    },
-    {
-      "name": "Subscription with NfInstanceIdCond but missing nfInstanceId",
-      "request": {
-        "method": "POST",
-        "path": "/subscriptions",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "subscrCond": {
-            "type": "NfInstanceIdCond"
-          },
-          "reqNfType": "NRF"
-        }
-      },
-      "violated_constraints": [
-        "If subscrCond is NfInstanceIdCond, the nfInstanceId property is required."
-      ]
-    },
-    {
-      "name": "Subscribe with empty nfInstanceIdList in subscrCond (violates required minItems)",
-      "request": {
-        "method": "POST",
-        "url": "/nnrf-nfm/v1/subscriptions",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "reqNfType": "NRF",
-          "subscrCond": {
-            "condType": "NfInstanceIdListCond",
-            "nfInstanceIdList": []
-          }
-        }
-      },
-      "violated_constraints": [
-        "If subscrCond is NfInstanceIdListCond, the nfInstanceIdList property is required and it MUST contain at least 1 item."
-      ]
-    },
-    {
-      "name": "Subscription with NfTypeCond including forbidden nfGroupId",
-      "request": {
-        "resource_url": "/nnrf-nfm/v1/subscriptions",
-        "method": "POST",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "request_body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "reqNfType": "NRF",
-          "subscrCond": {
-            "conditionType": "NfTypeCond",
-            "nfType": "NRF",
-            "nfGroupId": "forbidden-group-123"
-          }
-        }
-      },
-      "violated_constraints": [
-        "If subscrCond is NfTypeCond, the nfType property is required, and the schema explicitly prohibits presence of nfGroupId or the pair conditionType + nfGroupIdList in that variant."
-      ]
-    },
-    {
-      "name": "NFStatusSubscribe_MissingServiceName_WhenSubscrCondIsServiceNameCond",
-      "request": {
-        "resource_url": "/nnrf-nfm/v1/subscriptions",
-        "method": "POST",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "request_body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "reqNfType": "NRF",
-          "subscrCond": {
-            "type": "ServiceNameCond"
-          }
-        }
-      },
-      "violated_constraints": [
-        "If subscrCond is ServiceNameCond, the serviceName property is required."
-      ]
-    },
-    {
-      "name": "NFStatusSubscribe_Invalid_SubscrCond_ServiceNameListCond_WrongConditionType_EmptyServiceList",
-      "request": {
-        "resource_url": "/nnrf-nfm/v1/subscriptions",
-        "method": "POST",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "request_body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "subscrCond": {
-            "conditionType": "INVALID_SERVICE_NAME_LIST",
-            "serviceNameList": []
-          }
-        }
-      },
-      "violated_constraints": [
-        "If subscrCond is ServiceNameListCond, both conditionType and serviceNameList properties are required and conditionType MUST have the value 'SERVICE_NAME_LIST_COND', and serviceNameList MUST contain at least 1 item."
-      ]
-    },
-    {
-      "name": "Subscribe with AmfCond but missing amfSetId and amfRegionId",
-      "request": {
-        "resource_url": "/nnrf-nfm/v1/subscriptions",
-        "method": "POST",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "request_body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "reqNfType": "NRF",
-          "subscrCond": {
-            "amfCond": {
-              "plmnId": {
-                "mcc": "310",
-                "mnc": "410"
-              }
-            }
-          }
-        }
-      },
-      "violated_constraints": [
-        "If subscrCond is AmfCond, at least one of amfSetId or amfRegionId MUST be present."
-      ]
-    },
-    {
-      "name": "Subscription with GuamiListCond but empty guamiList",
-      "request": {
-        "resource_url": "/nnrf-nfm/v1/subscriptions",
-        "method": "POST",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "request_body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "subscrCond": {
-            "guamiListCond": {
-              "guamiList": []
-            }
-          }
-        }
-      },
-      "violated_constraints": "If subscrCond is GuamiListCond, guamiList is required and it MUST contain at least 1 item."
-    },
-    {
-      "name": "Subscription with NetworkSliceCond and empty snssaiList",
-      "request": {
-        "method": "POST",
-        "resource_url": "/nnrf-nfm/v1/subscriptions",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "request_body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "subscrCond": {
-            "networkSliceCond": {
-              "snssaiList": [],
-              "nsiList": []
-            }
-          },
-          "reqNfType": "NRF"
-        }
-      },
-      "violated_constraints": [
-        "If subscrCond is NetworkSliceCond, snssaiList is required and it MUST contain at least 1 item (snssaiList is empty).",
-        "If nsiList is present it MUST contain at least 1 item (nsiList is empty)."
-      ]
-    },
-    {
-      "name": "NFStatusSubscribe_Invalid_NfGroupCond_NfTypeNotAllowed",
-      "request": {
-        "resource_url": "/nnrf-nfm/v1/subscriptions",
-        "method": "POST",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "request_body": {
-          "nfStatusNotificationUri": "https://example.client/invalid-callback",
-          "subscrCond": {
-            "type": "NfGroupCond",
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNfType": "NRF",
+        "subscrCond": {
+          "nfGroupCond": {
             "nfType": "NRF",
             "nfGroupId": "group-123"
           }
         }
-      },
-      "violated_constraints": [
-        "If subscrCond is NfGroupCond, both nfType and nfGroupId are required and nfType is restricted to the enum [UDM, AUSF, UDR, PCF, CHF, HSS, BSF, UDSF]; nfType='NRF' violates the allowed nfType enumeration."
-      ]
+      }
     },
     {
-      "name": "NFStatusSubscribe_Invalid_NfGroupListCond_EmptyNfGroupIdList",
-      "request": {
-        "method": "POST",
-        "resource_url": "/nnrf-nfm/v1/subscriptions",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "reqNfType": "NRF",
-          "subscrCond": {
-            "conditionType": "NF_GROUP_LIST_COND",
-            "nfType": "NRF",
-            "nfGroupIdList": []
-          }
-        }
+      "name": "Invalid NfGroupListCond - wrong conditionType and empty nfGroupIdList",
+      "constraint": "If subscrCond is NfGroupListCond, conditionType, nfType and nfGroupIdList are required and conditionType MUST have the value 'NF_GROUP_LIST_COND' and nfGroupIdList MUST contain at least 1 item.",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
       },
-      "violated_constraints": [
-        "If subscrCond is NfGroupListCond, nfGroupIdList MUST contain at least 1 item (nfGroupIdList is empty)."
-      ]
+      "body": {
+        "nfStatusNotificationUri": "https://client.example/callback",
+        "subscrCond": {
+          "conditionType": "INVALID_COND_TYPE",
+          "nfType": "NRF",
+          "nfGroupIdList": []
+        }
+      }
     },
     {
       "name": "Missing nfSetId when subscrCond is NfSetCond",
-      "request": {
-        "resource_url": "/nnrf-nfm/v1/subscriptions",
-        "method": "POST",
-        "headers": {
-          "Content-Type": "application/json"
+      "constraint": "If subscrCond is NfSetCond, nfSetId is required.",
+      "method": "POST",
+      "path": "/nnrf-nfm/v1/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "subscrCond": {
+          "nfSetCond": {}
         },
-        "request_body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "reqNfType": "NRF",
-          "subscrCond": {
-            "condType": "NfSetCond"
+        "reqNotifEvents": [
+          "NF_STATUS_CHANGE"
+        ],
+        "reqNfType": "NRF"
+      }
+    },
+    {
+      "name": "Missing nfServiceSetId when subscrCond is NfServiceSetCond",
+      "constraint": "If subscrCond is NfServiceSetCond, nfServiceSetId is required.",
+      "method": "POST",
+      "path": "/nnrf-nfm/v1/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNfType": "NRF",
+        "subscrCond": {
+          "nfServiceSetCond": {
+            "match": "all"
           }
         }
-      },
-      "violated_constraints": [
-        "If subscrCond is NfSetCond, nfSetId is required."
-      ]
+      }
     },
     {
-      "name": "subscrCond NfServiceSetCond without nfServiceSetId",
-      "request": {
-        "method": "POST",
-        "path": "/subscriptions",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "reqNfType": "NRF",
-          "subscrCond": {
-            "condType": "NfServiceSetCond",
-            "serviceSetName": "exampleServiceSet"
-          }
+      "name": "Invalid UpfCond conditionType value",
+      "constraint": "If subscrCond is UpfCond, conditionType is required and MUST equal 'UPF_COND'.",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "subscrCond": {
+          "conditionType": "INVALID_COND",
+          "upfId": "upf-550e"
         }
-      },
-      "violated_constraints": [
-        "If subscrCond is NfServiceSetCond, nfServiceSetId is required."
-      ]
+      }
     },
     {
-      "name": "Subscribe with UpfCond but invalid conditionType",
-      "request": {
-        "resource_url": "/nnrf-nfm/v1/subscriptions",
-        "method": "POST",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "request_body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "subscrCond": {
-            "upfInfo": {
-              "upfId": "upf-12345"
-            },
-            "conditionType": "WRONG_VALUE"
-          }
-        }
+      "name": "Invalid NwdafCond conditionType",
+      "constraint": "If subscrCond is NwdafCond, conditionType is required and MUST equal 'NWDAF_COND'.",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
       },
-      "violated_constraints": [
-        "If subscrCond is UpfCond, conditionType is required and MUST equal 'UPF_COND'."
-      ]
-    },
-    {
-      "name": "Invalid subscription with NwdafCond having incorrect conditionType",
-      "request": {
-        "resource_url": "/nnrf-nfm/v1/subscriptions",
-        "method": "POST",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "request_body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "subscrCond": {
-            "type": "NwdafCond",
-            "conditionType": "WRONG_VALUE"
-          },
-          "reqNfType": "NRF"
-        }
-      },
-      "violated_constraints": [
-        "If subscrCond is NwdafCond, conditionType is required and MUST equal 'NWDAF_COND'."
-      ]
-    },
-    {
-      "name": "NFStatusSubscribe_invalid_subscrCond_conditionType_not_NEF_COND",
-      "request": {
-        "path": "/nnrf-nfm/v1/subscriptions",
-        "method": "POST",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "reqNfType": "NRF",
-          "subscrCond": {
-            "nefCond": {
-              "conditionType": "INVALID_CONDITION",
-              "exampleField": "exampleValue"
-            }
-          }
-        }
-      },
-      "violated_constraints": [
-        "If subscrCond is NefCond, conditionType is required and MUST equal 'NEF_COND'."
-      ]
-    },
-    {
-      "name": "Invalid subscription: DccfCond with incorrect conditionType",
-      "request": {
-        "method": "POST",
-        "resource_url": "/nnrf-nfm/v1/subscriptions",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "request_body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "reqNfType": "NRF",
-          "subscrCond": {
-            "type": "DccfCond",
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNfType": "NRF",
+        "subscrCond": {
+          "nwdafCond": {
             "conditionType": "INVALID_CONDITION"
           }
         }
-      },
-      "violated_constraints": [
-        "If subscrCond is DccfCond, conditionType is required and MUST equal 'DCCF_COND'."
-      ]
+      }
     },
     {
-      "name": "NFStatusSubscribe_invalid_notifCondition_both_monitored_and_unmonitored",
-      "request": {
-        "resource_url": "/nnrf-nfm/v1/subscriptions",
-        "method": "POST",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "request_body": {
-          "nfStatusNotificationUri": "https://example.client/callback",
-          "reqNfType": "NRF",
-          "notifCondition": {
-            "monitoredAttributes": [
-              "nfStatus",
-              "nfLoad"
-            ],
-            "unmonitoredAttributes": [
-              "nfReservedCapacity"
-            ]
+      "name": "subscrCond with incorrect conditionType for NefCond",
+      "constraint": "If subscrCond is NefCond, conditionType is required and MUST equal 'NEF_COND'.",
+      "method": "POST",
+      "path": "/nnrf-nfm/v1/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNfType": "NRF",
+        "subscrCond": {
+          "conditionType": "INVALID_COND",
+          "nefCond": {
+            "nfType": "NRF"
           }
         }
-      },
-      "violated_constraints": [
-        "notifCondition, if present, MUST NOT contain both monitoredAttributes and unmonitoredAttributes at the same time (both are present)"
-      ]
+      }
     },
     {
-      "name": "Subscription with nfStatusNotificationUri pointing to NRF's own subscriptions endpoint (callback loop)",
-      "request": {
-        "resource_url": "/nnrf-nfm/v1/subscriptions",
-        "method": "POST",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "request_body": {
-          "nfStatusNotificationUri": "https://nrf.example.3gppnetwork.org/nnrf-nfm/v1/subscriptions",
-          "reqNfType": "NRF"
-        }
+      "name": "Invalid DccfCond conditionType value",
+      "constraint": "If subscrCond is DccfCond, conditionType is required and MUST equal 'DCCF_COND'.",
+      "method": "POST",
+      "path": "/nnrf-nfm/v1/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
       },
-      "violated_constraints": [
-        "The nfStatusNotificationUri value provided in the request body is used as the callback endpoint for notifications (the callback definition uses '{$request.body#/nfStatusNotificationUri}' as the callback URI to POST NotificationData)."
-      ]
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "subscrCond": {
+          "conditionType": "INVALID_COND",
+          "dccfCond": {
+            "exampleField": "exampleValue"
+          }
+        },
+        "reqNfType": "NRF"
+      }
+    },
+    {
+      "name": "NotifCondition Contains Both Monitored and Unmonitored Attributes",
+      "constraint": "notifCondition, if present, MUST NOT contain both monitoredAttributes and unmonitoredAttributes at the same time.",
+      "method": "POST",
+      "path": "/nnrf-nfm/v1/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNfType": "NRF",
+        "notifCondition": {
+          "monitoredAttributes": [
+            "nfStatus",
+            "fqdn"
+          ],
+          "unmonitoredAttributes": [
+            "nfStatusChange"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Invalid nfStatusNotificationUri format",
+      "constraint": "The nfStatusNotificationUri must be a valid absolute URI usable as the callback endpoint (the callback uses '{$request.body#/nfStatusNotificationUri}' to POST NotificationData).",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "not-a-valid-uri",
+        "reqNfType": "NRF",
+        "reqNfInstanceId": "550e8400-e29b-41d4-a716-446655440000"
+      }
     }
   ]
 }

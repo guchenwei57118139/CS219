@@ -10,11 +10,12 @@ from typing import Any, Dict, List, Optional
 
 from extremal_testing.implementation_testers.common import (
     build_request_details,
-    load_suite_or_legacy_tests,
+    load_clean_suite,
     response_headers_dict,
     response_reason,
     response_text,
     seed_context_from_step,
+    validate_clean_suite,
     update_context_from_response,
 )
 
@@ -42,14 +43,16 @@ class BaseNRFTester(ABC):
         return {}
 
     def build_results_file(self, operation_name: str) -> Path:
-        results_dir = Path(__file__).resolve().parent.parent / "data" / "results" / self.implementation_name
+        results_dir = Path(__file__).resolve().parent.parent / "data" / "test_results"
         results_dir.mkdir(parents=True, exist_ok=True)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         return results_dir / f"{self.results_prefix}{operation_name}_{timestamp}.json"
 
     def load_suite(self, test_cases_file: str) -> Dict[str, Any]:
         operation_name = Path(test_cases_file).stem.replace("_tests", "")
-        return load_suite_or_legacy_tests(test_cases_file, operation_name)
+        suite = load_clean_suite(test_cases_file, operation_name)
+        validate_clean_suite(suite)
+        return suite
 
     def execute_step(
         self,
@@ -62,7 +65,7 @@ class BaseNRFTester(ABC):
         request_details = build_request_details(step, self.base_url, headers, context)
         method = request_details["method"]
         full_url = request_details["full_url"]
-        request_body = request_details["request_body"]
+        request_body = request_details["body"]
         request_headers = request_details["headers"]
 
         try:
@@ -91,7 +94,7 @@ class BaseNRFTester(ABC):
                 "response_time": None,
                 "error": str(exc),
                 "error_type": exc.__class__.__name__,
-                "error_location": f"{method} {request_details['resource_url']}",
+                "error_location": f"{method} {request_details['path']}",
             }
 
     def execute_steps(
@@ -125,8 +128,7 @@ class BaseNRFTester(ABC):
         response: Dict[str, Any],
         cleanup_summary: Dict[str, Any],
     ) -> Dict[str, Any]:
-        violated_constraints = test_case.get("violated_constraints", [])
-        constraint_text = violated_constraints[0] if violated_constraints else "Unknown constraint"
+        constraint_text = str(test_case.get("constraint") or "Unknown constraint")
         return {
             "test_case_index": index,
             "test_name": test_case.get("name", f"Test case {index + 1}"),
@@ -165,23 +167,9 @@ class BaseNRFTester(ABC):
                 headers.update(self.build_auth_headers(context))
 
                 setup_steps = list(shared_setup)
-                legacy_setup = test_case.get("driving_state")
-                if legacy_setup:
-                    setup_steps.append(legacy_setup)
                 setup_summary = self.execute_steps(client, setup_steps, headers, context)
 
-                request_def = test_case.get("request", {})
-                if request_def:
-                    response = self.execute_step(client, request_def, headers, context)
-                else:
-                    response = {
-                        "status_code": None,
-                        "status_message": "No request found in test case",
-                        "response_body": None,
-                        "response_headers": {},
-                        "response_time": None,
-                        "error": "Test case missing request field",
-                    }
+                response = self.execute_step(client, test_case, headers, context)
 
                 cleanup_context = dict(context)
                 cleanup_summary = self.execute_steps(client, shared_cleanup, headers, cleanup_context)

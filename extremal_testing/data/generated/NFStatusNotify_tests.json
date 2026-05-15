@@ -2,18 +2,14 @@
   "operation": "NFStatusNotify",
   "path": "{nfStatusNotificationUri}",
   "method": "POST",
-  "depends_on": [
-    "NFRegister",
-    "NFStatusSubscribe"
-  ],
   "setup": [
     {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+      "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
       "method": "PUT",
       "headers": {
         "Content-Type": "application/json"
       },
-      "request_body": {
+      "body": {
         "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
@@ -21,12 +17,12 @@
       }
     },
     {
-      "resource_url": "/nnrf-nfm/v1/subscriptions",
+      "path": "/nnrf-nfm/v1/subscriptions",
       "method": "POST",
       "headers": {
         "Content-Type": "application/json"
       },
-      "request_body": {
+      "body": {
         "callbackReference": {
           "notifyUri": "https://example.client/callback"
         },
@@ -40,14 +36,14 @@
   ],
   "cleanup": [
     {
-      "resource_url": "/nnrf-nfm/v1/subscriptions/{subscriptionId}",
+      "path": "/nnrf-nfm/v1/subscriptions/{subscriptionId}",
       "method": "DELETE",
       "headers": {
         "Content-Type": "application/json"
       }
     },
     {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+      "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
       "method": "DELETE",
       "headers": {
         "Content-Type": "application/json"
@@ -56,256 +52,205 @@
   ],
   "tests": [
     {
-      "name": "Invalid body type: array instead of NotificationData object",
-      "request": {
-        "method": "POST",
-        "resource_url": "{nfStatusNotificationUri}",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": [
-          "NF_STATUS_CHANGE",
-          {
-            "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-            "nfType": "NRF",
-            "nfStatus": "REGISTERED"
-          }
+      "name": "Notification Body Is Array Instead of Object",
+      "constraint": "The request body must be a JSON object conforming to the NotificationData schema ($ref: '#/components/schemas/NotificationData').",
+      "method": "POST",
+      "path": "{nfStatusNotificationUri}",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": [
+        {
+          "notificationType": "NF_STATUS_CHANGE",
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfStatus": "UNREGISTERED"
+        }
+      ]
+    },
+    {
+      "name": "Invalid Content-Type for NFStatusNotify",
+      "constraint": "The request body content type must be 'application/json'.",
+      "method": "POST",
+      "path": "{nfStatusNotificationUri}",
+      "headers": {
+        "Content-Type": "text/plain"
+      },
+      "body": {
+        "notificationType": "NF_STATUS_CHANGE",
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "SUSPENDED"
+      }
+    },
+    {
+      "name": "Missing event and nfInstanceUri in NotificationData",
+      "constraint": "The NotificationData object requires the 'event' and 'nfInstanceUri' properties.",
+      "method": "POST",
+      "path": "https://example.client/callback",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "notificationId": "notif-0001",
+        "timeStamp": "2026-05-12T00:00:00Z",
+        "nfStatus": "UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Invalid event value in notification",
+      "constraint": "The 'event' property must be one of the NotificationEventType values: NF_REGISTERED, NF_DEREGISTERED, NF_PROFILE_CHANGED, or SHARED_DATA_CHANGED.",
+      "method": "POST",
+      "path": "https://example.client/callback",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "event": "NF_UNKNOWN_EVENT"
+      }
+    },
+    {
+      "name": "NF_PROFILE_CHANGED without profile details",
+      "constraint": "If event is 'NF_PROFILE_CHANGED', at least one of 'nfProfile', 'profileChanges', or 'completeNfProfile' must be present.",
+      "method": "POST",
+      "path": "/nnrf-nfm/v1/notifications",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "event": "NF_PROFILE_CHANGED",
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "timeStamp": "2026-05-12T12:00:00Z"
+      }
+    },
+    {
+      "name": "NF_REGISTERED without nfProfile or completeNfProfile",
+      "constraint": "If 'event' is 'NF_REGISTERED', then at least one of 'nfProfile' or 'completeNfProfile' must be present in the NotificationData object.",
+      "method": "POST",
+      "path": "/nnrf-nfm/v1/nf-status-notify",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "event": "NF_REGISTERED",
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "targetNfType": "NRF",
+        "timestamp": "2026-05-12T00:00:00Z"
+      }
+    },
+    {
+      "name": "Missing sharedDataChanges when event is SHARED_DATA_CHANGED",
+      "constraint": "If 'event' is 'SHARED_DATA_CHANGED', then 'sharedDataChanges' must be present in the NotificationData object.",
+      "method": "POST",
+      "path": "/nnrf-nfm/v1/notifications",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "event": "SHARED_DATA_CHANGED",
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "timeStamp": "2026-01-01T00:00:00Z"
+      }
+    },
+    {
+      "name": "Empty profileChanges array",
+      "constraint": "When present, 'profileChanges' must be an array with at least one item and each item must conform to ChangeItem ($ref: 'TS29571_CommonData.yaml#/components/schemas/ChangeItem').",
+      "method": "POST",
+      "path": "/nnrf-nfm/v1/notifications",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "profileChanges": []
+      }
+    },
+    {
+      "name": "Invalid empty sharedDataChanges",
+      "constraint": "When present, 'sharedDataChanges' must be an array with at least one item and each item must conform to ChangeItem ($ref: 'TS29571_CommonData.yaml#/components/schemas/ChangeItem').",
+      "method": "POST",
+      "path": "/nnrf-nfm/v1/nf-status-notify",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "SUSPENDED",
+        "sharedDataChanges": []
+      }
+    },
+    {
+      "name": "Invalid nfProfile structure",
+      "constraint": "If 'nfProfile' is present, it must conform to NFProfile ($ref: '#/components/schemas/NFProfile').",
+      "method": "POST",
+      "path": "{nfStatusNotificationUri}",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "notificationType": "NF_STATUS_CHANGE",
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfStatus": "SUSPENDED",
+        "nfProfile": {
+          "nfType": "NRF",
+          "fqdn": 12345
+        }
+      }
+    },
+    {
+      "name": "Notification with forbidden allowedPlmns in nfProfile",
+      "constraint": "nfProfile and its NFService entries must not include allowedPlmns, allowedSnpns, allowedNfTypes, allowedNfDomains, or allowedNssais",
+      "method": "POST",
+      "path": "{nfStatusNotificationUri}",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "notificationType": "NF_STATUS_CHANGE",
+        "nfProfile": {
+          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+          "nfType": "NRF",
+          "nfStatus": "UNAVAILABLE",
+          "fqdn": "nrf.example.3gppnetwork.org",
+          "allowedPlmns": [
+            {
+              "mcc": "001",
+              "mnc": "01"
+            }
+          ],
+          "nfServices": [
+            {
+              "serviceInstanceId": "svc-1",
+              "serviceName": "nrf-service"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Invalid Content-Encoding Type",
+      "constraint": "The callback request may include a 'Content-Encoding' header of type string (Content-Encoding, described in IETF RFC 9110).",
+      "method": "POST",
+      "path": "/{nfStatusNotificationUri}",
+      "headers": {
+        "Content-Type": "application/json",
+        "Content-Encoding": [
+          "gzip"
         ]
       },
-      "violated_constraints": [
-        "The request body must be a JSON object conforming to the NotificationData schema ($ref: '#/components/schemas/NotificationData')."
-      ]
-    },
-    {
-      "name": "NFStatusNotify with non-JSON Content-Type",
-      "request": {
-        "resource_url": "{nfStatusNotificationUri}",
-        "method": "POST",
-        "headers": {
-          "Content-Type": "text/plain"
-        },
-        "request_body": "{\"nfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"nfType\":\"NRF\",\"nfStatus\":\"DEREGISTERED\"}"
-      },
-      "violated_constraints": [
-        "The request body content type must be 'application/json'."
-      ]
-    },
-    {
-      "name": "NFStatusNotify_missing_event_and_nfInstanceUri",
-      "request": {
-        "method": "POST",
-        "resource_url": "{nfStatusNotificationUri}",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "timestamp": "2026-05-12T08:30:00Z",
-          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-          "status": "UNAVAILABLE",
-          "details": {
-            "reason": "Heartbeat missed"
-          }
-        }
-      },
-      "violated_constraints": [
-        "The NotificationData object requires the 'event' and 'nfInstanceUri' properties."
-      ]
-    },
-    {
-      "name": "NFStatusNotify - invalid event value",
-      "request": {
-        "method": "POST",
-        "resource_url": "{nfStatusNotificationUri}",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "event": "NF_REBOOTED",
-          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-          "nfType": "NRF",
-          "nfStatus": "REGISTERED"
-        }
-      },
-      "violated_constraints": [
-        "The 'event' property must be one of the NotificationEventType values: NF_REGISTERED, NF_DEREGISTERED, NF_PROFILE_CHANGED, or SHARED_DATA_CHANGED. Provided value: 'NF_REBOOTED'."
-      ]
-    },
-    {
-      "name": "NF_PROFILE_CHANGED event with missing profile fields",
-      "request": {
-        "method": "POST",
-        "resource_url": "{nfStatusNotificationUri}",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "request_body": {
-          "event": "NF_PROFILE_CHANGED",
-          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-          "timeStamp": "2026-05-12T12:00:00Z"
-        }
-      },
-      "violated_constraints": [
-        "If 'event' is 'NF_PROFILE_CHANGED', then at least one of 'nfProfile', 'profileChanges', or 'completeNfProfile' must be present in the NotificationData object."
-      ]
-    },
-    {
-      "name": "NFStatusNotify_Invalid_MissingNfProfileForRegister",
-      "request": {
-        "resource_url": "{nfStatusNotificationUri}",
-        "method": "POST",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "event": "NF_REGISTERED",
-          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-          "nfType": "NRF",
-          "nfStatus": "REGISTERED",
-          "timestamp": "2026-05-12T12:00:00Z"
-        }
-      },
-      "violated_constraints": [
-        "If 'event' is 'NF_REGISTERED', then at least one of 'nfProfile' or 'completeNfProfile' must be present in the NotificationData object."
-      ]
-    },
-    {
-      "name": "NFStatusNotify invalid: SHARED_DATA_CHANGED without sharedDataChanges",
-      "request": {
-        "method": "POST",
-        "url": "{nfStatusNotificationUri}",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "event": "SHARED_DATA_CHANGED",
-          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-          "nfType": "NRF",
-          "time": "2026-05-12T12:00:00Z"
-        }
-      },
-      "violated_constraints": [
-        "If 'event' is 'SHARED_DATA_CHANGED', then 'sharedDataChanges' must be present in the NotificationData object."
-      ]
-    },
-    {
-      "name": "NFStatusNotify with empty profileChanges array (violates minItems)",
-      "request": {
-        "method": "POST",
-        "path": "{nfStatusNotificationUri}",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-          "nfType": "NRF",
-          "notificationType": "NF_STATUS_CHANGE",
-          "profileChanges": []
-        }
-      },
-      "violated_constraints": [
-        "When present, 'profileChanges' must be an array with at least one item and each item must conform to ChangeItem ($ref: 'TS29571_CommonData.yaml#/components/schemas/ChangeItem')."
-      ]
-    },
-    {
-      "name": "NFStatusNotify_sharedDataChanges_emptyArray_invalid",
-      "request": {
-        "method": "POST",
-        "path": "{nfStatusNotificationUri}",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-          "nfType": "NRF",
-          "nfStatus": "REGISTERED",
-          "sharedDataChanges": []
-        }
-      },
-      "violated_constraints": [
-        "When present, 'sharedDataChanges' must be an array with at least one item and each item must conform to ChangeItem ($ref: 'TS29571_CommonData.yaml#/components/schemas/ChangeItem')."
-      ]
-    },
-    {
-      "name": "NFStatusNotify - invalid nfProfile type (string instead of object)",
-      "request": {
-        "method": "POST",
-        "resource_url": "{nfStatusNotificationUri}",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "notificationType": "NF_STATUS_CHANGE",
-          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-          "nfStatus": "UNREGISTERED",
-          "nfProfile": "this-must-be-an-object-conforming-to-NFProfile-not-a-string"
-        }
-      },
-      "violated_constraints": [
-        "If 'nfProfile' is present, it must conform to NFProfile ($ref: '#/components/schemas/NFProfile')."
-      ]
-    },
-    {
-      "name": "NFStatusNotify with forbidden allowedPlmns in nfProfile.nfServices",
-      "request": {
-        "method": "POST",
-        "resource": "{nfStatusNotificationUri}",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "event": "NF_STATUS_CHANGE",
-          "nfInstanceUri": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-          "nfProfile": {
-            "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-            "nfType": "NRF",
-            "nfStatus": "SUSPENDED",
-            "fqdn": "nrf.example.3gppnetwork.org",
-            "nfServices": [
-              {
-                "nfServiceName": "nf-discovery",
-                "versions": [
-                  {
-                    "apiVersionInUri": true,
-                    "apiFullVersion": "v1"
-                  }
-                ],
-                "allowedPlmns": [
-                  {
-                    "mcc": "001",
-                    "mnc": "01"
-                  }
-                ]
-              }
-            ]
-          }
-        }
-      },
-      "violated_constraints": [
-        "When 'nfProfile' is included in a notification, the nfProfile object and any NFService objects contained in nfProfile.nfServices (array items) or nfProfile.nfServiceList (additionalProperties) must not include the properties allowedPlmns, allowedSnpns, allowedNfTypes, allowedNfDomains, or allowedNssais."
-      ]
-    },
-    {
-      "name": "NFStatusNotify_Invalid_ContentEncoding_NonString",
-      "request": {
-        "resource_url": "{nfStatusNotificationUri}",
-        "method": "POST",
-        "headers": {
-          "Content-Type": "application/json",
-          "Content-Encoding": [
-            "gzip",
-            "deflate"
-          ]
-        },
-        "request_body": {
-          "notificationType": "NF_STATUS_CHANGE",
-          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-          "nfType": "NRF",
-          "nfStatus": "UNAVAILABLE"
-        }
-      },
-      "violated_constraints": [
-        "The callback request may include a 'Content-Encoding' header of type string (Content-Encoding, described in IETF RFC 9110)."
-      ]
+      "body": {
+        "notificationType": "NF_STATUS_CHANGE",
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "UNREGISTERED",
+        "timeStamp": "2026-01-01T12:00:00Z"
+      }
     }
   ]
 }

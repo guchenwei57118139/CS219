@@ -2,17 +2,14 @@
   "operation": "NFDeregister",
   "path": "/nf-instances/{nfInstanceId}",
   "method": "DELETE",
-  "depends_on": [
-    "NFRegister"
-  ],
   "setup": [
     {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+      "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
       "method": "PUT",
       "headers": {
         "Content-Type": "application/json"
       },
-      "request_body": {
+      "body": {
         "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
@@ -22,7 +19,7 @@
   ],
   "cleanup": [
     {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+      "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
       "method": "DELETE",
       "headers": {
         "Content-Type": "application/json"
@@ -31,63 +28,59 @@
   ],
   "tests": [
     {
-      "name": "NFDeregister missing path parameter nfInstanceID",
-      "request": {
-        "method": "DELETE",
-        "resource_url": "/nf-instances",
-        "headers": {
-          "Content-Type": "application/json"
-        }
+      "name": "Missing nfInstanceID Path Parameter",
+      "constraint": "The path parameter 'nfInstanceID' is required.",
+      "method": "DELETE",
+      "path": "/nf-instances",
+      "headers": {
+        "Content-Type": "application/json"
       },
-      "violated_constraints": [
-        "The path parameter 'nfInstanceID' is required."
-      ]
+      "body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "DEREGISTERING",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
     },
     {
-      "name": "NFDeregister_invalid_nfInstanceID_format",
-      "request": {
-        "method": "DELETE",
-        "resource_url": "/nnrf-nfm/v1/nf-instances/invalid-nf-id-123",
-        "headers": {
-          "Content-Type": "application/json"
-        }
+      "name": "Invalid NFInstanceId",
+      "constraint": "The path parameter must be a valid NfInstanceId.",
+      "method": "DELETE",
+      "path": "/nf-instances/not-a-uuid",
+      "headers": {
+        "Content-Type": "application/json"
       },
-      "violated_constraints": [
-        "The 'nfInstanceID' path parameter must conform to the schema referenced at 'TS29571_CommonData.yaml#/components/schemas/NfInstanceId'."
-      ]
+      "body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
     },
     {
-      "name": "Invalid - DELETE includes unexpected request body",
-      "request": {
-        "method": "DELETE",
-        "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "body": {
-          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-          "nfType": "NRF",
-          "nfStatus": "DEREGISTERING",
-          "fqdn": "nrf.example.3gppnetwork.org"
-        }
+      "name": "Request Body Provided For DELETE",
+      "constraint": "This operation does not define a request body; no request body is required for the DELETE request.",
+      "method": "DELETE",
+      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "headers": {
+        "Content-Type": "application/json"
       },
-      "violated_constraints": [
-        "This operation does not define a request body; no request body is required for the DELETE request."
-      ]
+      "body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "DEREGISTERING",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
     },
     {
-      "name": "Deregister NF instance with missing required OAuth2 client credentials scope",
-      "request": {
-        "method": "DELETE",
-        "resource_url": "/nnrf-nfm/v1/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-        "headers": {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer token-without-nnrf-nfm:nf-instance:write-scope"
-        }
+      "name": "Missing OAuth2 Authorization",
+      "constraint": "The caller must be authorized using the oAuth2ClientCredentials security scheme with the scope 'nnrf-nfm:nf-instance:write'.",
+      "method": "DELETE",
+      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "headers": {
+        "Content-Type": "application/json"
       },
-      "violated_constraints": [
-        "The caller must be authorized using the oAuth2ClientCredentials security scheme with the scope 'nnrf-nfm:nf-instance:write'."
-      ]
+      "body": {}
     }
   ]
 }

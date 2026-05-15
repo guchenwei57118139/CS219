@@ -19,12 +19,12 @@ CANONICAL_NF_INSTANCE_ID = "550e8400-e29b-41d4-a716-446655440000"
 CANONICAL_SUBSCRIPTION_ID = "{subscriptionId}"
 
 CANONICAL_REGISTER_STEP: Dict[str, Any] = {
-    "resource_url": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+    "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
     "method": "PUT",
     "headers": {
         "Content-Type": "application/json",
     },
-    "request_body": {
+    "body": {
         "nfInstanceId": CANONICAL_NF_INSTANCE_ID,
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
@@ -33,12 +33,12 @@ CANONICAL_REGISTER_STEP: Dict[str, Any] = {
 }
 
 CANONICAL_SUBSCRIBE_STEP: Dict[str, Any] = {
-    "resource_url": "/nnrf-nfm/v1/subscriptions",
+    "path": "/nnrf-nfm/v1/subscriptions",
     "method": "POST",
     "headers": {
         "Content-Type": "application/json",
     },
-    "request_body": {
+    "body": {
         "callbackReference": {
             "notifyUri": "https://example.client/callback",
         },
@@ -82,6 +82,7 @@ class TestFormat:
     """Container for the suite/test shape used in prompts."""
 
     suite_structure: Dict[str, Any]
+    step_structure: Dict[str, Any]
     test_case_structure: Dict[str, Any]
 
 
@@ -126,6 +127,7 @@ class TestCaseGenerator:
             data = json.load(f)
         return TestFormat(
             suite_structure=data.get("suite_structure", {}),
+            step_structure=data.get("step_structure", {}),
             test_case_structure=data.get("test_case_structure", {}),
         )
 
@@ -175,7 +177,7 @@ class TestCaseGenerator:
         if operation.operation in SUBSCRIPTION_OPERATION_NAMES:
             cleanup.append(
                 {
-                    "resource_url": f"/nnrf-nfm/v1/subscriptions/{CANONICAL_SUBSCRIPTION_ID}",
+                    "path": f"/nnrf-nfm/v1/subscriptions/{CANONICAL_SUBSCRIPTION_ID}",
                     "method": "DELETE",
                     "headers": {
                         "Content-Type": "application/json",
@@ -185,7 +187,7 @@ class TestCaseGenerator:
 
         cleanup.append(
             {
-                "resource_url": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+                "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
                 "method": "DELETE",
                 "headers": {
                     "Content-Type": "application/json",
@@ -204,17 +206,17 @@ class TestCaseGenerator:
         if not self.test_format:
             raise RuntimeError("Test format not loaded")
 
+        suite_format_json = json.dumps(self.test_format.suite_structure, indent=2)
+        step_format_json = json.dumps(self.test_format.step_structure, indent=2)
         test_format_json = json.dumps(self.test_format.test_case_structure, indent=2)
         setup_json = json.dumps(shared_setup, indent=2)
         cleanup_json = json.dumps(shared_cleanup, indent=2)
-        depends_on_text = ", ".join(operation.depends_on) if operation.depends_on else "None"
 
         return f"""Generate exactly one invalid test case for the operation below.
 
 Operation: {operation.operation}
 Path: {operation.path}
 Method: {operation.method}
-Dependencies: {depends_on_text}
 
 Shared setup executed before every test in this suite:
 {setup_json}
@@ -228,14 +230,20 @@ Input Schema:
 Constraint to violate:
 {constraint}
 
+Suite format:
+{suite_format_json}
+
+Step format:
+{step_format_json}
+
 Target suite/test format:
 {test_format_json}
 
 Rules:
 1. Return only a single JSON object for the test case.
-2. Include only: name, request, violated_constraints.
-3. Do not include driving_state, setup, cleanup, description, or notes.
-4. The request must be invalid and must violate the supplied constraint.
+2. Include only: name, constraint, method, path, headers, body.
+3. Do not include request, violated_constraints, driving_state, setup, cleanup, description, or notes.
+4. The test must be invalid and must violate the supplied constraint.
 5. Use the shared setup context instead of inventing test-specific prerequisite state.
 6. Keep Content-Type as application/json unless the constraint requires otherwise.
 7. The target NRF type should always be NRF.
@@ -292,7 +300,6 @@ Rules:
             "operation": operation.operation,
             "path": operation.path,
             "method": operation.method,
-            "depends_on": operation.depends_on,
             "setup": shared_setup,
             "cleanup": shared_cleanup,
             "tests": tests,
@@ -322,7 +329,6 @@ Rules:
         for idx, operation in enumerate(self.operations, 1):
             print(f"\n[{idx}/{len(self.operations)}] Processing {operation.operation}...", flush=True)
             print(f"  → Path: {operation.method} {operation.path}", flush=True)
-            print(f"  → Dependencies: {', '.join(operation.depends_on) if operation.depends_on else 'None'}", flush=True)
 
             suite = self.generate_operation_suite(operation)
             if suite:

@@ -1,0 +1,32 @@
+{
+  "operation": "NFRegister",
+  "path": "/nf-instances/{nfInstanceId}",
+  "method": "PUT",
+  "setup": [],
+  "cleanup": [
+    {
+      "method": "DELETE",
+      "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    }
+  ],
+  "tests": [
+    {
+      "name": "single registration happy path",
+      "constraint": "Happy-path registration smoke test for runner validation.",
+      "method": "PUT",
+      "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    }
+  ]
+}

@@ -2,17 +2,14 @@
   "operation": "NFProfileRetrieval",
   "path": "/nf-instances/{nfInstanceId}",
   "method": "GET",
-  "depends_on": [
-    "NFRegister"
-  ],
   "setup": [
     {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+      "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
       "method": "PUT",
       "headers": {
         "Content-Type": "application/json"
       },
-      "request_body": {
+      "body": {
         "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
@@ -22,7 +19,7 @@
   ],
   "cleanup": [
     {
-      "resource_url": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+      "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
       "method": "DELETE",
       "headers": {
         "Content-Type": "application/json"
@@ -31,91 +28,66 @@
   ],
   "tests": [
     {
-      "name": "GET without required nfInstanceID path parameter",
-      "request": {
-        "method": "GET",
-        "resource_url": "/nf-instances",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "query": {
-          "requester-features": "featureA"
-        }
+      "name": "Missing NFInstanceId Path Parameter",
+      "constraint": "The path parameter 'nfInstanceID' is required for the request to /nf-instances/{nfInstanceID}.",
+      "method": "GET",
+      "path": "/nf-instances",
+      "headers": {
+        "Content-Type": "application/json"
       },
-      "violated_constraints": [
-        "The path parameter 'nfInstanceID' is required for the request to /nf-instances/{nfInstanceID}."
-      ]
+      "body": {}
     },
     {
-      "name": "Invalid nfInstanceID format (not UUID)",
-      "request": {
-        "method": "GET",
-        "path": "/nf-instances/not-a-uuid",
-        "headers": {
-          "Content-Type": "application/json",
-          "Accept": "application/json"
-        },
-        "path_parameters": {
-          "nfInstanceID": "not-a-uuid"
-        },
-        "query_parameters": {}
+      "name": "Invalid NFInstanceId",
+      "constraint": "The path parameter must be a valid NfInstanceId.",
+      "method": "GET",
+      "path": "/nf-instances/not-a-uuid",
+      "headers": {
+        "Content-Type": "application/json"
       },
-      "violated_constraints": [
-        "The schema of the 'nfInstanceID' path parameter is defined by the reference 'TS29571_CommonData.yaml#/components/schemas/NfInstanceId' and requires a UUID-formatted string. Provided value 'not-a-uuid' does not conform to the UUID format."
-      ]
+      "body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
     },
     {
-      "name": "Invalid requester-features type (array provided instead of SupportedFeatures)",
-      "request": {
-        "method": "GET",
-        "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "query": {
-          "requester-features": [
-            "featureA",
-            "featureB"
-          ]
-        }
+      "name": "Invalid requester-features as JSON object",
+      "constraint": "The query parameter 'requester-features' must conform to the SupportedFeatures schema (a string). Providing a JSON object violates this schema.",
+      "method": "GET",
+      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000?requester-features={\"not\":\"allowed\"}",
+      "headers": {
+        "Content-Type": "application/json"
       },
-      "violated_constraints": [
-        "The query parameter 'requester-features' must conform to the schema TS29571_CommonData.yaml#/components/schemas/SupportedFeatures; providing an array violates the required schema/type."
-      ]
+      "body": {}
     },
     {
-      "name": "GET with unexpected request body",
-      "request": {
-        "method": "GET",
-        "resource_url": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-        "headers": {
-          "Content-Type": "application/json"
-        },
-        "request_body": {
-          "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-          "nfType": "NRF",
-          "nfStatus": "REGISTERED",
-          "fqdn": "nrf.example.3gppnetwork.org"
-        }
+      "name": "Unexpected Request Body in GET",
+      "constraint": "This GET operation does not define a request body (no request payload is required).",
+      "method": "GET",
+      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "headers": {
+        "Content-Type": "application/json"
       },
-      "violated_constraints": [
-        "This GET operation does not define a request body (no request payload is required)."
-      ]
+      "body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org",
+        "requestedFeatures": "featureA,featureB"
+      }
     },
     {
-      "name": "Invalid - OAuth2 token with insufficient scopes",
-      "request": {
-        "method": "GET",
-        "url": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-        "headers": {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJucmYtdGVzdC1jbGllbnQiLCJzY29wZXMiOlsibm5yZi1uZm06d3JpdGUiXSwiZXhwIjoxNjk5OTk5OTk5fQ.signature"
-        },
-        "query": {}
+      "name": "Invalid OAuth2 Scope",
+      "constraint": "Request must use OAuth2 client credentials with scope 'nnrf-nfm' or 'nnrf-nfm:nf-instances:read'. Using a token without these scopes violates the operation's security requirements.",
+      "method": "GET",
+      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer token-without-required-scopes"
       },
-      "violated_constraints": [
-        "The request provides an OAuth2 client credentials token that does not include any of the required scopes 'nnrf-nfm' or 'nnrf-nfm:nf-instances:read' declared in the operation's security requirements."
-      ]
+      "body": {}
     }
   ]
 }

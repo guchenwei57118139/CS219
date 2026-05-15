@@ -1,0 +1,74 @@
+{
+  "operation": "NFStatusUnsubscribe",
+  "source_tests_file": "/Users/adimehta/Desktop/School/ExtremalTesting/CS219/extremal_testing/data/generated/NFStatusUnsubscribe_tests.json",
+  "implementation_order": [
+    "free5gc",
+    "oai",
+    "open5gs"
+  ],
+  "tests": [
+    {
+      "test_case_index": 0,
+      "test_name": "Missing SubscriptionId",
+      "implementations": {
+        "free5gc": {
+          "status_code": 404,
+          "response_body": "404 page not found",
+          "error": null
+        },
+        "oai": {
+          "status_code": 404,
+          "response_body": "{\"cause\":\"SUBSCRIPTION_NOT_FOUND\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 1,
+      "test_name": "Invalid subscriptionID containing hyphen",
+      "implementations": {
+        "free5gc": {
+          "status_code": 204,
+          "response_body": null,
+          "error": null
+        },
+        "oai": {
+          "status_code": 404,
+          "response_body": "<!DOCTYPE html><html lang=\"en\"><title>404 Not Found</title><body><h1>404 Not Found</h1></body></html>",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 2,
+      "test_name": "DELETE with Request Body",
+      "implementations": {
+        "free5gc": {
+          "status_code": 204,
+          "response_body": null,
+          "error": null
+        },
+        "oai": {
+          "status_code": 404,
+          "response_body": "<!DOCTYPE html><html lang=\"en\"><title>404 Not Found</title><body><h1>404 Not Found</h1></body></html>",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+          "error": null
+        }
+      }
+    }
+  ]
+}

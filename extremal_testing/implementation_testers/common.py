@@ -27,18 +27,18 @@ def normalize_http_headers(headers: Optional[Dict[str, Any]]) -> Dict[str, str]:
     return normalized
 
 
-def build_full_url(resource_url: str, base_url: str) -> str:
-    """Build a fully qualified URL from a resource URL and base URL."""
-    if resource_url.startswith("/nnrf-nfm/v1"):
+def build_full_url(path: str, base_url: str) -> str:
+    """Build a fully qualified URL from a request path and base URL."""
+    if path.startswith("/nnrf-nfm/v1"):
         parsed_base = urlparse(base_url)
-        return f"{parsed_base.scheme}://{parsed_base.netloc}{resource_url}"
-    if resource_url.startswith("/"):
-        return base_url.rstrip("/") + resource_url
-    return base_url.rstrip("/") + "/" + resource_url
+        return f"{parsed_base.scheme}://{parsed_base.netloc}{path}"
+    if path.startswith("/"):
+        return base_url.rstrip("/") + path
+    return base_url.rstrip("/") + "/" + path
 
 
-def load_suite_or_legacy_tests(test_cases_file: str, operation_name: str) -> Dict[str, Any]:
-    """Load a suite object or a legacy flat test array."""
+def load_clean_suite(test_cases_file: str, operation_name: str) -> Dict[str, Any]:
+    """Load a suite object."""
     with open(test_cases_file, "r", encoding="utf-8") as f:
         payload = json.load(f)
 
@@ -49,17 +49,48 @@ def load_suite_or_legacy_tests(test_cases_file: str, operation_name: str) -> Dic
         suite.setdefault("cleanup", [])
         return suite
 
-    if isinstance(payload, list):
-        return {
-            "operation": operation_name,
-            "path": "",
-            "method": "",
-            "setup": [],
-            "cleanup": [],
-            "tests": payload,
-        }
+    raise ValueError("Test cases file must contain a suite object with a tests array")
 
-    raise ValueError("Test cases file must contain either a suite object or a JSON array")
+
+def validate_clean_suite(suite: Dict[str, Any]) -> None:
+    """Ensure the suite uses the clean step-based schema."""
+    if not isinstance(suite.get("setup", []), list):
+        raise ValueError("Suite setup must be a list")
+    if not isinstance(suite.get("cleanup", []), list):
+        raise ValueError("Suite cleanup must be a list")
+
+    tests = suite.get("tests", [])
+    if not isinstance(tests, list):
+        raise ValueError("Suite tests must be a list")
+
+    step_required_keys = {"method", "path", "headers"}
+    test_required_keys = {"name", "constraint", "method", "path", "headers"}
+    forbidden_fields = {
+        "request",
+        "request_body",
+        "resource_url",
+        "url",
+        "violated_constraints",
+        "path_params",
+        "pathParameters",
+        "pathParams",
+    }
+
+    for step in suite.get("setup", []) + suite.get("cleanup", []):
+        if not isinstance(step, dict):
+            raise ValueError("Setup and cleanup items must be objects")
+        if not step_required_keys.issubset(step.keys()):
+            raise ValueError("Setup and cleanup items must include method, path, and headers")
+        if forbidden_fields.intersection(step.keys()):
+            raise ValueError("Suite contains unsupported step fields")
+
+    for test_case in tests:
+        if not isinstance(test_case, dict):
+            raise ValueError("Test cases must be objects")
+        if not test_required_keys.issubset(test_case.keys()):
+            raise ValueError("Test cases must include name, constraint, method, path, and headers")
+        if forbidden_fields.intersection(test_case.keys()):
+            raise ValueError("Suite contains unsupported test fields")
 
 
 def resolve_placeholders(value: Any, context: Dict[str, Any]) -> Any:
@@ -83,18 +114,18 @@ def resolve_placeholders(value: Any, context: Dict[str, Any]) -> Any:
 
 def seed_context_from_step(step: Dict[str, Any], context: Dict[str, Any]) -> None:
     """Seed placeholder values from a request step before execution."""
-    request_body = step.get("request_body")
-    if isinstance(request_body, dict):
+    body = step.get("body")
+    if isinstance(body, dict):
         for key in ("nfInstanceId", "subscriptionId"):
-            if key in request_body and request_body[key] is not None:
-                context.setdefault(key, request_body[key])
+            if key in body and body[key] is not None:
+                context.setdefault(key, body[key])
 
-    resource_url = str(step.get("resource_url", ""))
-    nf_match = re.search(r"/nf-instances/([^/?]+)", resource_url)
+    resource_path = str(step.get("path", ""))
+    nf_match = re.search(r"/nf-instances/([^/?{}]+)", resource_path)
     if nf_match:
         context.setdefault("nfInstanceId", nf_match.group(1))
 
-    sub_match = re.search(r"/subscriptions/([^/?]+)", resource_url)
+    sub_match = re.search(r"/subscriptions/([^/?{}]+)", resource_path)
     if sub_match:
         context.setdefault("subscriptionId", sub_match.group(1))
 
@@ -138,15 +169,15 @@ def build_request_details(
 ) -> Dict[str, Any]:
     """Resolve a step into concrete request details."""
     resolved_step = resolve_placeholders(step, context)
-    resource_url = str(resolved_step.get("resource_url", ""))
+    path = str(resolved_step.get("path", ""))
     headers = normalize_http_headers({**default_headers, **resolved_step.get("headers", {})})
-    request_body = resolved_step.get("request_body")
+    request_body = resolved_step.get("body")
     return {
-        "resource_url": resource_url,
-        "full_url": build_full_url(resource_url, base_url),
+        "path": path,
+        "full_url": build_full_url(path, base_url),
         "method": str(resolved_step.get("method", "GET")).upper(),
         "headers": headers,
-        "request_body": request_body,
+        "body": request_body,
     }
 
 
@@ -171,4 +202,3 @@ def response_text(response: Any) -> Optional[str]:
     """Return response text if present."""
     text = getattr(response, "text", None)
     return text if text else None
-
