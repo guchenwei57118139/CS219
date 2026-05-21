@@ -1,0 +1,65 @@
+{
+  "service": "Nnrf_NFManagement",
+  "section_id": "5.2.2.10",
+  "operation": "SharedDataRetrieval",
+  "source_file": "section_5_2.txt",
+  "description": "Retrieves Shared Data by HTTP GET on the shared-data resource URI.",
+  "normative_statements": [
+    "The Service Consumer shall send an HTTP GET request to the resource URI \"shared-data/{sharedDataId}\".",
+    "The URI parameter sharedDataId shall identify the requested Shared Data.",
+    "On success, the NRF shall return 200 OK with the requested Shared Data in the response body.",
+    "On failure, the NRF shall return a 4xx or 5xx response.",
+    "In case of redirection, the NRF shall return a 3xx status code.",
+    "In case of redirection, the NRF shall include a Location header containing a URI pointing to the endpoint of another NRF service instance."
+  ],
+  "constraints": [
+    {
+      "statement": "The Service Consumer shall send an HTTP GET request to the resource URI \"shared-data/{sharedDataId}\".",
+      "evidence": [
+        "The Service Consumer shall send an HTTP GET request to the resource URI \"shared-data/{sharedDataId}\" document resource, where the URI parameter sharedDataId identifies the requested Shared Data."
+      ],
+      "why_interesting": "This is the core request method and path requirement for the operation.",
+      "category": "request"
+    },
+    {
+      "statement": "The URI parameter sharedDataId shall identify the requested Shared Data.",
+      "evidence": [
+        "The Service Consumer shall send an HTTP GET request to the resource URI \"shared-data/{sharedDataId}\" document resource, where the URI parameter sharedDataId identifies the requested Shared Data."
+      ],
+      "why_interesting": "It constrains the meaning of the path parameter and can be validated by request construction and routing behavior.",
+      "category": "request"
+    },
+    {
+      "statement": "On success, the NRF shall return 200 OK with the requested Shared Data in the response body.",
+      "evidence": [
+        "On success, \"200 OK\" shall be returned with the requested Shared Data in response body."
+      ],
+      "why_interesting": "This defines the required success status code and payload behavior.",
+      "category": "response"
+    },
+    {
+      "statement": "On failure, the NRF shall return a 4xx or 5xx response.",
+      "evidence": [
+        "On failure, the NRF shall return \"4xx/5xx\" response and the response body may contain a ProblemDetails object describing the detailed information of the failure."
+      ],
+      "why_interesting": "This specifies the allowed failure status code classes for negative cases.",
+      "category": "response"
+    },
+    {
+      "statement": "In case of redirection, the NRF shall return a 3xx status code.",
+      "evidence": [
+        "In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance."
+      ],
+      "why_interesting": "This is a testable redirect status requirement.",
+      "category": "response"
+    },
+    {
+      "statement": "In case of redirection, the NRF shall include a Location header containing a URI pointing to the endpoint of another NRF service instance.",
+      "evidence": [
+        "In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance."
+      ],
+      "why_interesting": "This is a concrete header requirement that can be checked in API responses.",
+      "category": "header"
+    }
+  ]
+}

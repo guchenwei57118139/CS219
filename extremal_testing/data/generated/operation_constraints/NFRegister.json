@@ -1,0 +1,263 @@
+{
+  "service": "Nnrf_NFManagement",
+  "section_id": "5.2.2.2",
+  "operation": "NFRegister",
+  "source_file": "section_5_2.txt",
+  "description": "NF registration to NRF, including NRF-to-NRF registration and shared data registration.",
+  "normative_statements": [
+    "The NF Service Consumer shall send a PUT request to the resource URI representing the NF Instance.",
+    "The NF Instance ID shall be globally unique inside the PLMN of the NRF where the NF is being registered.",
+    "The NF Instance ID shall be a UUID version 4.",
+    "The NRF shall treat UUIDs formatted with upper-case hexadecimal letters as if they were formatted with lower-case characters.",
+    "The content of the PUT request shall contain a representation of the NF Instance to be created.",
+    "On success, the NRF shall return 201 Created.",
+    "On success, the PUT response content shall contain the representation of the created resource.",
+    "On success, the Location header shall contain the URI of the created resource.",
+    "If NFProfile JSON encoding is invalid, the NRF shall return 400 Bad Request with ProblemDetails.",
+    "If unknown Shared Data IDs are received in the NFProfile, the NRF shall return 400 Bad Request with ProblemDetails.",
+    "If the registration fails due to NRF internal errors, the NRF shall return 500 Internal Server Error with ProblemDetails.",
+    "In case of redirection, the NRF shall return a 3xx status code with a Location header pointing to another NRF service instance.",
+    "The NRF shall allow registration of NF instances with any NF type described in clause 6.1.6.3.3.",
+    "The NRF shall allow registration of NF instances with custom NF types.",
+    "During registration of a custom NF type, the NF-specific data in customInfo shall be stored by the NRF as part of the NF profile.",
+    "The NRF shall accept NF Profiles containing Vendor-Specific attributes.",
+    "Attributes whose type is unknown to the NRF shall be stored as part of the NF's profile data in NRF.",
+    "When registering an NRF instance, the registering NRF shall set nfType to NRF in the nfProfile.",
+    "When registering an NRF instance, the registering NRF shall set nfService to contain nnrf-disc and nnrf-nfm.",
+    "When registering an NRF instance, the registering NRF may additionally set nfService to contain nnrf-oauth2.",
+    "If the NRF receives an NF registration with nfType set to NRF, it shall use the nfProfile information to target the registering NRF when forwarding or redirecting NF service discovery requests.",
+    "If Shared-Data-Registration is supported, the NF Service Consumer shall send a PUT request to the resource URI representing the Shared Data.",
+    "The sharedDataId shall be globally unique inside the PLMN of the NRF where the NF is being registered.",
+    "The sharedDataId shall be a UUID version 4.",
+    "The content of the PUT request shall contain a representation of the SharedData to be created.",
+    "If SharedData JSON encoding is invalid, the NRF shall return 400 Bad Request with ProblemDetails.",
+    "If the Shared Data is not authorized with write access to the requesting NF, the NRF shall return 403 Forbidden with ProblemDetails.",
+    "If Shared Data registration fails due to NRF internal errors, the NRF shall return 500 Internal Server Error with ProblemDetails."
+  ],
+  "constraints": [
+    {
+      "statement": "The NF Service Consumer shall send a PUT request to the resource URI representing the NF Instance.",
+      "evidence": [
+        "The NF Service Consumer shall send a PUT request to the resource URI representing the NF Instance."
+      ],
+      "why_interesting": "Defines the required HTTP method and target resource for NF registration.",
+      "category": "request-method-and-uri"
+    },
+    {
+      "statement": "The NF Instance ID shall be globally unique inside the PLMN of the NRF where the NF is being registered.",
+      "evidence": [
+        "The variable {nfInstanceID} represents an identifier, provided by the NF Service Consumer that shall be globally unique inside the PLMN of the NRF where the NF is being registered."
+      ],
+      "why_interesting": "Uniqueness can be validated by attempting duplicate registrations within the same PLMN.",
+      "category": "identifier-uniqueness"
+    },
+    {
+      "statement": "The NF Instance ID shall be a UUID version 4.",
+      "evidence": [
+        "The format of the NF Instance ID shall be a Universally Unique Identifier (UUID) version 4, as described in IETF RFC 9562 [18]."
+      ],
+      "why_interesting": "Constrains the identifier format and is directly testable with malformed IDs.",
+      "category": "identifier-format"
+    },
+    {
+      "statement": "The NRF shall treat UUIDs formatted with upper-case hexadecimal letters as if they were formatted with lower-case characters.",
+      "evidence": [
+        "The UUIDs in URIs, HTTP request content and HTTP response content should be formatted using lower-case hexadecimal digits; if the NF Service Consumer sends a request where the UUIDs are formatted with upper-case hexadecimal letters, the NRF shall handle it as if the request had been formatted with lower-case characters."
+      ],
+      "why_interesting": "Specifies case-insensitive UUID handling in requests, which affects interoperability.",
+      "category": "input-normalization"
+    },
+    {
+      "statement": "The content of the PUT request shall contain a representation of the NF Instance to be created.",
+      "evidence": [
+        "The content of the PUT request shall contain a representation of the NF Instance to be created."
+      ],
+      "why_interesting": "Requires a request body and defines its semantic content.",
+      "category": "request-body"
+    },
+    {
+      "statement": "On success, the NRF shall return 201 Created.",
+      "evidence": [
+        "On success, \"201 Created\" shall be returned, the content of the PUT response shall contain the representation of the created resource and the \"Location\" header shall contain the URI of the created resource."
+      ],
+      "why_interesting": "Required success status code for registration.",
+      "category": "response-status"
+    },
+    {
+      "statement": "On success, the PUT response content shall contain the representation of the created resource.",
+      "evidence": [
+        "On success, \"201 Created\" shall be returned, the content of the PUT response shall contain the representation of the created resource and the \"Location\" header shall contain the URI of the created resource."
+      ],
+      "why_interesting": "Requires a response body on success and makes it testable.",
+      "category": "response-body"
+    },
+    {
+      "statement": "On success, the Location header shall contain the URI of the created resource.",
+      "evidence": [
+        "On success, \"201 Created\" shall be returned, the content of the PUT response shall contain the representation of the created resource and the \"Location\" header shall contain the URI of the created resource."
+      ],
+      "why_interesting": "Checks that the server returns the canonical resource URI.",
+      "category": "response-header"
+    },
+    {
+      "statement": "If NFProfile JSON encoding is invalid, the NRF shall return 400 Bad Request with ProblemDetails.",
+      "evidence": [
+        "If the registration of the NF instance fails at the NRF due to errors in the encoding of the NFProfile JSON object, the NRF shall return \"400 Bad Request\" status code with the ProblemDetails IE providing details of the error."
+      ],
+      "why_interesting": "Defines a specific client-error outcome for malformed JSON.",
+      "category": "error-handling"
+    },
+    {
+      "statement": "If unknown Shared Data IDs are received in the NFProfile, the NRF shall return 400 Bad Request with ProblemDetails.",
+      "evidence": [
+        "If the registration of the NF instance fails at the NRF due to unknown Shared Data IDs received in the NFProfile, the NRF shall return \"400 Bad Request\" status code with the ProblemDetails IE providing details of the error."
+      ],
+      "why_interesting": "Defines a distinct validation failure path for unknown shared data references.",
+      "category": "error-handling"
+    },
+    {
+      "statement": "If the registration fails due to NRF internal errors, the NRF shall return 500 Internal Server Error with ProblemDetails.",
+      "evidence": [
+        "If the registration of the NF instance fails at the NRF due to NRF internal errors, the NRF shall return \"500 Internal Server Error\" status code with the ProblemDetails IE providing details of the error."
+      ],
+      "why_interesting": "Defines the server-error response for internal failures.",
+      "category": "error-handling"
+    },
+    {
+      "statement": "In case of redirection, the NRF shall return a 3xx status code with a Location header pointing to another NRF service instance.",
+      "evidence": [
+        "In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance."
+      ],
+      "why_interesting": "Specifies redirect behavior and required header content.",
+      "category": "redirection"
+    },
+    {
+      "statement": "The NRF shall allow registration of NF instances with any NF type described in clause 6.1.6.3.3.",
+      "evidence": [
+        "The NRF shall allow the registration of a Network Function instance with any of the NF types described in clause 6.1.6.3.3, and it shall also allow registration of Network Function instances with custom NF types (e.g., NF type values not defined by 3GPP, or NF type values not defined by this API version)."
+      ],
+      "why_interesting": "Ensures standard NF types are accepted.",
+      "category": "nf-type-support"
+    },
+    {
+      "statement": "The NRF shall allow registration of NF instances with custom NF types.",
+      "evidence": [
+        "The NRF shall allow the registration of a Network Function instance with any of the NF types described in clause 6.1.6.3.3, and it shall also allow registration of Network Function instances with custom NF types (e.g., NF type values not defined by 3GPP, or NF type values not defined by this API version)."
+      ],
+      "why_interesting": "Ensures extensibility for non-standard NF types.",
+      "category": "nf-type-support"
+    },
+    {
+      "statement": "During registration of a custom NF type, the NF-specific data in customInfo shall be stored by the NRF as part of the NF profile.",
+      "evidence": [
+        "During the registration of a Network Function instance with a custom NF type, the NF instance may provide NF-specific data (in the \"customInfo\" attribute), that shall be stored by the NRF as part of the NF profile of the NF instance."
+      ],
+      "why_interesting": "Tests persistence of custom NF-specific data.",
+      "category": "data-persistence"
+    },
+    {
+      "statement": "The NRF shall accept NF Profiles containing Vendor-Specific attributes.",
+      "evidence": [
+        "The NRF shall accept the registration of NF Instances containing Vendor-Specific attributes (see 3GPP TS 29.500 [4], clause 6.6.3), and therefore, it shall accept NF Profiles containing attributes whose type may be unknown to the NRF, and those attributes shall be stored as part of the NF's profile data in NRF."
+      ],
+      "why_interesting": "Allows vendor extensions in the profile.",
+      "category": "extension-support"
+    },
+    {
+      "statement": "Attributes whose type is unknown to the NRF shall be stored as part of the NF's profile data in NRF.",
+      "evidence": [
+        "The NRF shall accept the registration of NF Instances containing Vendor-Specific attributes (see 3GPP TS 29.500 [4], clause 6.6.3), and therefore, it shall accept NF Profiles containing attributes whose type may be unknown to the NRF, and those attributes shall be stored as part of the NF's profile data in NRF."
+      ],
+      "why_interesting": "Defines storage behavior for unknown attribute types.",
+      "category": "data-persistence"
+    },
+    {
+      "statement": "When registering an NRF instance, the registering NRF shall set nfType to NRF in the nfProfile.",
+      "evidence": [
+        "a)\tthe registering NRF shall set the nfType to \"NRF\" in the nfProfile;"
+      ],
+      "why_interesting": "Required self-identification when NRF registers to another NRF.",
+      "category": "request-content"
+    },
+    {
+      "statement": "When registering an NRF instance, the registering NRF shall set nfService to contain nnrf-disc and nnrf-nfm.",
+      "evidence": [
+        "b)\tthe registering NRF shall set the nfService to contain \"nnrf-disc\", \"nnrf-nfm\" and optionally \"nnrf-oauth2\" in the nfProfile;"
+      ],
+      "why_interesting": "Required service advertisement for NRF-to-NRF registration.",
+      "category": "request-content"
+    },
+    {
+      "statement": "When registering an NRF instance, the registering NRF may additionally set nfService to contain nnrf-oauth2.",
+      "evidence": [
+        "b)\tthe registering NRF shall set the nfService to contain \"nnrf-disc\", \"nnrf-nfm\" and optionally \"nnrf-oauth2\" in the nfProfile;"
+      ],
+      "why_interesting": "Captures the optional service entry allowed for NRF registration.",
+      "category": "request-content"
+    },
+    {
+      "statement": "If the NRF receives an NF registration with nfType set to NRF, it shall use the nfProfile information to target the registering NRF when forwarding or redirecting NF service discovery requests.",
+      "evidence": [
+        "d)\tif the NRF receives an NF registration with the nfType set to \"NRF\", the NRF shall use the information contained in the nfProfile to target the registering NRF when forwarding or redirecting NF service discovery request."
+      ],
+      "why_interesting": "Defines routing behavior based on NRF registration data.",
+      "category": "routing"
+    },
+    {
+      "statement": "If Shared-Data-Registration is supported, the NF Service Consumer shall send a PUT request to the resource URI representing the Shared Data.",
+      "evidence": [
+        "If the feature \"Shared-Data-Registration\" is supported, the NF Service Consumer shall send a PUT request to the resource URI representing the Shared Data."
+      ],
+      "why_interesting": "Defines the required method and target for shared data registration.",
+      "category": "request-method-and-uri"
+    },
+    {
+      "statement": "The sharedDataId shall be globally unique inside the PLMN of the NRF where the NF is being registered.",
+      "evidence": [
+        "The variable {sharedDataId} represents an identifier, provided by the NF Service Consumer that shall be globally unique inside the PLMN of the NRF where the NF is being registered."
+      ],
+      "why_interesting": "Uniqueness can be validated by duplicate shared-data registrations.",
+      "category": "identifier-uniqueness"
+    },
+    {
+      "statement": "The sharedDataId shall be a UUID version 4.",
+      "evidence": [
+        "The format of the sharedDataId shall be a Universally Unique Identifier (UUID) version 4, as described in IETF RFC 9562 [18]."
+      ],
+      "why_interesting": "Constrains shared data identifier format.",
+      "category": "identifier-format"
+    },
+    {
+      "statement": "The content of the PUT request shall contain a representation of the SharedData to be created.",
+      "evidence": [
+        "The content of the PUT request shall contain a representation of the SharedData to be created."
+      ],
+      "why_interesting": "Requires a request body for shared data creation.",
+      "category": "request-body"
+    },
+    {
+      "statement": "If SharedData JSON encoding is invalid, the NRF shall return 400 Bad Request with ProblemDetails.",
+      "evidence": [
+        "If the registration of the Shared Data fails at the NRF due to errors in the encoding of the SharedData JSON object, the NRF shall return \"400 Bad Request\" status code with the ProblemDetails IE providing details of the error."
+      ],
+      "why_interesting": "Defines the client-error response for malformed shared data JSON.",
+      "category": "error-handling"
+    },
+    {
+      "statement": "If the Shared Data is not authorized with write access to the requesting NF, the NRF shall return 403 Forbidden with ProblemDetails.",
+      "evidence": [
+        "If the Shared Data is not authorized with write access to the requesting NF (e.g. the Shared Data is shared to one specific NF Set while the requesting NF is not in that NF Set), the NRF shall return \"403 Forbidden\" status code with the ProblemDetails IE providing details of the error."
+      ],
+      "why_interesting": "Defines authorization failure behavior for shared data registration.",
+      "category": "authorization"
+    },
+    {
+      "statement": "If Shared Data registration fails due to NRF internal errors, the NRF shall return 500 Internal Server Error with ProblemDetails.",
+      "evidence": [
+        "If the registration of the Shared Data fails at the NRF due to NRF internal errors, the NRF shall return \"500 Internal Server Error\" status code with the ProblemDetails IE providing details of the error."
+      ],
+      "why_interesting": "Defines the server-error response for shared data registration failures.",
+      "category": "error-handling"
+    }
+  ]
+}

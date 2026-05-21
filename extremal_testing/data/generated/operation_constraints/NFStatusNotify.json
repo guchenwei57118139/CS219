@@ -1,0 +1,182 @@
+{
+  "service": "Nnrf_NFManagement",
+  "section_id": "5.2.2.6",
+  "operation": "NFStatusNotify",
+  "source_file": "section_5_2.txt",
+  "description": "Notification callback behavior for NF registration, profile change, deregistration, authorization-attribute changes, and cross-PLMN/intermediate-NRF delivery.",
+  "normative_statements": [
+    "The NRF shall send a POST request to the callback URI.",
+    "For notifications of newly registered NF Instances, the request body shall include the data associated to the newly registered NF, and its services, according to the criteria indicated by the NF Service Consumer during the subscription operation.",
+    "These data shall contain the nfInstanceURI of the NF Instance, an indication of the event being notified (\"registration\"), and the new profile data (including, among others, the services offered by the NF Instance).",
+    "For notifications of changes of the profile of a NF Instance, the request body shall include the NFInstanceID of the NF Instance whose profile was changed, an indication of the event being notified (\"profile change\"), and the new profile data.",
+    "For notifications of deregistration of the NF Instance from NRF, the request body shall include the NFInstanceID of the deregistered NF Instance, and an indication of the event being notified (\"deregistration\").",
+    "When an NF Service Consumer subscribes to a set of NFs, a change in the profile of the monitored NF Instance shall use the \"NF_PROFILE_CHANGED\" event type in the notification.",
+    "A change of the nfStatus attribute of the NF Profile shall result in notifications with event type set to \"NF_PROFILE_CHANGED\".",
+    "When an NF Service Consumer subscribes to a set of NFs, the NRF shall send notification to subscribing NF Service Consumer(s) for NFs that no longer match the subscription conditions and for NFs that start matching the subscription conditions.",
+    "In that case, the NRF shall indicate in the notification data whether the notification is due to the NF Instance newly starting or stopping matching the subscription condition by the presence of the \"conditionEvent\" attribute of the NotificationData.",
+    "If the NF Service Consumer receives \"delta\" changes related to an NF Service Instance (other than adding a new NF Service Instance) that had not been previously discovered, those changes shall be ignored by the NF Service Consumer.",
+    "Any other \"delta\" changes related to NF Service Instances previously discovered or adding a new NF Service Instance shall be applied by the NF Service Consumer.",
+    "Change of authorization attributes shall trigger an \"NF_PROFILE_CHANGED\" notification from NRF if the NF Profile change causes the NF Instance to start or stop being authorized to be accessed by a subscribed NF.",
+    "Otherwise, change of authorization attributes shall not trigger notification.",
+    "The notifications of new registrations, or updates of existing registrations, shall not include the content or changes of the authorization attributes of the target NF profile unless the subscribing entity explicitly requested this in the \"completeProfileSubscription\" attribute in the subscription request message and the NRF authorized such a request.",
+    "On success, the NF Service Consumer shall return \"204 No content\".",
+    "If the NF Service Consumer does not consider the \"nfStatusNotificationUri\" as a valid notification URI, the NF Service Consumer shall return \"404 Not Found\" with the ProblemDetails IE providing details of the error.",
+    "In the case of redirection, the NF service consumer shall return a 3xx status code containing a Location header with a URI pointing to the endpoint of another NF service consumer endpoint.",
+    "The POST request shall be sent directly from the NRF in Home PLMN to the NF Service Consumer in Serving PLMN, without involvement of the NRF in Serving PLMN.",
+    "The POST request shall be sent directly from NRF-2 to the NF Service Consumer without involvement of NRF-1."
+  ],
+  "constraints": [
+    {
+      "statement": "The NRF shall send a POST request to the callback URI.",
+      "evidence": [
+        "The NRF shall send a POST request to the callback URI."
+      ],
+      "why_interesting": "Defines the required HTTP method and delivery mechanism for notifications.",
+      "category": "transport"
+    },
+    {
+      "statement": "For newly registered NF Instances, the notification body shall include the newly registered NF data and its services according to the subscription criteria.",
+      "evidence": [
+        "For notifications of newly registered NF Instances, the request body shall include the data associated to the newly registered NF, and its services, according to the criteria indicated by the NF Service Consumer during the subscription operation."
+      ],
+      "why_interesting": "Tests can verify that registration notifications are filtered by subscription criteria.",
+      "category": "request-body"
+    },
+    {
+      "statement": "For newly registered NF Instances, the notification body shall contain the nfInstanceURI, the event value \"registration\", and the new profile data.",
+      "evidence": [
+        "These data shall contain the nfInstanceURI of the NF Instance, an indication of the event being notified (\"registration\"), and the new profile data (including, among others, the services offered by the NF Instance)."
+      ],
+      "why_interesting": "Specifies mandatory fields and event labeling for registration notifications.",
+      "category": "request-body"
+    },
+    {
+      "statement": "For NF profile changes, the notification body shall include the NFInstanceID, the event value \"profile change\", and the new profile data.",
+      "evidence": [
+        "For notifications of changes of the profile of a NF Instance, the request body shall include the NFInstanceID of the NF Instance whose profile was changed, an indication of the event being notified (\"profile change\"), and the new profile data."
+      ],
+      "why_interesting": "Defines mandatory payload content for profile-change notifications.",
+      "category": "request-body"
+    },
+    {
+      "statement": "For deregistration notifications, the notification body shall include the NFInstanceID and the event value \"deregistration\".",
+      "evidence": [
+        "For notifications of deregistration of the NF Instance from NRF, the request body shall include the NFInstanceID of the deregistered NF Instance, and an indication of the event being notified (\"deregistration\")."
+      ],
+      "why_interesting": "Defines mandatory payload content for deregistration notifications.",
+      "category": "request-body"
+    },
+    {
+      "statement": "A profile change for a subscribed NF set shall use the \"NF_PROFILE_CHANGED\" event type.",
+      "evidence": [
+        "When an NF Service Consumer subscribes to a set of NFs, a change in the profile of the monitored NF Instance shall use the \"NF_PROFILE_CHANGED\" event type in the notification."
+      ],
+      "why_interesting": "Establishes the event type required for subscription-set profile changes.",
+      "category": "event-type"
+    },
+    {
+      "statement": "A change of the nfStatus attribute of the NF Profile shall result in notifications with event type \"NF_PROFILE_CHANGED\".",
+      "evidence": [
+        "A change of the nfStatus attribute of the NF Profile) shall result into the NRF to send notifications to subscribing NFs with event type set to \"NF_PROFILE_CHANGED\"."
+      ],
+      "why_interesting": "Tests can verify event mapping for status changes.",
+      "category": "event-type"
+    },
+    {
+      "statement": "The NRF shall notify subscribing consumers when NFs start matching or stop matching subscription conditions.",
+      "evidence": [
+        "the NRF shall send notification to subscribing NF Service Consumer(s) to those NFs no longer matching the subscription conditions, and to subscribing NF Service Consumer(s) to NFs that start matching the subscription conditions."
+      ],
+      "why_interesting": "Captures the required notification trigger for subscription-condition changes.",
+      "category": "notification-trigger"
+    },
+    {
+      "statement": "The notification data shall indicate condition-based matching changes using the presence of the \"conditionEvent\" attribute.",
+      "evidence": [
+        "the NRF indicates in the notification data whether the notification is due to the NF Instance to newly start or stop matching the subscription condition (i.e. based on the presence of the \"conditionEvent\" attribute of the NotificationData)."
+      ],
+      "why_interesting": "Provides an observable payload indicator for condition-based notifications.",
+      "category": "request-body"
+    },
+    {
+      "statement": "Delta changes for an NF Service Instance that was not previously discovered shall be ignored by the NF Service Consumer.",
+      "evidence": [
+        "If the NF Service Consumer receives \"delta\" changes related to an NF Service Instance (other than adding a new NF Service Instance) that had not been previously discovered, those changes shall be ignored by the NF Service Consumer"
+      ],
+      "why_interesting": "Defines a state-dependent client-side processing rule for delta notifications.",
+      "category": "state-transition"
+    },
+    {
+      "statement": "Delta changes for previously discovered NF Service Instances, or delta changes that add a new NF Service Instance, shall be applied by the NF Service Consumer.",
+      "evidence": [
+        "but any other \"delta\" changes related to NF Service Instances previously discovered or adding a new NF Service Instance shall be applied."
+      ],
+      "why_interesting": "Defines which delta updates must be processed versus ignored.",
+      "category": "state-transition"
+    },
+    {
+      "statement": "Authorization-attribute changes shall trigger an \"NF_PROFILE_CHANGED\" notification when the NF Instance starts or stops being authorized for a subscribed NF.",
+      "evidence": [
+        "Change of authorization attributes ... shall trigger a \"NF_PROFILE_CHANGED\" notification from NRF, if the change of the NF Profile results in that the NF Instance starts or stops being authorized to be accessed by an NF having subscribed to be notified about NF profile changes."
+      ],
+      "why_interesting": "Tests can verify notification generation based on authorization-state changes.",
+      "category": "notification-trigger"
+    },
+    {
+      "statement": "Authorization-attribute changes shall not trigger a notification unless they change whether the NF Instance is authorized for a subscribed NF.",
+      "evidence": [
+        "Otherwise change of authorization attributes shall not trigger notification."
+      ],
+      "why_interesting": "Defines a negative trigger condition for authorization changes.",
+      "category": "notification-trigger"
+    },
+    {
+      "statement": "Notifications for new registrations or updates of existing registrations shall not include authorization-attribute content or changes unless completeProfileSubscription was explicitly requested and authorized.",
+      "evidence": [
+        "The notifications of new registrations, or updates of existing registrations, shall not include the content (or the changes) of the authorization attributes ... unless the subscribing entity explicitly requested so, in the \"completeProfileSubscription\" attribute ... and the NRF authorized such a request."
+      ],
+      "why_interesting": "Defines a payload redaction rule that is directly testable.",
+      "category": "privacy/payload-filtering"
+    },
+    {
+      "statement": "On success, the NF Service Consumer shall return 204 No Content.",
+      "evidence": [
+        "On success, \"204 No content\" shall be returned by the NF Service Consumer."
+      ],
+      "why_interesting": "Required success response code for the callback.",
+      "category": "response-code"
+    },
+    {
+      "statement": "If nfStatusNotificationUri is not a valid notification URI, the NF Service Consumer shall return 404 Not Found with ProblemDetails.",
+      "evidence": [
+        "If the NF Service Consumer does not consider the \"nfStatusNotificationUri\" as a valid notification URI ... the NF Service Consumer shall return \"404 Not Found\" status code with the ProblemDetails IE providing details of the error."
+      ],
+      "why_interesting": "Defines the error response for invalid callback URIs.",
+      "category": "response-code"
+    },
+    {
+      "statement": "On redirection, the NF Service Consumer shall return a 3xx status code with a Location header pointing to another NF service consumer endpoint.",
+      "evidence": [
+        "In the case of redirection, the NF service consumer shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NF service consumer endpoint."
+      ],
+      "why_interesting": "Defines redirect handling and required header behavior.",
+      "category": "response-code"
+    },
+    {
+      "statement": "For cross-PLMN notification delivery, the POST request shall be sent directly from the NRF in Home PLMN to the NF Service Consumer in Serving PLMN without involvement of the NRF in Serving PLMN.",
+      "evidence": [
+        "the POST request shall be sent directly from the NRF in Home PLMN to the NF Service Consumer in Serving PLMN, without involvement of the NRF in Serving PLMN."
+      ],
+      "why_interesting": "Defines routing constraints across PLMNs.",
+      "category": "routing"
+    },
+    {
+      "statement": "For intermediate-NRF subscriptions, the POST request shall be sent directly from NRF-2 to the NF Service Consumer without involvement of NRF-1.",
+      "evidence": [
+        "The POST request shall be sent directly from NRF-2 to the NF Service Consumer without involvement of NRF-1."
+      ],
+      "why_interesting": "Defines routing constraints when an intermediate NRF is used.",
+      "category": "routing"
+    }
+  ]
+}

@@ -1,0 +1,391 @@
+{
+  "service": "Nnrf_NFDiscovery",
+  "section_id": "5.3.2.2",
+  "operation": "NFDiscover",
+  "source_file": "section_5_3.txt",
+  "description": "NF discovery operation for locating NF instances and associated NF service instances via the NRF, including same-PLMN, different-PLMN, redirecting/forwarding NRF, and target-PLMN resolution scenarios.",
+  "normative_statements": [
+    "The NF Service Consumer shall send an HTTP GET request to the resource URI \"nf-instances\" collection resource.",
+    "The input filter criteria for the discovery request shall be included in query parameters.",
+    "Upon receiving a discovery request for complete NF profiles, the NRF shall verify that the requesting entity is authorized to discover the complete profile of NF instances, based on local policies or the receipt of an access token granting such permission.",
+    "If the requesting entity is not authorized to discover complete NF profiles, the NRF shall reject the request or handle it as a service discovery request without access to the complete profile.",
+    "When certain query parameters in the discovery request are not supported by the NRF, the NRF shall ignore the unsupported query parameters and continue processing the request with the rest of the query parameters.",
+    "On success, \"200 OK\" shall be returned.",
+    "The response body shall contain a validity period during which the search result can be cached by the NF Service Consumer.",
+    "The response body shall contain an array of NF Profile objects and/or a map of NFInstanceInfo objects of NF instances if the NF service consumer indicated support of the Enh-NF-Discovery feature in the request.",
+    "If the NF Service Consumer is not allowed to discover the NF services for the requested NF type provided in the query parameters, the NRF shall return \"403 Forbidden\" response.",
+    "If the discovery request fails at the NRF due to errors in the input data in the URI query parameters, the NRF shall return \"400 Bad Request\" status code with the ProblemDetails IE providing details of the error.",
+    "If the verification of input attributes against the NF service consumer's certificate is unsuccessful, the request shall be rejected with \"400 Bad Request\" status code and the \"cause\" attribute set to \"INVALID_CLIENT\".",
+    "If the discovery request fails at the NRF due to NRF internal errors, the NRF shall return \"500 Internal Server Error\" status code with the ProblemDetails IE providing details of the error.",
+    "In the case of redirection, the NRF shall return a 3xx status code that contains a Location header with a URI pointing to the endpoint of another NRF service instance.",
+    "For those NF Instances of custom NF types, the \"customInfo\" attribute shall be returned by NRF, if available, as part of the NF Profiles returned in the discovery response.",
+    "The NRF shall include Vendor-Specific attributes in the returned NF Profile objects if those attributes were provided by the registered NF Instances.",
+    "If the response includes a map of NFInstanceInfo objects, the NF Service Consumer shall include the nrf-disc-uri parameter set to the API URI of the Nnrf_NFDiscovery service of the NRF holding the NF profile(s) when the request is addressed to a different NRF than the NRF holding the NF profile(s) and the nrfDiscApiUri attribute was received in the NFInstanceInfo object.",
+    "To discover an AUSF/UDM deployed in a partner PLMN, the NRF shall support the \"subscription-based routing to a target core network\" feature.",
+    "To discover an SMF deployed in a partner PLMN, the NRF shall support the \"subscription-based routing to a target core network\" feature.",
+    "If a BSF instance with a map of BsfInfo objects is discovered and the BsfInfo object matching the query parameters contains the \"serviceScenarioInd\" attribute, the NRF shall only include BsfInfo objects with the same \"serviceScenarioInd\" values as the matched BsfInfo object in the returned NF profile.",
+    "For service discovery in a different PLMN, the request shall include the identity of the PLMN of the home NRF in the \"target-plmn-list\" query parameter.",
+    "The NRF in the home PLMN shall not include IP addresses of NF (service) instances in NF profiles it includes in NF Discovery Response towards other PLMNs.",
+    "To discover an AUSF/UDM deployed in a partner PLMN, the NRF in the home PLMN shall support the \"subscription-based routing to a target core network\" feature.",
+    "To discover an SMF deployed in a partner PLMN, the NRF in the home PLMN shall support the \"subscription-based routing to a target core network\" feature.",
+    "If the NRF in Serving PLMN supports indirect communication with/without delegated discovery with NF selection at target domain and caches the response from NRF in Home PLMN for subsequent discovery result, it shall adjust the query parameter values when forwarding the discovery request to the NRF in Home PLMN to successfully process the discovery result.",
+    "The NRF in Serving PLMN shall lower the value of query parameters impacting the maximum number of candidates or maximum size of discovery result according to its own capability when forwarding the discovery request to the NRF in Home PLMN.",
+    "The NRF in Serving PLMN shall clear unsupported feature bits impacting the format of the discovery result when forwarding the discovery request to the NRF in Home PLMN.",
+    "Upon receiving a service discovery request, NRF-2 shall identify the next hop NRF based on the request information and locally stored information and redirect the service discovery request by returning HTTP 307 Temporary Redirect response.",
+    "The 307 Temporary Redirect response shall contain a Location header field whose host part represents NRF-3.",
+    "If NRF-2 does not have enough information to redirect the service discovery request, it shall respond with 404 Not Found.",
+    "Upon receiving 307 Temporary Redirect response, NRF-1 shall send the service discovery request to NRF-3 by using the URI contained in the Location header field of the 307 Temporary Redirect response.",
+    "Upon receiving a service discovery request, NRF-2 shall identify the next hop NRF based on the request information and locally stored information and forward the service discovery request to that NRF.",
+    "If NRF-2 does not have enough information to forward the service discovery request, it shall respond with 404 Not Found.",
+    "The NRF in the Local PLMN shall include the \"gpsi\" query parameter and set \"target-nw-resolution\" to true when the identity of the target PLMN is not known to the NF Service Consumer.",
+    "The NRF in the Local PLMN shall determine the identity of the Target PLMN and the URI of the Nnrf_NFDiscovery service of the NRF in the Target PLMN.",
+    "The NRF in the Serving PLMN shall return a status code to the NF Service Consumer in accordance with the result received from the NRF in the Home PLMN.",
+    "The NRF in the Home PLMN may provide either an array of NF Profile objects and/or a map of NFInstanceInfo objects, or indirect-communication indication IEs, depending on operator policy and the received indications.",
+    "If the NF Discovery Request includes the ind-com-with-del-disc IE set to true and indirect communication with delegated discovery with NF selection at target domain is preferred by the NRF in the Home PLMN, the response shall contain no NF profile objects and no NFInstanceInfo objects.",
+    "If the NF Discovery Request includes the ind-com-with-del-disc IE set to true and indirect communication with delegated discovery with NF selection at target domain is preferred by the NRF in the Home PLMN, the response shall set the indComWithDelDiscReq IE to true.",
+    "If the NF Discovery Request includes the ind-com-wo-del-disc IE set to true and indirect communication without delegated discovery with NF selection at target domain is preferred by the NRF in the Home PLMN, the response shall contain an array of NF Profile objects and/or a map of NFInstanceInfo objects that satisfy the search filter criteria.",
+    "If the NF Discovery Request includes the ind-com-wo-del-disc IE set to true and indirect communication without delegated discovery with NF selection at target domain is preferred by the NRF in the Home PLMN, the response shall set the indComWoDelDiscReq IE to true.",
+    "If either the indComWithDelDiscReq or the indComWoDelDiscReq IE is included in the search result, the indirect communication information shall only apply to the NF type requested in the Nnrf_NFDiscovery request unless the allNfTypesInd IE is set to true.",
+    "If the NRF in Serving PLMN supports the indirect communication with/without delegated discovery with NF selection at target domain features and caches the response from NRF in Home PLMN for subsequent discovery result, it shall adjust the query parameters when forwarding the discovery request to the NRF in Home PLMN.",
+    "The NRF in Serving PLMN shall lower the value of query parameters impacting the max number of candidates or max size of discovery result, such as limit, max-payload-size, and max-payload-size-ext, according to its own capability.",
+    "The NRF in Serving PLMN shall clear the feature bit impacting the format of the discovery result, such as Service-Map, Enh-NF-Discovery, Allowed-ruleset, DNN-List-Optimization, or Shared-Data, if not supported."
+  ],
+  "constraints": [
+    {
+      "statement": "The NF Service Consumer shall send an HTTP GET request to the resource URI \"nf-instances\" collection resource.",
+      "evidence": [
+        "The NF Service Consumer shall send an HTTP GET request to the resource URI \"nf-instances\" collection resource."
+      ],
+      "why_interesting": "This is the core request method and target resource for NF discovery.",
+      "category": "request-method-and-uri"
+    },
+    {
+      "statement": "The input filter criteria for the discovery request shall be included in query parameters.",
+      "evidence": [
+        "The input filter criteria for the discovery request shall be included in query parameters."
+      ],
+      "why_interesting": "This defines how discovery criteria are encoded in the API request.",
+      "category": "request-parameters"
+    },
+    {
+      "statement": "Upon receiving a discovery request for complete NF profiles, the NRF shall verify that the requesting entity is authorized to discover the complete profile of NF instances, based on local policies or the receipt of an access token granting such permission.",
+      "evidence": [
+        "Upon receiving such a request, the NRF shall verify that the requesting entity is authorized to discover the complete profile of NF instances, based on local policies or the receipt of an access token granting such permission."
+      ],
+      "why_interesting": "This is an authorization gate that can be tested by varying credentials or policy state.",
+      "category": "authorization"
+    },
+    {
+      "statement": "If the requesting entity is not authorized to discover complete NF profiles, the NRF shall reject the request or handle it as a service discovery request without access to the complete profile.",
+      "evidence": [
+        "If the requesting entity is not authorized to do so, the NRF shall reject the request or handle it as a service discovery request without access to the complete profile."
+      ],
+      "why_interesting": "This constrains the NRF's behavior when authorization for full profiles is absent.",
+      "category": "authorization"
+    },
+    {
+      "statement": "When certain query parameters in the discovery request are not supported by the NRF, the NRF shall ignore the unsupported query parameters and continue processing the request with the rest of the query parameters.",
+      "evidence": [
+        "When certain query parameters in the discovery request are not supported by the NRF, the NRF shall ignore the unsupported query parameters and continue processing the request with the rest of the query parameters."
+      ],
+      "why_interesting": "This is a specific tolerance rule for unsupported filters.",
+      "category": "request-parameter-handling"
+    },
+    {
+      "statement": "On success, \"200 OK\" shall be returned.",
+      "evidence": [
+        "On success, \"200 OK\" shall be returned."
+      ],
+      "why_interesting": "This is the required success status code.",
+      "category": "response-status"
+    },
+    {
+      "statement": "The response body shall contain a validity period during which the search result can be cached by the NF Service Consumer.",
+      "evidence": [
+        "The response body shall contain a validity period, during which the search result can be cached by the NF Service Consumer,"
+      ],
+      "why_interesting": "This is a required response field with caching semantics.",
+      "category": "response-body"
+    },
+    {
+      "statement": "The response body shall contain an array of NF Profile objects and/or a map of NFInstanceInfo objects of NF instances if the NF service consumer indicated support of the Enh-NF-Discovery feature in the request.",
+      "evidence": [
+        "The response body shall contain a validity period, during which the search result can be cached by the NF Service Consumer, and an array of NF Profile objects, and/or a map of NFInstanceInfo objects of NF instances (if the NF service consumer indicated support of the Enh-NF-Discovery feature in the request) that satisfy the search filter criteria"
+      ],
+      "why_interesting": "This defines the discovery payload shape and feature-dependent inclusion.",
+      "category": "response-body"
+    },
+    {
+      "statement": "If the NF Service Consumer is not allowed to discover the NF services for the requested NF type provided in the query parameters, the NRF shall return \"403 Forbidden\" response.",
+      "evidence": [
+        "If the NF Service Consumer is not allowed to discover the NF services for the requested NF type provided in the query parameters, the NRF shall return \"403 Forbidden\" response."
+      ],
+      "why_interesting": "This is a specific authorization failure status code.",
+      "category": "response-status"
+    },
+    {
+      "statement": "If the discovery request fails at the NRF due to errors in the input data in the URI query parameters, the NRF shall return \"400 Bad Request\" status code with the ProblemDetails IE providing details of the error.",
+      "evidence": [
+        "If the discovery request fails at the NRF due to errors in the input data in the URI query parameters, the NRF shall return \"400 Bad Request\" status code with the ProblemDetails IE providing details of the error."
+      ],
+      "why_interesting": "This is a required client-error response and error payload.",
+      "category": "error-handling"
+    },
+    {
+      "statement": "If the verification of input attributes against the NF service consumer's certificate is unsuccessful, the request shall be rejected with \"400 Bad Request\" status code and the \"cause\" attribute set to \"INVALID_CLIENT\".",
+      "evidence": [
+        "If the verification is unsuccessful, the request shall be rejected with \"400 Bad Request\" status code and the \"cause\" attribute set to \"INVALID_CLIENT\"."
+      ],
+      "why_interesting": "This gives a concrete validation failure code and cause value.",
+      "category": "error-handling"
+    },
+    {
+      "statement": "If the discovery request fails at the NRF due to NRF internal errors, the NRF shall return \"500 Internal Server Error\" status code with the ProblemDetails IE providing details of the error.",
+      "evidence": [
+        "If the discovery request fails at the NRF due to NRF internal errors, the NRF shall return \"500 Internal Server Error\" status code with the ProblemDetails IE providing details of the error."
+      ],
+      "why_interesting": "This is the required server-error response.",
+      "category": "error-handling"
+    },
+    {
+      "statement": "In the case of redirection, the NRF shall return a 3xx status code that contains a Location header with a URI pointing to the endpoint of another NRF service instance.",
+      "evidence": [
+        "In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance."
+      ],
+      "why_interesting": "This is a testable redirect requirement including the Location header.",
+      "category": "redirect"
+    },
+    {
+      "statement": "For those NF Instances of custom NF types, the \"customInfo\" attribute shall be returned by NRF, if available, as part of the NF Profiles returned in the discovery response.",
+      "evidence": [
+        "For those NF Instances, the \"customInfo\" attribute shall be returned by NRF, if available, as part of the NF Profiles returned in the discovery response."
+      ],
+      "why_interesting": "This is a required response field for custom NF types.",
+      "category": "response-body"
+    },
+    {
+      "statement": "The NRF shall include Vendor-Specific attributes in the returned NF Profile objects if those attributes were provided by the registered NF Instances.",
+      "evidence": [
+        "The NRF shall also include, in the returned NF Profile objects, the Vendor-Specific attributes ... that may have been provided by the registered NF Instances."
+      ],
+      "why_interesting": "This constrains profile content beyond standard attributes.",
+      "category": "response-body"
+    },
+    {
+      "statement": "If the response includes a map of NFInstanceInfo objects, the NF Service Consumer shall include the nrf-disc-uri parameter set to the API URI of the Nnrf_NFDiscovery service of the NRF holding the NF profile(s) when the request is addressed to a different NRF than the NRF holding the NF profile(s) and the nrfDiscApiUri attribute was received in the NFInstanceInfo object.",
+      "evidence": [
+        "If the response includes a map of NFInstanceInfo objects of NF instances, the NF Service Consumer may retrieve the NF profiles by issuing service discovery requests with the target-nf-instance-id parameter identifying the target NF Instance ID, or with the target-nf-instance-id-list parameter identifying a list of target NF Instance IDs held by the same NRF; the service discovery request shall also include the nrf-disc-uri parameter set to the API URI of the Nnrf_NFDiscovery service of the NRF holding the NF profile(s), if the nrfDiscApiUri attribute was received in the NFInstanceInfo object and if the service discovery request is addressed to a different NRF than the NRF holding the NF profile(s)."
+      ],
+      "why_interesting": "This is a routing requirement for follow-up discovery requests.",
+      "category": "routing"
+    },
+    {
+      "statement": "To discover an AUSF/UDM deployed in a partner PLMN, the NRF shall support the \"subscription-based routing to a target core network\" feature.",
+      "evidence": [
+        "To discover an AUSF/UDM deployed in partner PLMN, the NRF shall support the \"subscription-based routing to a target core network\" feature as specified in clause 5.48 of 3GPP TS 23.501 [2]."
+      ],
+      "why_interesting": "This is a feature support requirement for cross-PLMN discovery.",
+      "category": "feature-support"
+    },
+    {
+      "statement": "To discover an SMF deployed in a partner PLMN, the NRF shall support the \"subscription-based routing to a target core network\" feature.",
+      "evidence": [
+        "To discover an SMF deployed in a partner PLMN, the NRF shall support the \"subscription-based routing to a target core network\" feature as specified in clause 5.48 of 3GPP TS 23.501 [2]."
+      ],
+      "why_interesting": "This is a feature support requirement for cross-PLMN discovery.",
+      "category": "feature-support"
+    },
+    {
+      "statement": "If a BSF instance with a map of BsfInfo objects is discovered and the BsfInfo object matching the query parameters contains the \"serviceScenarioInd\" attribute, the NRF shall only include BsfInfo objects with the same \"serviceScenarioInd\" values as the matched BsfInfo object in the returned NF profile.",
+      "evidence": [
+        "If a BSF instance with a map of BsfInfo objects is discovered and the BsfInfo object matching the query parameters contains the \"serviceScenarioInd\" attribute, the NRF shall only include in the returned NF profile the BsfInfo objects with the same \"serviceScenarioInd\" values as the matched BsfInfo object."
+      ],
+      "why_interesting": "This is a precise filtering rule on returned nested objects.",
+      "category": "response-filtering"
+    },
+    {
+      "statement": "For service discovery in a different PLMN, the request shall include the identity of the PLMN of the home NRF in the \"target-plmn-list\" query parameter.",
+      "evidence": [
+        "this request shall include the identity of the PLMN of the home NRF in the query parameter \"target-plmn-list\" of the URI."
+      ],
+      "why_interesting": "This is a required cross-PLMN request parameter.",
+      "category": "cross-plmn"
+    },
+    {
+      "statement": "The NRF in the home PLMN shall not include IP addresses of NF (service) instances in NF profiles it includes in NF Discovery Response towards other PLMNs.",
+      "evidence": [
+        "The NRF in the home PLMN (or more generally in the target PLMN) shall not include IP addresses of NF (service) instances in NF profiles it includes in NF Discovery Response towards other PLMNs."
+      ],
+      "why_interesting": "This is a clear forbidden response-content rule for inter-PLMN responses.",
+      "category": "response-body"
+    },
+    {
+      "statement": "To discover an AUSF/UDM deployed in a partner PLMN, the NRF in the home PLMN shall support the \"subscription-based routing to a target core network\" feature.",
+      "evidence": [
+        "To discover an AUSF/UDM deployed in partner PLMN, the NRF in the home PLMN shall support the \"subscription-based routing to a target core network\" feature as specified in clause 5.48 of 3GPP TS 23.501 [2]."
+      ],
+      "why_interesting": "This is a feature support requirement on the home PLMN NRF.",
+      "category": "feature-support"
+    },
+    {
+      "statement": "To discover an SMF deployed in a partner PLMN, the NRF in the home PLMN shall support the \"subscription-based routing to a target core network\" feature.",
+      "evidence": [
+        "To discover an SMF deployed in partner PLMN, the NRF in the home PLMN shall support the \"subscription-based routing to a target core network\" feature as specified in clause 5.48 of 3GPP TS 23.501 [2]."
+      ],
+      "why_interesting": "This is a feature support requirement on the home PLMN NRF.",
+      "category": "feature-support"
+    },
+    {
+      "statement": "If the NRF in Serving PLMN supports indirect communication with/without delegated discovery with NF selection at target domain and caches the response from NRF in Home PLMN for subsequent discovery result, it shall adjust the query parameter values when forwarding the discovery request to the NRF in Home PLMN to successfully process the discovery result.",
+      "evidence": [
+        "If the NRF in Serving PLMN supports the \"indirect communication with/without delegated discovery with NF selection at target domain\" features and if it caches the response from NRF in Home PLMN for subsequent discovery result, in step 1 the NRF in Serving PLMN shall adjust the value of the query parameters when forwarding the discovery request to the NRF in Home PLMN in order to successfully process the discovery result:"
+      ],
+      "why_interesting": "This is a stateful forwarding rule affecting downstream request construction.",
+      "category": "forwarding"
+    },
+    {
+      "statement": "The NRF in Serving PLMN shall lower the value of query parameters impacting the maximum number of candidates or maximum size of discovery result according to its own capability when forwarding the discovery request to the NRF in Home PLMN.",
+      "evidence": [
+        "lower the value of query parameters impacting the max number of candidates/max size of discovery result, e.g. the limit, max-payload-size and max-payload-size-ext query parameters, according to its own capability;"
+      ],
+      "why_interesting": "This is a concrete transformation rule for forwarded requests.",
+      "category": "forwarding"
+    },
+    {
+      "statement": "The NRF in Serving PLMN shall clear unsupported feature bits impacting the format of the discovery result when forwarding the discovery request to the NRF in Home PLMN.",
+      "evidence": [
+        "clear the feature bit impacting the format of the discovery result, e.g. \"Service-Map\", \"Enh-NF-Discovery\", \"Allowed-ruleset\", \"DNN-List-Optimization\" or \"Shared-Data\", if not supported."
+      ],
+      "why_interesting": "This is a concrete transformation rule for forwarded requests.",
+      "category": "forwarding"
+    },
+    {
+      "statement": "Upon receiving a service discovery request, NRF-2 shall identify the next hop NRF based on the request information and locally stored information and redirect the service discovery request by returning HTTP 307 Temporary Redirect response.",
+      "evidence": [
+        "Upon receiving a service discovery request, based on the information contained in the service discovery request ... and locally stored information NRF-2 shall identify the next hop NRF ..., and redirect the service discovery request by returning HTTP 307 Temporary Redirect response."
+      ],
+      "why_interesting": "This is a testable redirect behavior for intermediate NRFs.",
+      "category": "redirect"
+    },
+    {
+      "statement": "The 307 Temporary Redirect response shall contain a Location header field whose host part represents NRF-3.",
+      "evidence": [
+        "The 307 Temporary Redirect response shall contain a Location header field, the host part of the URI in the Location header field represents NRF-3."
+      ],
+      "why_interesting": "This constrains the redirect target encoding.",
+      "category": "redirect"
+    },
+    {
+      "statement": "If NRF-2 does not have enough information to redirect the service discovery request, it shall respond with 404 Not Found.",
+      "evidence": [
+        "if NRF-2 does not have enough information to redirect the service discovery request, then it responds with 404 Not Found, and the rest of the steps are omitted."
+      ],
+      "why_interesting": "This is a specific failure status for insufficient routing information.",
+      "category": "error-handling"
+    },
+    {
+      "statement": "Upon receiving 307 Temporary Redirect response, NRF-1 shall send the service discovery request to NRF-3 by using the URI contained in the Location header field of the 307 Temporary Redirect response.",
+      "evidence": [
+        "Upon receiving 307 Temporary Redirect response, NRF-1 sends the service discovery request to NRF-3 by using the URI contained in the Location header field of the 307 Temporary Redirect response."
+      ],
+      "why_interesting": "This is a concrete client-side redirect-following rule.",
+      "category": "redirect"
+    },
+    {
+      "statement": "Upon receiving a service discovery request, NRF-2 shall identify the next hop NRF based on the request information and locally stored information and forward the service discovery request to that NRF.",
+      "evidence": [
+        "Upon receiving a service discovery request, based on the information contained in the service discovery request ... and locally stored information, NRF-2 shall identify the next hop NRF ..., and forward the service discovery request to that NRF"
+      ],
+      "why_interesting": "This is a testable forwarding behavior for intermediate NRFs.",
+      "category": "forwarding"
+    },
+    {
+      "statement": "If NRF-2 does not have enough information to forward the service discovery request, it shall respond with 404 Not Found.",
+      "evidence": [
+        "if NRF-2 does not have enough information to forward the service discovery request, then it responds with 404 Not Found, and the rest of the steps are omitted."
+      ],
+      "why_interesting": "This is a specific failure status for insufficient forwarding information.",
+      "category": "error-handling"
+    },
+    {
+      "statement": "The NRF in the Local PLMN shall include the \"gpsi\" query parameter and set \"target-nw-resolution\" to true when the identity of the target PLMN is not known to the NF Service Consumer.",
+      "evidence": [
+        "this request shall include as query parameters the identity of the target UE for which NF Service Producers need to be discovered (i.e., the \"gpsi\" query parameter) and also a parameter indicating that the resolution of the target PLMN must be performed (i.e., \"target-nw-resolution\" set to true)."
+      ],
+      "why_interesting": "This is a required request shape for target-PLMN resolution.",
+      "category": "request-parameters"
+    },
+    {
+      "statement": "The NRF in the Local PLMN shall determine the identity of the Target PLMN and the URI of the Nnrf_NFDiscovery service of the NRF in the Target PLMN.",
+      "evidence": [
+        "The NRF in the Local PLMN determines the identity of the Target PLMN ... and determines the URI of the Nnrf_NFDiscovery service of the NRF in the Target PLMN."
+      ],
+      "why_interesting": "This is a routing/resolution behavior that can be validated by downstream request targeting.",
+      "category": "routing"
+    },
+    {
+      "statement": "The NRF in the Serving PLMN shall return a status code to the NF Service Consumer in accordance with the result received from the NRF in the Home PLMN.",
+      "evidence": [
+        "Finally, step 2 in clause 5.3.2.2.2 is executed; a status code is returned to the NF Service Consumer in Serving PLMN in accordance to the result received from NRF in Home PLMN."
+      ],
+      "why_interesting": "This constrains response propagation across PLMNs.",
+      "category": "cross-plmn"
+    },
+    {
+      "statement": "If the NF Discovery Request includes the ind-com-with-del-disc IE set to true and indirect communication with delegated discovery with NF selection at target domain is preferred by the NRF in the Home PLMN, the response shall contain no NF profile objects and no NFInstanceInfo objects.",
+      "evidence": [
+        "if the NF Discovery Request includes the ind-com-with-del-disc IE set to true and indirect communication with delegated discovery with NF selection at target domain is preferred by the NRF in the Home PLMN:\n-\tno NF profile objects and no NFInstanceInfo objects;"
+      ],
+      "why_interesting": "This is a precise conditional response-content rule.",
+      "category": "response-body"
+    },
+    {
+      "statement": "If the NF Discovery Request includes the ind-com-with-del-disc IE set to true and indirect communication with delegated discovery with NF selection at target domain is preferred by the NRF in the Home PLMN, the response shall set the indComWithDelDiscReq IE to true.",
+      "evidence": [
+        "the indComWithDelDiscReq IE set to true to indicate that indirect communication with delegated discovery with NF selection at target domain is requested;"
+      ],
+      "why_interesting": "This is a specific required indication in the response.",
+      "category": "response-body"
+    },
+    {
+      "statement": "If the NF Discovery Request includes the ind-com-wo-del-disc IE set to true and indirect communication without delegated discovery with NF selection at target domain is preferred by the NRF in the Home PLMN, the response shall contain an array of NF Profile objects and/or a map of NFInstanceInfo objects that satisfy the search filter criteria.",
+      "evidence": [
+        "if the NF Discovery Request includes the ind-com-wo-del-disc IE set to true and indirect communication without delegated discovery with NF selection at target domain is preferred by the NRF in the Home PLMN:\n-\tan array of NF Profile objects, and/or a map of NFInstanceInfo objects of NF instances ... that satisfy the search filter criteria"
+      ],
+      "why_interesting": "This is a conditional payload requirement for a specific indirect-communication mode.",
+      "category": "response-body"
+    },
+    {
+      "statement": "If the NF Discovery Request includes the ind-com-wo-del-disc IE set to true and indirect communication without delegated discovery with NF selection at target domain is preferred by the NRF in the Home PLMN, the response shall set the indComWoDelDiscReq IE to true.",
+      "evidence": [
+        "the indComWoDelDiscReq IE set to true to indicate that indirect communication without delegated discovery with NF selection at target domain is requested."
+      ],
+      "why_interesting": "This is a specific required indication in the response.",
+      "category": "response-body"
+    },
+    {
+      "statement": "If either the indComWithDelDiscReq or the indComWoDelDiscReq IE is included in the search result, the indirect communication information shall only apply to the NF type requested in the Nnrf_NFDiscovery request unless the allNfTypesInd IE is set to true.",
+      "evidence": [
+        "If either the indComWithDelDiscReq or the indComWoDelDiscReq IE is included in the search result, the search result may also include:\n-\tthe allNfTypesInd IE set to true to indicate that the indirect communication information provided in the NF Discovery response applies to all NF types (otherwise the indirect communication information shall only apply to the NF type requested in the Nnrf_NFDiscovery request);"
+      ],
+      "why_interesting": "This is a scope rule for indirect-communication metadata.",
+      "category": "response-body"
+    },
+    {
+      "statement": "The NRF in Serving PLMN shall lower the value of query parameters impacting the max number of candidates or max size of discovery result, such as limit, max-payload-size, and max-payload-size-ext, according to its own capability.",
+      "evidence": [
+        "lower the value of query parameters impacting the max number of candidates/max size of discovery result, e.g. the limit, max-payload-size and max-payload-size-ext query parameters, according to its own capability;"
+      ],
+      "why_interesting": "This is a concrete request-adjustment rule with named parameters.",
+      "category": "forwarding"
+    },
+    {
+      "statement": "The NRF in Serving PLMN shall clear the feature bit impacting the format of the discovery result, such as Service-Map, Enh-NF-Discovery, Allowed-ruleset, DNN-List-Optimization, or Shared-Data, if not supported.",
+      "evidence": [
+        "clear the feature bit impacting the format of the discovery result, e.g. \"Service-Map\", \"Enh-NF-Discovery\", \"Allowed-ruleset\", \"DNN-List-Optimization\" or \"Shared-Data\", if not supported."
+      ],
+      "why_interesting": "This is a concrete request-adjustment rule with named feature bits.",
+      "category": "forwarding"
+    }
+  ]
+}

@@ -4,15 +4,19 @@
 
 ```
 extremal_testing/
+├── agents/                        # OpenAI Agents SDK workflows
+│   └── constraint_generation/     # Constraint extraction agents and CLI
 ├── data/                          # All data files organized by lifecycle
 │   ├── specs/                     # Source specification documents
-│   │   └── segments/              # Parsed section text used as parser input
-│   │       ├── section_5_2.txt    # Full Nnrf_NFManagement section text
-│   │       └── section_5_3.txt    # Full Nnrf_NFDiscovery section text
-│   └── generated/                 # Derived parser output
-│       └── operation_descriptions.json
+│   │   ├── nrf_management_api.txt # Original OpenAPI source
+│   │   ├── section_5_2.txt        # Full Nnrf_NFManagement section text
+│   │   ├── section_5_3.txt        # Full Nnrf_NFDiscovery section text
+│   │   ├── section_6_1.txt        # Full section 6.1 text
+│   │   └── section_6_2.txt        # Full section 6.2 text
+│   └── generated/                 # Derived outputs
+│       └── operation_constraints/  # One JSON file per operation after agent generation
 ├── text_parsers/                  # Deterministic text parsers
-│   └── parse_model_descriptions.py # Split section 5 into per-operation descriptions
+│   └── parse_operations_descriptions.py # Split section 5 into per-operation descriptions
 └── implementation_testers/        # Test execution scripts
     ├── test_implementations.py    # Cross-implementation comparison runner
     └── test_free5gc.py            # Free5GC NRF tester
@@ -21,21 +25,24 @@ extremal_testing/
 ## Workflow
 
 ### 1. Parse Section Text Into Operation Descriptions
-- Run `text_parsers/parse_model_descriptions.py`
-- Input: `data/specs/segments/section_5_2.txt` and `data/specs/segments/section_5_3.txt`
-- Output: `data/generated/operation_descriptions.json`
-- Each record stores the full raw description block for one operation
-- The parser is deterministic and does not call an LLM
+- Run `text_parsers/parse_operations_descriptions.py`
+- Input: `data/specs/section_5_2.txt` and `data/specs/section_5_3.txt`
+- Output: in-memory operation description records
+- The parser is deterministic and does not write to `data/operation_descriptions/`
 
-### 2. Downstream Processing
-- Later stages can consume `operation_descriptions.json` and deterministically extract `shall` statements, constraints, and tests
-- Old LLM-driven metadata and schema generation paths are no longer part of the active workflow
+### 2. Generate Constraints With Agents
+- Run `agents/constraint_generation/cli.py`
+- Input: parsed operation descriptions from the parser module
+- Output: `data/generated/operation_constraints/{Operation}.json`
+- The workflow uses the OpenAI Agents SDK with one fixed per-operation extraction flow
+- Each output file stores atomic testable constraints derived from `shall` and `must` statements
 
 ## Configuration
 
-- LLM API keys are only needed for older legacy scripts
-- The new section-5 parser does not require any external services
+- Install `openai-agents` and `eval_type_backport` when running on Python 3.9
+- Set `OPENAI_API_KEY` before running the agent workflow
+- The parser itself does not require any external services
 
 ## TODO
-- Add deterministic extraction of `shall` statements from each operation description
-- Build a new test generation stage from the parsed operation descriptions
+- Add a test-generation stage that consumes `operation_constraints`
+- Add a coordinator pass that merges cross-operation duplicate constraints

@@ -1,0 +1,383 @@
+{
+  "service": "Nnrf_NFManagement",
+  "section_id": "5.2.2.3",
+  "operation": "NFUpdate",
+  "source_file": "section_5_2.txt",
+  "description": "NFUpdate covers complete and partial updates of NF profiles and shared data, plus heart-beat updates for registered NFs.",
+  "normative_statements": [
+    "The NF Service Consumer shall issue an HTTP PUT request for complete replacement of an NF Profile.",
+    "The NF Service Consumer shall send the PUT request to the resource URI representing the NF Instance.",
+    "The PUT request body shall contain a representation of the NF Instance to be completely replaced in the NRF.",
+    "On successful NF Profile complete replacement, the NRF shall return 200 OK and the response body shall contain the representation of the replaced resource.",
+    "If NF instance update fails due to NFProfile JSON encoding errors, the NRF shall return 400 Bad Request with ProblemDetails.",
+    "If NF instance update fails due to NRF internal errors, the NRF shall return 500 Internal Server Error with ProblemDetails.",
+    "In case of redirection for NF Profile complete replacement, the NRF shall return a 3xx status code and shall include a Location header pointing to another NRF service instance.",
+    "The NF Service Consumer shall issue an HTTP PATCH request for partial update of an NF Profile.",
+    "The PATCH request body shall contain the list of add/delete/replace operations to be applied to the NF Profile.",
+    "The PATCH operations in the NF Profile PATCH request shall be executed atomically.",
+    "The NF Service Consumer should include an If-Match header carrying the latest entity-tag received from NRF for the NF profile being patched.",
+    "If the NF Instance identified by nfInstanceID is not found, the NRF shall return 404 Not Found with ProblemDetails.",
+    "If the If-Match header entity tag differs from the NRF entity tag for the target NF instance, the NRF shall return 412 Precondition Failed with ProblemDetails.",
+    "If no precondition was defined and another conflict is detected, the NRF shall return 409 Conflicting with ProblemDetails.",
+    "The NRF shall allow updating Vendor-Specific attributes in the NF Profile of a registered NF Instance.",
+    "The NF Service Consumer shall issue an HTTP PUT request for complete replacement of Shared Data.",
+    "The NF Service Consumer shall send the PUT request to the resource URI representing the Shared Data.",
+    "The PUT request body shall contain a representation of the Shared Data to be completely replaced in the NRF.",
+    "On successful Shared Data complete replacement, the NRF shall return either 200 OK with the replaced resource representation or 204 No Content.",
+    "If Shared Data update fails due to SharedData JSON encoding errors, the NRF shall return 400 Bad Request with ProblemDetails.",
+    "If Shared Data is not authorized with write access to the requesting NF, the NRF shall return 403 Forbidden with ProblemDetails.",
+    "If Shared Data update fails due to NRF internal errors, the NRF shall return 500 Internal Server Error with ProblemDetails.",
+    "In case of redirection for Shared Data complete replacement, the NRF shall return a 3xx status code and shall include a Location header pointing to another NRF service instance.",
+    "The NF Service Consumer shall issue an HTTP PATCH request for partial update of Shared Data.",
+    "The PATCH request body shall contain the list of add/delete/replace operations to be applied to the Shared Data.",
+    "The PATCH operations in the Shared Data PATCH request shall be executed atomically.",
+    "The NF Service Consumer should include an If-Match header carrying the latest entity-tag received from NRF for the Shared Data being patched.",
+    "If the Shared Data identified by sharedDataId is not found, the NRF shall return 404 Not Found with ProblemDetails.",
+    "If Shared Data is not authorized with write access to the requesting NF, the NRF shall return 403 Forbidden with ProblemDetails.",
+    "In case of redirection for Shared Data partial update, the NRF shall return a 3xx status code and shall include a Location header pointing to another NRF service instance.",
+    "If the If-Match header entity tag differs from the NRF entity tag for the target NF instance, the NRF shall return 412 Precondition Failed with ProblemDetails.",
+    "If no precondition was defined and another conflict is detected, the NRF shall return 409 Conflicting with ProblemDetails.",
+    "Each previously registered NF shall contact the NRF periodically by invoking the NFUpdate service operation.",
+    "The NRF shall return the deployment-specific heart-beat interval to the NF Service Consumer as part of a successful registration.",
+    "If the NRF modifies the heart-beat interval for a registered NF instance, it shall return the new value in the response of the next periodic heart-beat interaction and shall apply the original interval until then.",
+    "The NF Service Consumer shall send a PATCH request to the NF Instance resource URI for heart-beat.",
+    "The heart-beat PATCH request body shall contain a replace operation on the nfStatus attribute of the NF Profile.",
+    "The nfStatus value in the heart-beat PATCH request shall be set to REGISTERED or UNDISCOVERABLE.",
+    "The NF Service Consumer shall not include an If-Match header in a heart-beat request if the request is not modifying any attribute in the NF profile.",
+    "On successful heart-beat, the NRF should return 204 No Content.",
+    "The NRF may return 200 OK with the full NF Profile on successful heart-beat.",
+    "The NRF shall not generate a new entity tag for the NF profile in a heart-beat operation if no attribute is modified.",
+    "If the NF Instance identified by nfInstanceID is not found for heart-beat, the NRF shall return 404 Not Found with ProblemDetails.",
+    "In case of redirection for heart-beat, the NRF shall return a 3xx status code and shall include a Location header pointing to another NRF service instance."
+  ],
+  "constraints": [
+    {
+      "statement": "The NF Service Consumer shall issue an HTTP PUT request for complete replacement of an NF Profile.",
+      "evidence": [
+        "To perform a complete replacement of the NF Profile of a given NF Instance, the NF Service Consumer shall issue an HTTP PUT request, as shown in Figure 5.2.2.3.1A-1:"
+      ],
+      "why_interesting": "Defines the required HTTP method for the complete-replacement operation.",
+      "category": "request-method"
+    },
+    {
+      "statement": "The NF Service Consumer shall send the PUT request to the resource URI representing the NF Instance.",
+      "evidence": [
+        "The NF Service Consumer shall send a PUT request to the resource URI representing the NF Instance."
+      ],
+      "why_interesting": "Tests can verify the request target URI is the NF instance resource.",
+      "category": "request-uri"
+    },
+    {
+      "statement": "The PUT request body shall contain a representation of the NF Instance to be completely replaced in the NRF.",
+      "evidence": [
+        "The content of the PUT request shall contain a representation of the NF Instance to be completely replaced in the NRF."
+      ],
+      "why_interesting": "Checks that the request body is required and carries the full replacement representation.",
+      "category": "request-body"
+    },
+    {
+      "statement": "On successful NF Profile complete replacement, the NRF shall return 200 OK and the response body shall contain the representation of the replaced resource.",
+      "evidence": [
+        "On success, \"200 OK\" shall be returned, the content of the PUT response shall contain the representation of the replaced resource."
+      ],
+      "why_interesting": "Defines the success status code and response payload for PUT replacement.",
+      "category": "response-status-and-body"
+    },
+    {
+      "statement": "If NF instance update fails due to NFProfile JSON encoding errors, the NRF shall return 400 Bad Request with ProblemDetails.",
+      "evidence": [
+        "If the update of the NF instance fails at the NRF due to errors in the encoding of the NFProfile JSON object, the NRF shall return \"400 Bad Request\" status code with the ProblemDetails IE providing details of the error."
+      ],
+      "why_interesting": "Provides a specific client-error mapping for malformed JSON encoding.",
+      "category": "error-handling"
+    },
+    {
+      "statement": "If NF instance update fails due to NRF internal errors, the NRF shall return 500 Internal Server Error with ProblemDetails.",
+      "evidence": [
+        "If the update of the NF instance fails at the NRF due to NRF internal errors, the NRF shall return \"500 Internal Server Error\" status code with the ProblemDetails IE providing details of the error."
+      ],
+      "why_interesting": "Defines server-error behavior that can be asserted in tests.",
+      "category": "error-handling"
+    },
+    {
+      "statement": "In case of redirection for NF Profile complete replacement, the NRF shall return a 3xx status code and shall include a Location header pointing to another NRF service instance.",
+      "evidence": [
+        "In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance."
+      ],
+      "why_interesting": "Tests can verify redirect responses include a Location header.",
+      "category": "redirect"
+    },
+    {
+      "statement": "The NF Service Consumer shall issue an HTTP PATCH request for partial update of an NF Profile.",
+      "evidence": [
+        "To perform a partial update of the NF Profile of a given NF Instance, the NF Service Consumer shall issue an HTTP PATCH request, as shown in Figure 5.2.2.3.1B-2."
+      ],
+      "why_interesting": "Defines the required HTTP method for partial updates.",
+      "category": "request-method"
+    },
+    {
+      "statement": "The PATCH request body shall contain the list of add/delete/replace operations to be applied to the NF Profile.",
+      "evidence": [
+        "The content of the PATCH request shall contain the list of operations (add/delete/replace) to be applied to the NF Profile of the NF Instance;"
+      ],
+      "why_interesting": "Checks that PATCH uses an operations list rather than a full resource representation.",
+      "category": "request-body"
+    },
+    {
+      "statement": "The PATCH operations in the NF Profile PATCH request shall be executed atomically.",
+      "evidence": [
+        "In order to leave the NF Profile in a consistent state, all the operations specified by the PATCH request body shall be executed atomically."
+      ],
+      "why_interesting": "Atomicity is observable by ensuring partial application does not occur.",
+      "category": "transactionality"
+    },
+    {
+      "statement": "The NF Service Consumer should include an If-Match header carrying the latest entity-tag received from NRF for the NF profile being patched.",
+      "evidence": [
+        "The NF Service Consumer should include a \"If-Match\" HTTP header carrying the latest entity-tag received from NRF for the NF profile to which the PATCH document shall be applied."
+      ],
+      "why_interesting": "Important conditional-update behavior, though expressed as SHOULD rather than SHALL.",
+      "category": "header"
+    },
+    {
+      "statement": "If the NF Instance identified by nfInstanceID is not found, the NRF shall return 404 Not Found with ProblemDetails.",
+      "evidence": [
+        "If the NF Instance, identified by the \"nfInstanceID\", is not found in the list of registered NF Instances in the NRF's database, the NRF shall return \"404 Not Found\" status code with the ProblemDetails IE providing details of the error."
+      ],
+      "why_interesting": "Defines the not-found response for PATCH on NF instances.",
+      "category": "error-handling"
+    },
+    {
+      "statement": "If the If-Match header entity tag differs from the NRF entity tag for the target NF instance, the NRF shall return 412 Precondition Failed with ProblemDetails.",
+      "evidence": [
+        "If \"If-Match\" header is received with an entity tag different from the entity-tag in NRF for NF profile of the target NF instance, the NRF shall return \"412 Precondition Failed\" status code with the ProblemDetails IE providing details of the error."
+      ],
+      "why_interesting": "Defines precondition failure behavior for stale entity tags.",
+      "category": "concurrency-control"
+    },
+    {
+      "statement": "If no precondition was defined and another conflict is detected, the NRF shall return 409 Conflicting with ProblemDetails.",
+      "evidence": [
+        "If no precondition was defined in the request and another confliction has been detected (e.g. to change value of a non-existing IE), the NRF shall return \"409 Conflicting\" status code with the ProblemDetails IE providing details of the error."
+      ],
+      "why_interesting": "Defines conflict handling when no conditional header is present.",
+      "category": "error-handling"
+    },
+    {
+      "statement": "The NRF shall allow updating Vendor-Specific attributes in the NF Profile of a registered NF Instance.",
+      "evidence": [
+        "The NRF shall allow updating Vendor-Specific attributes (see 3GPP TS 29.500 [4], clause 6.6.3) that may exist in the NF Profile of a registered NF Instance."
+      ],
+      "why_interesting": "Specifies that vendor-specific attributes are mutable and must not be rejected.",
+      "category": "field-allowance"
+    },
+    {
+      "statement": "The NF Service Consumer shall issue an HTTP PUT request for complete replacement of Shared Data.",
+      "evidence": [
+        "To perform a complete replacement of the Shared Data, the NF Service Consumer shall issue an HTTP PUT request, as shown in Figure 5.2.2.3.1C-1."
+      ],
+      "why_interesting": "Defines the required HTTP method for shared-data complete replacement.",
+      "category": "request-method"
+    },
+    {
+      "statement": "The NF Service Consumer shall send the PUT request to the resource URI representing the Shared Data.",
+      "evidence": [
+        "The NF Service Consumer shall send a PUT request to the resource URI representing the Shared Data."
+      ],
+      "why_interesting": "Tests can verify the request target URI is the shared-data resource.",
+      "category": "request-uri"
+    },
+    {
+      "statement": "The PUT request body shall contain a representation of the Shared Data to be completely replaced in the NRF.",
+      "evidence": [
+        "The content of the PUT request shall contain a representation of the Shared Data to be completely replaced in the NRF."
+      ],
+      "why_interesting": "Checks that the shared-data PUT body carries the replacement representation.",
+      "category": "request-body"
+    },
+    {
+      "statement": "On successful Shared Data complete replacement, the NRF shall return either 200 OK with the replaced resource representation or 204 No Content.",
+      "evidence": [
+        "On success, either \"200 OK\" shall be returned, the content of the PUT response shall contain the representation of the replaced resource, or \"204 No Content\" shall be returned."
+      ],
+      "why_interesting": "Defines the allowed success responses for shared-data PUT.",
+      "category": "response-status"
+    },
+    {
+      "statement": "If Shared Data update fails due to SharedData JSON encoding errors, the NRF shall return 400 Bad Request with ProblemDetails.",
+      "evidence": [
+        "If the update of the Shared Data fails at the NRF due to errors in the encoding of the SharedData JSON object, the NRF shall return \"400 Bad Request\" status code with the ProblemDetails IE providing details of the error."
+      ],
+      "why_interesting": "Defines client-error handling for malformed shared-data JSON.",
+      "category": "error-handling"
+    },
+    {
+      "statement": "If Shared Data is not authorized with write access to the requesting NF, the NRF shall return 403 Forbidden with ProblemDetails.",
+      "evidence": [
+        "If the Shared Data is not authorized with write access to the requesting NF (e.g. the Shared Data is shared to one specific NF Set while the requesting NF is not in that NF Set), the NRF shall return \"403 Forbidden\" status code with the ProblemDetails IE providing details of the error."
+      ],
+      "why_interesting": "Defines authorization failure behavior for shared-data updates.",
+      "category": "authorization"
+    },
+    {
+      "statement": "If Shared Data update fails due to NRF internal errors, the NRF shall return 500 Internal Server Error with ProblemDetails.",
+      "evidence": [
+        "If the update of the Shared Data fails at the NRF due to NRF internal errors, the NRF shall return \"500 Internal Server Error\" status code with the ProblemDetails IE providing details of the error."
+      ],
+      "why_interesting": "Defines server-error behavior for shared-data PUT.",
+      "category": "error-handling"
+    },
+    {
+      "statement": "In case of redirection for Shared Data complete replacement, the NRF shall return a 3xx status code and shall include a Location header pointing to another NRF service instance.",
+      "evidence": [
+        "In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance."
+      ],
+      "why_interesting": "Tests can verify redirect responses include a Location header.",
+      "category": "redirect"
+    },
+    {
+      "statement": "The NF Service Consumer shall issue an HTTP PATCH request for partial update of Shared Data.",
+      "evidence": [
+        "To perform a partial update of the Shared Data, the NF Service Consumer shall issue an HTTP PATCH request, as shown in Figure 5.2.2.3.1D-1."
+      ],
+      "why_interesting": "Defines the required HTTP method for shared-data partial updates.",
+      "category": "request-method"
+    },
+    {
+      "statement": "The PATCH request body shall contain the list of add/delete/replace operations to be applied to the Shared Data.",
+      "evidence": [
+        "The content of the PATCH request shall contain the list of operations (add/delete/replace) to be applied to the Shared Data;"
+      ],
+      "why_interesting": "Checks that shared-data PATCH uses an operations list.",
+      "category": "request-body"
+    },
+    {
+      "statement": "The PATCH operations in the Shared Data PATCH request shall be executed atomically.",
+      "evidence": [
+        "In order to leave the Shared Data in a consistent state, all the operations specified by the PATCH request body shall be executed atomically."
+      ],
+      "why_interesting": "Atomicity is observable by ensuring partial application does not occur.",
+      "category": "transactionality"
+    },
+    {
+      "statement": "The NF Service Consumer should include an If-Match header carrying the latest entity-tag received from NRF for the Shared Data being patched.",
+      "evidence": [
+        "The NF Service Consumer should include a \"If-Match\" HTTP header carrying the latest entity-tag received from NRF for the Shared Data to which the PATCH document shall be applied."
+      ],
+      "why_interesting": "Important conditional-update behavior, though expressed as SHOULD rather than SHALL.",
+      "category": "header"
+    },
+    {
+      "statement": "If the Shared Data identified by sharedDataId is not found, the NRF shall return 404 Not Found with ProblemDetails.",
+      "evidence": [
+        "If the Shared Data, identified by the \"sharedDataId\", is not found in the NRF's database, the NRF shall return \"404 Not Found\" status code with the ProblemDetails IE providing details of the error."
+      ],
+      "why_interesting": "Defines the not-found response for PATCH on shared data.",
+      "category": "error-handling"
+    },
+    {
+      "statement": "In case of redirection for Shared Data partial update, the NRF shall return a 3xx status code and shall include a Location header pointing to another NRF service instance.",
+      "evidence": [
+        "In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance."
+      ],
+      "why_interesting": "Tests can verify redirect responses include a Location header.",
+      "category": "redirect"
+    },
+    {
+      "statement": "Each previously registered NF shall contact the NRF periodically by invoking the NFUpdate service operation.",
+      "evidence": [
+        "Each NF that has previously registered in NRF shall contact the NRF periodically (heart-beat), by invoking the NFUpdate service operation, in order to show that the NF is still operative."
+      ],
+      "why_interesting": "Defines the periodic heart-beat requirement for registered NFs.",
+      "category": "periodic-behavior"
+    },
+    {
+      "statement": "The NRF shall return the deployment-specific heart-beat interval to the NF Service Consumer as part of a successful registration.",
+      "evidence": [
+        "The time interval at which the NRF shall be contacted is deployment-specific, and it is returned by the NRF to the NF Service Consumer as a result of a successful registration."
+      ],
+      "why_interesting": "Makes the heartbeat interval observable from registration behavior.",
+      "category": "response-content"
+    },
+    {
+      "statement": "If the NRF modifies the heart-beat interval for a registered NF instance, it shall return the new value in the response of the next periodic heart-beat interaction and shall apply the original interval until then.",
+      "evidence": [
+        "If the NRF modifies the heart-beat interval value of a given NF instance currently registered (e.g. as a result of an OA&M operation), it shall return the new value to the registered NF in the response of the next periodic heart-beat interaction received from that NF and, until then, the NRF shall apply the heart-beat check procedure according to the original interval value."
+      ],
+      "why_interesting": "Defines state-transition timing for heartbeat interval changes.",
+      "category": "state-transition"
+    },
+    {
+      "statement": "The NF Service Consumer shall send a PATCH request to the NF Instance resource URI for heart-beat.",
+      "evidence": [
+        "The NF Service Consumer shall send a PATCH request to the resource URI representing the NF Instance."
+      ],
+      "why_interesting": "Defines the required HTTP method and target for heart-beat.",
+      "category": "request-method"
+    },
+    {
+      "statement": "The heart-beat PATCH request body shall contain a replace operation on the nfStatus attribute of the NF Profile.",
+      "evidence": [
+        "The content of the PATCH request shall contain a \"replace\" operation on the \"nfStatus\" attribute of the NF Profile of the NF Instance, and set it to the value \"REGISTERED\" or \"UNDISCOVERABLE\"."
+      ],
+      "why_interesting": "Checks the required operation and field in the heart-beat request body.",
+      "category": "request-body"
+    },
+    {
+      "statement": "The nfStatus value in the heart-beat PATCH request shall be set to REGISTERED or UNDISCOVERABLE.",
+      "evidence": [
+        "The content of the PATCH request shall contain a \"replace\" operation on the \"nfStatus\" attribute of the NF Profile of the NF Instance, and set it to the value \"REGISTERED\" or \"UNDISCOVERABLE\"."
+      ],
+      "why_interesting": "Defines the only allowed nfStatus values for heart-beat updates.",
+      "category": "field-value"
+    },
+    {
+      "statement": "The NF Service Consumer shall not include an If-Match header in a heart-beat request if the request is not modifying any attribute in the NF profile.",
+      "evidence": [
+        "The NF Service Consumer shall not include \"If-Match\" HTTP header in the Heart-Beat request if the request is not modifying any attribute in the NF profile."
+      ],
+      "why_interesting": "Defines a forbidden header condition for non-modifying heart-beat requests.",
+      "category": "header"
+    },
+    {
+      "statement": "On successful heart-beat, the NRF should return 204 No Content.",
+      "evidence": [
+        "On success, the NRF should return \"204 No Content\";"
+      ],
+      "why_interesting": "Identifies the preferred success status for heart-beat.",
+      "category": "response-status"
+    },
+    {
+      "statement": "The NRF may return 200 OK with the full NF Profile on successful heart-beat.",
+      "evidence": [
+        "the NRF may also answer with \"200 OK\" along with the full NF Profile, e.g. in cases where the NRF determines that the NF Profile has changed significantly since the last heart-beat, and wants to send the new profile to the NF Service Consumer"
+      ],
+      "why_interesting": "Defines an alternate success response that can be tested.",
+      "category": "response-status"
+    },
+    {
+      "statement": "The NRF shall not generate a new entity tag for the NF profile in a heart-beat operation if no attribute is modified.",
+      "evidence": [
+        "The NRF shall not generate a new entity tag for the NF profile in Heart-Beat operation if no attribute is modified."
+      ],
+      "why_interesting": "Defines an observable no-change behavior for ETag handling.",
+      "category": "etag"
+    },
+    {
+      "statement": "If the NF Instance identified by nfInstanceID is not found for heart-beat, the NRF shall return 404 Not Found with ProblemDetails.",
+      "evidence": [
+        "If the NF Instance, identified by the \"nfInstanceID\", is not found in the list of registered NF Instances in the NRF's database, the NRF shall return \"404 Not Found\" status code with the ProblemDetails IE providing details of the error."
+      ],
+      "why_interesting": "Defines the not-found response for heart-beat.",
+      "category": "error-handling"
+    },
+    {
+      "statement": "In case of redirection for heart-beat, the NRF shall return a 3xx status code and shall include a Location header pointing to another NRF service instance.",
+      "evidence": [
+        "In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance."
+      ],
+      "why_interesting": "Tests can verify redirect responses include a Location header.",
+      "category": "redirect"
+    }
+  ]
+}

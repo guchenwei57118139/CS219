@@ -1,0 +1,92 @@
+{
+  "service": "Nnrf_NFManagement",
+  "section_id": "5.2.2.4",
+  "operation": "NFDeregister",
+  "source_file": "section_5_2.txt",
+  "description": "Deregisters an NF Instance or Shared Data resource from the NRF via DELETE on the corresponding resource URI.",
+  "normative_statements": [
+    "The NF Service Consumer shall send a DELETE request to the resource URI representing the NF Instance.",
+    "The request body shall be empty.",
+    "On success, \"204 No Content\" shall be returned.",
+    "The response body shall be empty.",
+    "If the NF Instance identified by \"nfInstanceID\" is not found in the NRF database, the NRF shall return \"404 Not Found\" with ProblemDetails.",
+    "In the case of redirection, the NRF shall return a 3xx status code containing a Location header pointing to another NRF service instance.",
+    "The NF Service Consumer shall send a DELETE request to the resource URI representing the Shared Data.",
+    "If the Shared Data identified by \"sharedDataId\" is not found in the NRF database, the NRF shall return \"404 Not Found\" with ProblemDetails.",
+    "If the Shared Data is not authorized with write access to the requesting NF, the NRF shall return \"403 Forbidden\" with ProblemDetails."
+  ],
+  "constraints": [
+    {
+      "statement": "The NF Service Consumer shall send a DELETE request to the resource URI representing the NF Instance.",
+      "evidence": [
+        "The NF Service Consumer shall send a DELETE request to the resource URI representing the NF Instance."
+      ],
+      "why_interesting": "Defines the required HTTP method and target resource for NF Instance deregistration.",
+      "category": "request"
+    },
+    {
+      "statement": "The request body shall be empty.",
+      "evidence": [
+        "The request body shall be empty."
+      ],
+      "why_interesting": "Enforces an observable request payload constraint.",
+      "category": "request"
+    },
+    {
+      "statement": "On success, \"204 No Content\" shall be returned.",
+      "evidence": [
+        "On success, \"204 No Content\" shall be returned."
+      ],
+      "why_interesting": "Specifies the required success status code.",
+      "category": "response"
+    },
+    {
+      "statement": "The response body shall be empty.",
+      "evidence": [
+        "The response body shall be empty."
+      ],
+      "why_interesting": "Enforces an observable response payload constraint on success.",
+      "category": "response"
+    },
+    {
+      "statement": "If the NF Instance identified by \"nfInstanceID\" is not found in the NRF database, the NRF shall return \"404 Not Found\" with ProblemDetails.",
+      "evidence": [
+        "If the NF Instance, identified by the \"nfInstanceID\", is not found in the list of registered NF Instances in the NRF's database, the NRF shall return \"404 Not Found\" status code with the ProblemDetails IE providing details of the error."
+      ],
+      "why_interesting": "Defines the error handling behavior for deregistering a nonexistent NF Instance.",
+      "category": "error handling"
+    },
+    {
+      "statement": "In the case of redirection, the NRF shall return a 3xx status code containing a Location header pointing to another NRF service instance.",
+      "evidence": [
+        "In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance."
+      ],
+      "why_interesting": "Specifies redirect behavior and required Location header.",
+      "category": "routing"
+    },
+    {
+      "statement": "The NF Service Consumer shall send a DELETE request to the resource URI representing the Shared Data.",
+      "evidence": [
+        "The NF Service Consumer shall send a DELETE request to the resource URI representing the Shared Data."
+      ],
+      "why_interesting": "Defines the required HTTP method and target resource for Shared Data deregistration.",
+      "category": "request"
+    },
+    {
+      "statement": "If the Shared Data identified by \"sharedDataId\" is not found in the NRF database, the NRF shall return \"404 Not Found\" with ProblemDetails.",
+      "evidence": [
+        "If the Shared Data, identified by the \"sharedDataId\", is not found in the NRF's database, the NRF shall return \"404 Not Found\" status code with the ProblemDetails IE providing details of the error."
+      ],
+      "why_interesting": "Defines the error handling behavior for deregistering nonexistent Shared Data.",
+      "category": "error handling"
+    },
+    {
+      "statement": "If the Shared Data is not authorized with write access to the requesting NF, the NRF shall return \"403 Forbidden\" with ProblemDetails.",
+      "evidence": [
+        "If the Shared Data is not authorized with write access to the requesting NF (e.g. the Shared Data is shared to one specific NF Set while the requesting NF is not in that NF Set), the NRF shall return \"403 Forbidden\" status code with the ProblemDetails IE providing details of the error."
+      ],
+      "why_interesting": "Defines authorization failure behavior for Shared Data deregistration.",
+      "category": "authorization"
+    }
+  ]
+}

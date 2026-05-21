@@ -1,0 +1,82 @@
+{
+  "service": "Nnrf_NFDiscovery",
+  "section_id": "5.3.2.4",
+  "operation": "SCPDomainRoutingInfoSubscribe",
+  "source_file": "section_5_3.txt",
+  "description": "Create a subscription for SCP Domain Routing Information change notifications by POSTing to the SCP Domain Routing Info Subscriptions collection resource.",
+  "normative_statements": [
+    "The Service Consumer shall send a POST request to the URI representing the \"SCP Domain Routing Info Subscriptions\" collection resource.",
+    "The request body shall contain the callback URI on the Service Consumer to receive the notifications.",
+    "To create a subscription for changes of local SCP Domain Routing Information, the request body shall contain the \"localInd\" with value \"true\".",
+    "On success, \"201 Created\" shall be returned with a \"Location\" header containing the resource URI to the newly created subscription resource.",
+    "The response shall contain the data related to the created subscription, including the validity time, as determined by the NRF, after which the subscription becomes invalid.",
+    "Once the subscription expires, if the Service Consumer wants to keep receiving notifications, it shall create a new subscription in the NRF.",
+    "On failure, the NRF shall return a \"4xx/5xx\" response."
+  ],
+  "constraints": [
+    {
+      "statement": "The Service Consumer shall send a POST request to the URI representing the \"SCP Domain Routing Info Subscriptions\" collection resource.",
+      "evidence": [
+        "\"The Service Consumer (i.e. SCP) shall send a POST request to the URI representing the \\\"SCP Domain Routing Info Subscriptions\\\" collection resource.\""
+      ],
+      "why_interesting": "This fixes the HTTP method and target resource for the subscription creation API.",
+      "category": "request-routing"
+    },
+    {
+      "statement": "The request body shall contain the callback URI on the Service Consumer to receive the notifications.",
+      "evidence": [
+        "\"The request body shall contain the callback URI on the Service Consumer to receive the notifications.\""
+      ],
+      "why_interesting": "This is a required request field needed for notification delivery.",
+      "category": "request-body"
+    },
+    {
+      "statement": "To create a subscription for changes of local SCP Domain Routing Information, the request body shall contain the \"localInd\" with value \"true\".",
+      "evidence": [
+        "\"To create a subscription for changes of local SCP Domain Routing Information, the request body shall contain the \\\"localInd\\\" with value \\\"true\\\".\""
+      ],
+      "why_interesting": "This adds a conditional request-body requirement that changes behavior for local routing info subscriptions.",
+      "category": "request-body"
+    },
+    {
+      "statement": "On success, the NRF shall return \"201 Created\".",
+      "evidence": [
+        "\"On success, \\\"201 Created\\\" shall be returned with \\\"Location\\\" header containing the resource URI to the newly created subscription resource.\""
+      ],
+      "why_interesting": "This is the required success status code for subscription creation.",
+      "category": "response-status"
+    },
+    {
+      "statement": "On success, the NRF shall include a \"Location\" header containing the resource URI to the newly created subscription resource.",
+      "evidence": [
+        "\"On success, \\\"201 Created\\\" shall be returned with \\\"Location\\\" header containing the resource URI to the newly created subscription resource.\""
+      ],
+      "why_interesting": "This is a testable response-header requirement for resource creation.",
+      "category": "response-header"
+    },
+    {
+      "statement": "The response shall contain the data related to the created subscription, including the validity time, as determined by the NRF, after which the subscription becomes invalid.",
+      "evidence": [
+        "\"The response shall contain the data related to the created subscription, including the validity time, as determined by the NRF, after which the subscription becomes invalid.\""
+      ],
+      "why_interesting": "This requires the response body to include subscription details and an NRF-determined expiry/validity time.",
+      "category": "response-body"
+    },
+    {
+      "statement": "Once the subscription expires, the Service Consumer shall create a new subscription in the NRF to keep receiving notifications.",
+      "evidence": [
+        "\"Once the subscription expires, if the Service Consumer wants to keep receiving notifications, it shall create a new subscription in the NRF.\""
+      ],
+      "why_interesting": "This defines the post-expiration state transition and renewal requirement.",
+      "category": "state-transition"
+    },
+    {
+      "statement": "On failure, the NRF shall return a \"4xx/5xx\" response.",
+      "evidence": [
+        "\"On failure, the NRF shall return \\\"4xx/5xx\\\" response and the response body may contain a ProblemDetails object describing the detailed information of the failure.\""
+      ],
+      "why_interesting": "This constrains failure handling to client/server error classes.",
+      "category": "response-status"
+    }
+  ]
+}

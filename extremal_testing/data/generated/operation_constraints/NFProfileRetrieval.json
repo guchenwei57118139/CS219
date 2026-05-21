@@ -1,0 +1,81 @@
+{
+  "service": "Nnrf_NFManagement",
+  "section_id": "5.2.2.9",
+  "operation": "NFProfileRetrieval",
+  "source_file": "section_5_2.txt",
+  "description": "Retrieves the NF profile of a given NF instance currently registered in NRF.",
+  "normative_statements": [
+    "The NF Service Consumer shall send an HTTP GET request to the resource URI \"nf-instances/{nfInstanceId}\".",
+    "On success, \"200 OK\" shall be returned.",
+    "The response body shall contain the NF profile of the NF instance identified in the request.",
+    "If the NF Service Consumer is not allowed to retrieve the NF profile of this specific registered NF instance, the NRF shall return \"403 Forbidden\" status code.",
+    "If the NF Profile retrieval fails at the NRF due to NRF internal errors, the NRF shall return \"500 Internal Server Error\" status code with the ProblemDetails IE providing details of the error.",
+    "In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance."
+  ],
+  "constraints": [
+    {
+      "statement": "The NF Service Consumer shall send an HTTP GET request to the resource URI \"nf-instances/{nfInstanceId}\".",
+      "evidence": [
+        "The NF Service Consumer shall send an HTTP GET request to the resource URI \"nf-instances/{nfInstanceId}\"."
+      ],
+      "why_interesting": "Defines the required HTTP method and target resource for the operation.",
+      "category": "request"
+    },
+    {
+      "statement": "On success, the NRF shall return 200 OK.",
+      "evidence": [
+        "On success, \"200 OK\" shall be returned."
+      ],
+      "why_interesting": "Specifies the required success status code.",
+      "category": "response status"
+    },
+    {
+      "statement": "The response body shall contain the NF profile of the NF instance identified in the request.",
+      "evidence": [
+        "The response body shall contain the NF profile of the NF instance identified in the request."
+      ],
+      "why_interesting": "Defines the required successful response payload.",
+      "category": "response body"
+    },
+    {
+      "statement": "If the NF Service Consumer is not allowed to retrieve the NF profile of this specific registered NF instance, the NRF shall return 403 Forbidden.",
+      "evidence": [
+        "If the NF Service Consumer is not allowed to retrieve the NF profile of this specific registered NF instance, the NRF shall return \"403 Forbidden\" status code."
+      ],
+      "why_interesting": "Specifies the authorization failure behavior and status code.",
+      "category": "authorization/status"
+    },
+    {
+      "statement": "If the NF Profile retrieval fails at the NRF due to NRF internal errors, the NRF shall return 500 Internal Server Error.",
+      "evidence": [
+        "If the NF Profile retrieval fails at the NRF due to NRF internal errors, the NRF shall return \"500 Internal Server Error\" status code with the ProblemDetails IE providing details of the error."
+      ],
+      "why_interesting": "Defines the server-error status code for internal NRF failures.",
+      "category": "error handling"
+    },
+    {
+      "statement": "If the NF Profile retrieval fails at the NRF due to NRF internal errors, the response shall include the ProblemDetails IE providing details of the error.",
+      "evidence": [
+        "If the NF Profile retrieval fails at the NRF due to NRF internal errors, the NRF shall return \"500 Internal Server Error\" status code with the ProblemDetails IE providing details of the error."
+      ],
+      "why_interesting": "Requires structured error details in the internal-error response.",
+      "category": "error handling/body"
+    },
+    {
+      "statement": "In the case of redirection, the NRF shall return a 3xx status code.",
+      "evidence": [
+        "In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance."
+      ],
+      "why_interesting": "Specifies the redirect response class.",
+      "category": "response status"
+    },
+    {
+      "statement": "In the case of redirection, the NRF response shall contain a Location header with a URI pointing to the endpoint of another NRF service instance.",
+      "evidence": [
+        "In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance."
+      ],
+      "why_interesting": "Defines the required redirect target header.",
+      "category": "headers"
+    }
+  ]
+}

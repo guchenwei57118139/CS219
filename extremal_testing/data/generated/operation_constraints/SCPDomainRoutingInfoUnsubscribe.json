@@ -1,0 +1,65 @@
+{
+  "service": "Nnrf_NFDiscovery",
+  "section_id": "5.3.2.6",
+  "operation": "SCPDomainRoutingInfoUnsubscribe",
+  "source_file": "section_5_3.txt",
+  "description": "Removes an existing subscription to SCP (local) Domain Information Change by DELETE on the individual subscription URI received in the Location header of the successful subscription response.",
+  "normative_statements": [
+    "The Service Consumer shall send a DELETE request to the resource URI representing the individual subscription.",
+    "The request body shall be empty.",
+    "On success, the NRF shall return 204 No Content.",
+    "The response body shall be empty.",
+    "On failure, the NRF shall return a 4xx or 5xx response.",
+    "On failure, the response body may contain a ProblemDetails object describing the detailed information of the failure."
+  ],
+  "constraints": [
+    {
+      "statement": "The Service Consumer shall send a DELETE request to the resource URI representing the individual subscription.",
+      "evidence": [
+        "\"The Service Consumer (e.g. SCP or NRF) shall send a DELETE request to the resource URI representing the individual subscription.\""
+      ],
+      "why_interesting": "Verifies the unsubscribe operation uses the correct HTTP method and target URI.",
+      "category": "request-method-and-uri"
+    },
+    {
+      "statement": "The request body shall be empty.",
+      "evidence": [
+        "\"The request body shall be empty.\""
+      ],
+      "why_interesting": "Ensures the unsubscribe request does not carry a payload.",
+      "category": "request-body"
+    },
+    {
+      "statement": "On success, the NRF shall return 204 No Content.",
+      "evidence": [
+        "\"On success, \\\"204 No Content\\\" shall be returned.\""
+      ],
+      "why_interesting": "Defines the required successful HTTP status code for the unsubscribe operation.",
+      "category": "response-status"
+    },
+    {
+      "statement": "The response body shall be empty.",
+      "evidence": [
+        "\"The response body shall be empty.\""
+      ],
+      "why_interesting": "Ensures a successful unsubscribe response has no payload.",
+      "category": "response-body"
+    },
+    {
+      "statement": "On failure, the NRF shall return a 4xx or 5xx response.",
+      "evidence": [
+        "\"On failure, the NRF shall return \\\"4xx/5xx\\\" response\""
+      ],
+      "why_interesting": "Defines the allowed failure status code classes for negative test cases.",
+      "category": "response-status"
+    },
+    {
+      "statement": "On failure, the response body may contain a ProblemDetails object describing the detailed information of the failure.",
+      "evidence": [
+        "\"the response body may contain a ProblemDetails object describing the detailed information of the failure.\""
+      ],
+      "why_interesting": "Specifies the optional error payload format for failed unsubscribe requests.",
+      "category": "error-response-body"
+    }
+  ]
+}

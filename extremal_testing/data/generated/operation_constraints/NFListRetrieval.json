@@ -1,0 +1,108 @@
+{
+  "service": "Nnrf_NFManagement",
+  "section_id": "5.2.2.8",
+  "operation": "NFListRetrieval",
+  "source_file": "section_5_2.txt",
+  "description": "Retrieval of a list of NF instances currently registered in the NRF, optionally filtered by NF type and/or paginated via query parameters.",
+  "normative_statements": [
+    "The NF Service Consumer shall send an HTTP GET request to the \"nf-instances\" collection resource URI.",
+    "The NRF shall return 200 OK on success.",
+    "The NRF shall return 403 Forbidden if the NF Service Consumer is not allowed to retrieve the registered NF instances.",
+    "The NRF shall return 400 Bad Request if the NF Instance list retrieval fails due to errors in the input data in the URI query parameters.",
+    "The NRF shall return 500 Internal Server Error if the discovery request fails due to NRF internal errors.",
+    "In case of redirection, the NRF shall return a 3xx status code and include a Location header with a URI pointing to another NRF service instance.",
+    "The response body shall contain the URI of each registered NF instance that satisfies the retrieval filter criteria, conforming to the resource URI structure in clause 5.2.2.9.1.",
+    "The response body shall contain an empty list if there are no NFs to return in the query result.",
+    "The response shall include the total count of items satisfying the filter criteria."
+  ],
+  "constraints": [
+    {
+      "statement": "The NF Service Consumer shall use HTTP GET for NFListRetrieval.",
+      "evidence": [
+        "The NF Service Consumer shall send an HTTP GET request to the resource URI \"nf-instances\" collection resource."
+      ],
+      "why_interesting": "This is a directly testable method requirement.",
+      "category": "request method"
+    },
+    {
+      "statement": "The request target shall be the \"nf-instances\" collection resource URI.",
+      "evidence": [
+        "The NF Service Consumer shall send an HTTP GET request to the resource URI \"nf-instances\" collection resource."
+      ],
+      "why_interesting": "This constrains routing and endpoint selection for the API.",
+      "category": "request URI"
+    },
+    {
+      "statement": "A successful NFListRetrieval response shall return 200 OK.",
+      "evidence": [
+        "On success, \"200 OK\" shall be returned."
+      ],
+      "why_interesting": "This is the primary success status code for the operation.",
+      "category": "response status code"
+    },
+    {
+      "statement": "If the NF Service Consumer is not allowed to retrieve registered NF instances, the NRF shall return 403 Forbidden.",
+      "evidence": [
+        "If the NF Service Consumer is not allowed to retrieve the registered NF instances, the NRF shall return \"403 Forbidden\" status code."
+      ],
+      "why_interesting": "This defines the authorization failure behavior.",
+      "category": "authorization"
+    },
+    {
+      "statement": "If NFListRetrieval fails because of invalid URI query parameter input data, the NRF shall return 400 Bad Request.",
+      "evidence": [
+        "If the NF Instance list retrieval fails at the NRF due to errors in the input data in the URI query parameters, the NRF shall return \"400 Bad Request\" status code with the ProblemDetails IE providing details of the error."
+      ],
+      "why_interesting": "This is a testable client-error condition tied to query validation.",
+      "category": "input validation"
+    },
+    {
+      "statement": "If NFListRetrieval fails due to NRF internal errors, the NRF shall return 500 Internal Server Error.",
+      "evidence": [
+        "If the discovery request fails at the NRF due to NRF internal errors, the NRF shall return \"500 Internal Server Error\" status code with the ProblemDetails IE providing details of the error."
+      ],
+      "why_interesting": "This defines the server-error behavior.",
+      "category": "server error handling"
+    },
+    {
+      "statement": "If the NRF redirects the request, it shall return a 3xx status code.",
+      "evidence": [
+        "In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance."
+      ],
+      "why_interesting": "This is a directly observable redirect requirement.",
+      "category": "response status code"
+    },
+    {
+      "statement": "A redirect response shall include a Location header containing a URI for another NRF service instance endpoint.",
+      "evidence": [
+        "In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance."
+      ],
+      "why_interesting": "This constrains redirect metadata and target routing.",
+      "category": "response header"
+    },
+    {
+      "statement": "The response body shall contain the URI of each registered NF instance that matches the retrieval filter criteria.",
+      "evidence": [
+        "The response body shall contain the URI (conforming to the resource URI structure as described in clause 5.2.2.9.1) of each registered NF in the NRF that satisfy the retrieval filter criteria (e.g., all NF instances of the same NF type)"
+      ],
+      "why_interesting": "This defines the expected payload content for successful retrieval.",
+      "category": "response body"
+    },
+    {
+      "statement": "If no NF instances match the query result, the response body shall contain an empty list.",
+      "evidence": [
+        "or an empty list if there are no NFs to return in the query result (e.g., because there are no registered NFs in the NRF, or because there are no matching NFs of the type specified in the \"nf-type\" query parameter, currently registered in the NRF)."
+      ],
+      "why_interesting": "This is an observable edge-case payload requirement.",
+      "category": "response body"
+    },
+    {
+      "statement": "The response shall include the total count of items satisfying the filter criteria.",
+      "evidence": [
+        "The total count of items satisfying the filter criteria (e.g. \"nf-type\") should be returned in the response."
+      ],
+      "why_interesting": "This is a useful pagination/counting behavior, though the source uses should rather than shall in the explanatory sentence.",
+      "category": "response body"
+    }
+  ]
+}
