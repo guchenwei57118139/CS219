@@ -1,1 +1,419 @@
-5.2	Nnrf_NFManagement Service
+5.2.1	Service Description
+The Nnrf_NFManagement service allows an NF, SCP or SEPP Instance in the serving PLMN to register, update or deregister its profile in the NRF.
+If the "Shared-Data-Registration" feature is supported, the registered, updated or deregistered profile may contain shared data IDs. The corresponding shared data are either locally configured at the NRF by means of OAM, or are registered, updated or deregistered by the NF. In deployments where shared data are locally configured at the NRF by means of OAM support of shared data registration, update and deletion by means of the Nnrf_NFManagement service is not a required part of the "Shared-Data-Registration" feature.
+NOTE:	Shared Data can be used e.g. by NFs belonging to an NF Set to optimize Nnrf signalling. Alternatively, other means such as OA&M can also be used to register, update or deregister shared data belonging or not belonging to an NF Set in the NRF.
+If the "Shared-Data-Retrieval" feature is supported, it allows consumers to retrieve shared data, subscribe and un-subscribe to shared data modification notifications and get notified when shared data are modified.
+The Nnrf_NFManagement service also allows an NRF Instance to register, update or deregister its profile in another NRF in the same PLMN.
+NOTE:	Alternatively, other means such as OA&M can also be used to register, update or deregister NRF profile in another NRF.
+It also allows an NF or an SCP to subscribe to be notified of registration, deregistration and profile changes of NF Instances, along with their potential NF services, or of SEPP instances. It also enables an SCP to subscribe to be notified of registration, deregistration and profile changes of other SCP instances.
+The NF profile consists of general parameters of the NF Instance, and also the parameters of the different NF Service Instances exposed by the NF Instance, if applicable.
+The PLMN of the NRF may comprise one or multiple PLMN IDs (i.e. MCC and MNC). An NRF configured with multiple PLMN IDs shall support registering, updating and deregistering the profile of Network Function Instances from any of these PLMN IDs.
+The Nnrf_NFManagement service also allows retrieving a list of NF, SCP or SEPP Instances currently registered in the NRF or the NF Profile of a given NF, SCP or SEPP Instance.
+The Nnrf_NFManagement service also allows checking whether the registered NFs, SCPs and SEPPs are operative.
+
+5.2.2	Service Operations
+5.2.2.1	Introduction
+The services operations defined for the Nnrf_NFManagement service are as follows:
+-	NFRegister: It allows an NF, SCP or SEPP Instance to register its profile in the NRF; it includes the registration of the general parameters of the NF, SCP or SEPP Instance, together with the list of potential services exposed by the NF Instance. This service operation is not allowed to be invoked from an NRF in a different PLMN.
+If the "Shared-Data-Registration" feature is supported, the registered profile may contain shared data Ids identifying shared data, and the operation also allows consumers to register shared data in the NRF. In deployments where shared data are locally configured at the NRF by means of OAM, support of shared data registration by means of the Nnrf_NFManagement service is not a required part of the "Shared-Data-Registration" feature.
+-	NFUpdate: It allows an NF, SCP or SEPP Instance to replace, or update partially, the parameters of its profile (including the parameters of the associated services, if any) in the NRF; it also allows to add or delete individual services offered by the NF Instance. This service operation is not allowed to be invoked from an NRF in a different PLMN.
+If the "Shared-Data-Registration" feature is supported, it also allows consumers to update shared data in the NRF. In deployments where shared data are locally configured at the NRF by means of OAM, support of shared data update by means of the Nnrf_NFManagement service is not a required part of the "Shared-Data-Registration" feature.
+-	NFDeregister: It allows an NF, SCP or SEPP Instance to deregister its profile in the NRF, including the services offered by the NF Instance, if any. This service operation is not allowed to be invoked from an NRF in a different PLMN.
+If the "Shared-Data-Registration" feature is supported, it also allows consumers to deregister shared data in the NRF. In deployments where shared data are locally configured at the NRF by means of OAM, support of shared data de-registration by means of the Nnrf_NFManagement service is not a required part of the "Shared-Data-Registration" feature.
+-	NFStatusSubscribe: It allows an NF or SCP Instance to subscribe to changes on the status of NF or SEPP Instances registered in NRF. It also allows an SCP Instance to subscribe to changes on the status of other SCP Instances registered in NRF. This service operation can be invoked by an NF Instance in a different PLMN (via the local NRF in that PLMN) for changes on the status of NF Instances. It cannot be invoked by an SCP instance in a different PLMN. For changes on the status of SEPP Instance, this operation can only be invoked between the NRF and an NF Instance or SCP in the same PLMN.
+If the "Shared-Data-Retrieval" feature is supported, it also allows NF service consumers to create or update subscriptions to shared data change notifications in the NRF.
+-	NFStatusNotify: It allows the NRF to notify subscribed NF or SCP Instances of changes on the status of NF or SEPP Instances. It also allows the NRF to notify subscribed SCP Instances of changes on the status of SCP Instances. This service operation can be invoked directly between the NRF and an NF Instance in a different PLMN (without involvement of the local NRF in that PLMN) for changes on the status of NF Instances. It cannot be invoked between the NRF and an SCP instance in a different PLMN. For changes on the status of SEPP Instance, this operation can only be invoked between the NRF and an NF Instance or SCP in the same PLMN.
+If the "Shared-Data-Retrieval" feature is supported, it also allows NF service consumers to be notified of the shared data changes in the NRF.
+-	NFStatusUnsubscribe: It allows an NF or SCP Instance to unsubscribe to changes on the status of NF or SEPP Instances registered in NRF. It also allows an SCP Instance to unsubscribe to changes on the status of other SCP Instances registered in NRF. This service operation can be invoked by an NF Instance in a different PLMN (via the local NRF in that PLMN) for changes on the status of NF Instances. It cannot be invoked by an SCP instance in a different PLMN. For changes on the status of SEPP Instance, this operation can only be invoked between the NRF and an NF Instance or SCP in the same PLMN.
+If the "Shared-Data-Retrieval" feature is supported, it also allows NF service consumers to delete subscriptions to shared data change notifications in the NRF.
+NOTE 1:	The "change of status" of the NFStatus service operations can imply a request to be notified of newly registered NF, SCP or SEPP Instances in NRF, or to be notified of profile changes of a specific NF, SCP or SEPP Instance, or to be notified of the deregistration of an NF, SCP or SEPP Instance.
+NOTE 2:	An NRF instance can also use the NFRegister, NFUpdate or NFDeregister service operations or OA&M system to register, update or deregister its profile in another NRF in the same PLMN.
+-	NFListRetrieval: It allows retrieving a list of NFs, SCPs and SEPPs currently registered in the NRF. This service operation is not allowed to be invoked from an NRF in a different PLMN.
+-	NFProfileRetrieval: It allows retrieving the profile of a given NF, SCP or SEPP instance. This service operation is not allowed to be invoked from an NRF in a different PLMN.
+-	SharedDataRetrieval: If the "Shared-Data-Retrieval" feature is supported, it allows NF service consumers to retrieve shared data from the NRF.
+-	SharedDataListRetrieval: If the "Shared-Data-Retrieval" feature is supported, it allows NF service consumers to retrieve a list of shared data from the NRF.
+The NFStatusSubscribe / NFstatusNotify / NFStatusUnsubscribe operations can be invoked by an NF Service Consumer (i.e., "source NF" or "SCP") requesting to be notified about events (registration, deregistration, profile change) related to an NF instance (i.e., "target NF") located in the same PLMN, or in a different PLMN, or related to a SEPP instance located in the same PLMN. An SCP can also invoke these operations to be notified about events (registration, deregistration, profile change) related to an SCP instance or SEPP instance located in the same PLMN.
+In the description of these operations in clauses 5.2.2.5, 5.2.2.6 and 5.2.2.7, when the NF instances are located in the same PLMN, both source NF and target NF are said to be located in the "Serving PLMN" but, in the general case, the functionality is not restricted to the PLMN that is serving a given UE, and it shall be applicable as well to any scenario in which source NF and target NFs belong to the same PLMN.
+When source NF and target NF are located in different PLMNs, the source NF is said to be in the "Serving PLMN", and the target NF (and the NRF where such NF is registered) is said to be in the "Home PLMN", similarly to the scenarios described in 3GPP TS 23.502 [3], but the functionality shall be equally applicable to any scenario between any pair of PLMNs (e.g. with the source NF in the Home PLMN and the target NF in the Serving PLMN).
+The SCP and SEPP are treated by the Nnrf_NFManagement service in the same way as NFs. Specifically, the SCP and SEPP are designated with a specific NF type and NF Instance ID. However, the SCP and SEPP do not support services. Accordingly, references to "NF" or "NF Profile" in the description of the service operations in the following clauses also apply to an SCP and SEPP.
+An NRF may be part of an NRF set, whereby all NRF instances of the NRF Set share the same context data (e.g. registered NF profiles, NF status subscriptions). If so:
+-	the NF Service Consumer may be configured with the NRF Set ID or it may discover the same in the NRF Bootstrapping response.
+-	The NF Service Consumer may register with any of the NRF Instance of the NRF Set. If the NRF instance where an NF Service Consumer registered is down, the NF Service Consumer needs not re-register to any new NRF instance within the NRF Set.
+-	The NRF may provide a binding indication to the NF service consumer, e.g. when the NF Service Consumer registers or updates its NF profile in the NRF or when it issues heartbeat requests, to indicate a preferred binding of the NF Service Consumer to one NRF instance within the NRF set, e.g. based on the location or data center of the registering/registered NF Service Consumer.
+NOTE 3:	The NF Service Consumer can retrieve the NRF Set Information from the NRF via the Nnrf_NFDiscovery service as specified in clause 5.3.2.1.
+5.2.2.2	NFRegister
+5.2.2.2.1	General
+This service operation is used:
+-	to register an NF in the NRF by providing the NF profile of the requesting NF to the NRF, and the NRF marks the requesting NF as available to be discovered by other NFs;
+-	to register services associated to an existing NF Instance;
+-	to register NRF information in another NRF, and this information is used for forwarding or redirecting service discovery request.
+If the "Shared-Data-Registration" feature is supported, this service operation is also used in deployments where shared data are not locally configured at the NRF:
+-	to provide shared data to the NRF.
+5.2.2.2.2	NF (other than NRF) registration to NRF
+
+Figure 5.2.2.2.2-1: NF Instance Registration
+1.	The NF Service Consumer shall send a PUT request to the resource URI representing the NF Instance. The URI is determined by the NF Instance. The variable {nfInstanceID} represents an identifier, provided by the NF Service Consumer that shall be globally unique inside the PLMN of the NRF where the NF is being registered. The format of the NF Instance ID shall be a Universally Unique Identifier (UUID) version 4, as described in IETF RFC 9562 [18].
+The UUIDs in URIs, HTTP request content and HTTP response content should be formatted using lower-case hexadecimal digits; if the NF Service Consumer sends a request where the UUIDs are formatted with upper-case hexadecimal letters, the NRF shall handle it as if the request had been formatted with lower-case characters.
+EXAMPLE:	UUID version 4: "4947a69a-f61b-4bc1-b9da-47c9c5d14b64"
+The content of the PUT request shall contain a representation of the NF Instance to be created.
+2a.	On success, "201 Created" shall be returned, the content of the PUT response shall contain the representation of the created resource and the "Location" header shall contain the URI of the created resource. Additionally, the NRF returns a "heart-beat timer" containing the number of seconds expected between two consecutive heart-beat messages from an NF Instance to the NRF (see clause 5.2.2.3.2). The representation of the created resource may be a complete NF Profile or a NF Profile just including the mandatory attributes of the NF Profile and the attributes which the NRF added or changed (see Annex B).
+2b.	On failure or redirection:
+-	If the registration of the NF instance fails at the NRF due to errors in the encoding of the NFProfile JSON object, the NRF shall return "400 Bad Request" status code with the ProblemDetails IE providing details of the error.
+-	If the registration of the NF instance fails at the NRF due to unknown Shared Data IDs received in the NFProfile, the NRF shall return "400 Bad Request" status code with the ProblemDetails IE providing details of the error.
+The Application Error SHARED_DATA_ID_UNKNOWN shall be used by NRFs that are deployed without shared data being locally configured by means of OAM. In this case the unknown shared data IDs shall be conveyed together with the ProblemDetails IE to the NF service consumer. The NF service consumer may then register the unknown shared data at the NRF and retry registering.
+The Application Error SHARED_DATA_NOT_CONFIGURED shall be used by NRFs that are deployed with local configuration of shared data by means of OAM. The NF service consumer may retry registering without making use of shared data IDs in the NF Profile, or the registration is unsuccessful due to network misconfiguration.
+-	If the registration of the NF instance fails at the NRF due to NRF internal errors, the NRF shall return "500 Internal Server Error" status code with the ProblemDetails IE providing details of the error.
+-	In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance.
+The NRF shall allow the registration of a Network Function instance with any of the NF types described in clause 6.1.6.3.3, and it shall also allow registration of Network Function instances with custom NF types (e.g., NF type values not defined by 3GPP, or NF type values not defined by this API version).
+NOTE 1:	When registering a custom NF in NRF, it is recommended to use a NF type name that prevents collisions with other custom NF type names, or with NF types defined in the future by 3GPP. E.g., prefixing the custom NF type name with the string "CUSTOM_".
+During the registration of a Network Function instance with a custom NF type, the NF instance may provide NF-specific data (in the "customInfo" attribute), that shall be stored by the NRF as part of the NF profile of the NF instance.
+The NRF shall accept the registration of NF Instances containing Vendor-Specific attributes (see 3GPP TS 29.500 [4], clause 6.6.3), and therefore, it shall accept NF Profiles containing attributes whose type may be unknown to the NRF, and those attributes shall be stored as part of the NF's profile data in NRF.
+Before an NF Instance registers its NF Profile in NRF, the NF Instance should check the capabilities of the NRF by issuing an OPTIONS request to the "nf-instances" resource (see clause 6.1.3.2.3.2), unless the NF Instance already sent a Bootstrapping Request to the NRF and received the nrfFeatures attribute in the response. The NRF may indicate in the response capabilities such as the support of receiving compressed content in the HTTP PUT request used for registration of the NF Profile, or support of specific attributes of the NF Profile.
+NOTE 2:	A Rel-16 NF needs to register the list of NF Service Instances in the "nfServices" array attribute towards an NRF not supporting the Service-Map feature (i.e. a Rel-15 NRF).
+5.2.2.2.3	NRF registration to another NRF
+The procedure specified in clause 5.2.2.2.2 applies. Additionally:
+a)	the registering NRF shall set the nfType to "NRF" in the nfProfile;
+b)	the registering NRF shall set the nfService to contain "nnrf-disc", "nnrf-nfm" and optionally "nnrf-oauth2" in the nfProfile;
+c)	the registering NRF may include nrfInfo which contains the information of e.g. udrInfo, udmInfo, ausfInfo, amfInfo, smfInfo, upfInfo, pcfInfo, bsfInfo, nefInfo, chfInfo, pcscfInfo, lmfInfo, gmlcInfo, aanfInfo, nfInfo and nsacfInfo in the nfProfile locally configured in the NRF or the NRF received during registration of other NFs, this means the registering NRF is able to provide service for discovery of NFs subject to that information;
+d)	if the NRF receives an NF registration with the nfType set to "NRF", the NRF shall use the information contained in the nfProfile to target the registering NRF when forwarding or redirecting NF service discovery request.
+5.2.2.2.4	Shared Data registration to NRF
+Support of this service operation is not required in deployments where shared data are locally configured at the NRF.
+
+Figure 5.2.2.2.4-1: Shared Data Registration
+1.	If the feature "Shared-Data-Registration" is supported, the NF Service Consumer shall send a PUT request to the resource URI representing the Shared Data. The variable {sharedDataId} represents an identifier, provided by the NF Service Consumer that shall be globally unique inside the PLMN of the NRF where the NF is being registered. The format of the sharedDataId shall be a Universally Unique Identifier (UUID) version 4, as described in IETF RFC 9562 [18].
+The UUIDs in URIs, HTTP request content and HTTP response content should be formatted using lower-case hexadecimal digits; if the NF Service Consumer sends a request where the UUIDs are formatted with upper-case hexadecimal letters, the NRF shall handle it as if the request had been formatted with lower-case characters.
+EXAMPLE:	UUID version 4: "4947a69a-f61b-4bc1-b9da-47c9c5d14b64"
+The content of the PUT request shall contain a representation of the SharedData to be created.
+2a.	On success, "201 Created" shall be returned, the content of the PUT response shall contain the representation of the created resource and the "Location" header shall contain the URI of the created resource.
+2b.	On failure or redirection:
+-	If the registration of the Shared Data fails at the NRF due to errors in the encoding of the SharedData JSON object, the NRF shall return "400 Bad Request" status code with the ProblemDetails IE providing details of the error.
+-	If the Shared Data is not authorized with write access to the requesting NF (e.g. the Shared Data is shared to one specific NF Set while the requesting NF is not in that NF Set), the NRF shall return "403 Forbidden" status code with the ProblemDetails IE providing details of the error.
+-	If the registration of the Shared Data fails at the NRF due to NRF internal errors, the NRF shall return "500 Internal Server Error" status code with the ProblemDetails IE providing details of the error.
+-	In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance.
+5.2.2.3	NFUpdate
+5.2.2.3.1	General
+This service operation updates the profile of a Network Function previously registered in the NRF by providing the updated NF profile of the requesting NF to the NRF. The update operation may apply to the whole profile of the NF (complete replacement of the existing profile by a new profile), or it may apply only to a subset of the parameters of the profile (including adding/deleting/replacing services to the NF profile).
+If the feature "Shared-Data-Registration" is supported, this service operation may be used to update Shared Data previously created in the NRF by providing the updated shared data to the NRF. The update operation may apply to the whole shared data (complete replacement), or it may apply only to a subset of parameters of the shared data.
+5.2.2.3.1A	NF Profile Complete replacement
+To perform a complete replacement of the NF Profile of a given NF Instance, the NF Service Consumer shall issue an HTTP PUT request, as shown in Figure 5.2.2.3.1A-1:
+
+Figure 5.2.2.3.1A-1: NF Profile Complete Replacement
+1.	The NF Service Consumer shall send a PUT request to the resource URI representing the NF Instance. The content of the PUT request shall contain a representation of the NF Instance to be completely replaced in the NRF.
+2a.	On success, "200 OK" shall be returned, the content of the PUT response shall contain the representation of the replaced resource. The representation of the replaced resource may be a complete NF Profile or a NF Profile just including the mandatory attributes of the NF Profile and the attributes which the NRF added or changed (see Annex B).
+2b.	On failure or redirection:
+-	If the update of the NF instance fails at the NRF due to errors in the encoding of the NFProfile JSON object, the NRF shall return "400 Bad Request" status code with the ProblemDetails IE providing details of the error.
+-	If the update of the NF instance fails at the NRF due to NRF internal errors, the NRF shall return "500 Internal Server Error" status code with the ProblemDetails IE providing details of the error.
+-	In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance.
+5.2.2.3.1B	NF Profile Partial Update
+To perform a partial update of the NF Profile of a given NF Instance, the NF Service Consumer shall issue an HTTP PATCH request, as shown in Figure 5.2.2.3.1B-2. This partial update shall be used to add/delete/replace individual parameters of the NF Instance, and also to add/delete/replace any of the services (and their parameters) offered by the NF Instance.
+
+Figure 5.2.2.3.1B-2: NF Profile Partial Update
+1.	The NF Service Consumer shall send a PATCH request to the resource URI representing the NF Instance. The content of the PATCH request shall contain the list of operations (add/delete/replace) to be applied to the NF Profile of the NF Instance; these operations may be directed to individual parameters of the NF Profile or to the list of services (and their parameters) offered by the NF Instances. In order to leave the NF Profile in a consistent state, all the operations specified by the PATCH request body shall be executed atomically.
+The NF Service Consumer should include a "If-Match" HTTP header carrying the latest entity-tag received from NRF for the NF profile to which the PATCH document shall be applied.
+2a.	On success, if all update operations are accepted by the NRF, "204 No Content" should be returned; the NRF may instead return "200 OK" with the content of the PATCH response containing the representation of the replaced resource. The representation of the replaced resource may be a complete NF Profile or a NF Profile just including the mandatory attributes of the NF Profile and the attributes which the NRF added or changed (see Annex B).
+2b.	On failure or redirection:
+-	If the NF Instance, identified by the "nfInstanceID", is not found in the list of registered NF Instances in the NRF's database, the NRF shall return "404 Not Found" status code with the ProblemDetails IE providing details of the error.
+-	In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance.
+-	If "If-Match" header is received with an entity tag different from the entity-tag in NRF for NF profile of the target NF instance, the NRF shall return "412 Precondition Failed" status code with the ProblemDetails IE providing details of the error.
+-	If no precondition was defined in the request and another confliction has been detected (e.g. to change value of a non-existing IE), the NRF shall return "409 Conflicting" status code with the ProblemDetails IE providing details of the error.
+The NRF shall allow updating Vendor-Specific attributes (see 3GPP TS 29.500 [4], clause 6.6.3) that may exist in the NF Profile of a registered NF Instance.
+5.2.2.3.1C	Shared Data Complete replacement
+Support of this service operation is not required in deployments where shared data are locally configured at the NRF.
+Complete replacement of shared data is triggered by means of OA&M configuration actions. This action must be performed in a consistent way, i.e. at all NF Service Consumers that share the shared data. In addition, OA&M must ensure that only one NF Service Consumer conveys the complete replacement towards the NRF.
+To perform a complete replacement of the Shared Data, the NF Service Consumer shall issue an HTTP PUT request, as shown in Figure 5.2.2.3.1C-1.
+
+Figure 5.2.2.3.1C-1: Shared Data Complete Replacement
+1.	The NF Service Consumer shall send a PUT request to the resource URI representing the Shared Data. The content of the PUT request shall contain a representation of the Shared Data to be completely replaced in the NRF.
+2a.	On success, either "200 OK" shall be returned, the content of the PUT response shall contain the representation of the replaced resource, or "204 No Content" shall be returned.
+2b.	On failure or redirection:
+-	If the update of the Shared Data fails at the NRF due to errors in the encoding of the SharedData JSON object, the NRF shall return "400 Bad Request" status code with the ProblemDetails IE providing details of the error.
+-	If the Shared Data is not authorized with write access to the requesting NF (e.g. the Shared Data is shared to one specific NF Set while the requesting NF is not in that NF Set), the NRF shall return "403 Forbidden" status code with the ProblemDetails IE providing details of the error.
+-	If the update of the Shared Data fails at the NRF due to NRF internal errors, the NRF shall return "500 Internal Server Error" status code with the ProblemDetails IE providing details of the error.
+-	In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance.
+5.2.2.3.1D	Shared data Partial Update
+Support of this service operation is not required in deployments where shared data are locally configured at the NRF.
+Partial update of shared data is triggered by means of OA&M configuration actions. This action must be performed in a consistent way, i.e. at all NF Service Consumers that share the shared data. In addition, OA&M must ensure that only one NF Service Consumer conveys the partial update towards the NRF.
+To perform a partial update of the Shared Data, the NF Service Consumer shall issue an HTTP PATCH request, as shown in Figure 5.2.2.3.1D-1. This partial update shall be used to add/delete/replace individual parameters of the Shared Data.
+
+Figure 5.2.2.3.1D-1: Shared Data Partial Update
+1.	The NF Service Consumer shall send a PATCH request to the resource URI representing the Shared Data. The content of the PATCH request shall contain the list of operations (add/delete/replace) to be applied to the Shared Data; these operations may be directed to individual parameters of the Shared Data. In order to leave the Shared Data in a consistent state, all the operations specified by the PATCH request body shall be executed atomically.
+The NF Service Consumer should include a "If-Match" HTTP header carrying the latest entity-tag received from NRF for the Shared Data to which the PATCH document shall be applied.
+2a.	On success, if all update operations are accepted by the NRF, "204 No Content" should be returned; the NRF may instead return "200 OK" with the content of the PATCH response containing the representation of the replaced resource.
+2b.	On failure or redirection:
+-	If the Shared Data, identified by the "sharedDataId", is not found in the NRF's database, the NRF shall return "404 Not Found" status code with the ProblemDetails IE providing details of the error.
+-	If the Shared Data is not authorized with write access to the requesting NF (e.g. the Shared Data is shared to one specific NF Set while the requesting NF is not in that NF Set), the NRF shall return "403 Forbidden" status code with the ProblemDetails IE providing details of the error.
+-	In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance.
+-	If "If-Match" header is received with an entity tag different from the entity-tag in NRF for NF profile of the target NF instance, the NRF shall return "412 Precondition Failed" status code with the ProblemDetails IE providing details of the error.
+-	If no precondition was defined in the request and another confliction has been detected (e.g. to change value of a non-existing IE), the NRF shall return "409 Conflicting" status code with the ProblemDetails IE providing details of the error.
+5.2.2.3.2	NF Heart-Beat
+Each NF that has previously registered in NRF shall contact the NRF periodically (heart-beat), by invoking the NFUpdate service operation, in order to show that the NF is still operative.
+The time interval at which the NRF shall be contacted is deployment-specific, and it is returned by the NRF to the NF Service Consumer as a result of a successful registration.
+When the NRF detects that a given NF has not updated its profile for a configurable amount of time (longer than the heart-beat interval), the NRF changes the status of the NF to SUSPENDED and considers that the NF and its services can no longer be discovered by other NFs via the NFDiscovery service. The NRF notifies NFs subscribed to receiving notifications of changes of the NF Profile that the NF status has been changed to SUSPENDED.
+If the NRF modifies the heart-beat interval value of a given NF instance currently registered (e.g. as a result of an OA&M operation), it shall return the new value to the registered NF in the response of the next periodic heart-beat interaction received from that NF and, until then, the NRF shall apply the heart-beat check procedure according to the original interval value.
+
+Figure 5.2.2.3.2-1: NF Heart-Beat
+1.	The NF Service Consumer shall send a PATCH request to the resource URI representing the NF Instance. The content of the PATCH request shall contain a "replace" operation on the "nfStatus" attribute of the NF Profile of the NF Instance, and set it to the value "REGISTERED" or "UNDISCOVERABLE".
+In addition, the NF Service Consumer may also provide the load information of the NF, and/or the load information of the NF associated NF services. The provision of such load information may be limited by this NF via appropriate configuration (e.g. granularity threshold, load exceeds/falls below a certain threshold) in order to avoid notifying minor load changes.
+The NF Service Consumer shall not include "If-Match" HTTP header in the Heart-Beat request if the request is not modifying any attribute in the NF profile.
+2a.	On success, the NRF should return "204 No Content"; the NRF may also answer with "200 OK" along with the full NF Profile, e.g. in cases where the NRF determines that the NF Profile has changed significantly since the last heart-beat, and wants to send the new profile to the NF Service Consumer (note that this alternative has bigger signalling overhead).
+The NRF shall not generate a new entity tag for the NF profile in Heart-Beat operation if no attribute is modified.
+2b.	On failure or redirection:
+-	If the NF Instance, identified by the "nfInstanceID", is not found in the list of registered NF Instances in the NRF's database, the NRF shall return "404 Not Found" status code with the ProblemDetails IE providing details of the error.
+-	In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance.
+EXAMPLE:
+PATCH .../nf-instances/4947a69a-f61b-4bc1-b9da-47c9c5d14b64
+Content-Type: application/json-patch+json
+
+[
+{ "op": "replace", "path": "/nfStatus", "value": "REGISTERED" },
+{ "op": "replace", "path": "/load", "value": 50 }
+]
+
+
+HTTP/2 204 No Content
+Content-Location: .../nf-instances/4947a69a-f61b-4bc1-b9da-47c9c5d14b64
+
+5.2.2.4	NFDeregister
+5.2.2.4.1	General
+This service operation removes the profile of a Network Function previously registered in the NRF.
+If the "Shared-Data" feature is supported, this service operation removes the shared data previously registered in the NRF.
+5.2.2.4.2	NF Instance Deregistration
+It is executed by deleting a given resource identified by a "NF Instance ID". The operation is invoked by issuing a DELETE request on the URI representing the specific NF Instance.
+
+Figure 5.2.2.4.2-1: NF Instance Deregistration
+1.	The NF Service Consumer shall send a DELETE request to the resource URI representing the NF Instance. The request body shall be empty.
+2a.	On success, "204 No Content" shall be returned. The response body shall be empty.
+2b.	On failure or redirection:
+-	If the NF Instance, identified by the "nfInstanceID", is not found in the list of registered NF Instances in the NRF's database, the NRF shall return "404 Not Found" status code with the ProblemDetails IE providing details of the error.
+-	In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance.
+5.2.2.4.3	Shared Data Deregistration
+Support of this service operation is not required in deployments where shared data are locally configured at the NRF.
+It is executed by deleting a given resource identified by a "sharedDataId". The operation is invoked by issuing a DELETE request on the URI representing the specific Shared Data.
+
+Figure 5.2.2.4.3-1: Shared Data Deregistration
+1.	The NF Service Consumer shall send a DELETE request to the resource URI representing the Shared Data. The request body shall be empty.
+2a.	On success, "204 No Content" shall be returned. The response body shall be empty.
+2b.	On failure or redirection:
+-	If the Shared Data, identified by the "sharedDataId", is not found in the NRF's database, the NRF shall return "404 Not Found" status code with the ProblemDetails IE providing details of the error.
+-	If the Shared Data is not authorized with write access to the requesting NF (e.g. the Shared Data is shared to one specific NF Set while the requesting NF is not in that NF Set), the NRF shall return "403 Forbidden" status code with the ProblemDetails IE providing details of the error.
+-	In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance.
+5.2.2.5	NFStatusSubscribe
+5.2.2.5.1	General
+This service operation is used to:
+-	create a subscription so an NF Service Consumer can request to be notified when NF Instances of a given set, following certain filter criteria are registered/deregistered in NRF or when their profile is modified;
+-	create a subscription to a specific NF Instance so an NF Service Consumer can request to be notified when the profile of such NF Instance is modified or when the NF Instance is deregistered from NRF.
+If the "Shared-Data-Retrieval" feature is supported, this service operation may also be used to create or update subscription to the shared NF profile changes in the NRF.
+5.2.2.5.2	Subscription to NF Instances in the same PLMN
+The subscription to notifications on NF Instances is executed creating a new individual resource under the collection resource "subscriptions". The operation is invoked by issuing a POST request on the URI representing the "subscriptions" resource.
+
+Figure 5.2.2.5.2-1: Subscription to NF Instances in the same PLMN
+1.	The NF Service Consumer shall send a POST request to the resource URI representing the "subscriptions" collection resource. The custom HTTP header "3gpp-Sbi-Notif-Accepted-Encoding", as defined in 3GPP TS 29.500 [4] clause 5.2.3.3.6, may be included to indicate the content-encodings supported by the NF Service Consumer receiving the notification.
+The request body shall include the data indicating the type of notifications that the NF Service Consumer is interested in receiving; it also contains a callback URI, where the NF Service Consumer shall be prepared to receive the actual notification from the NRF (see NFStatusNotify operation in 5.2.2.6) and it may contain a validity time, suggested by the NF Service Consumer, representing the time span during which the subscription is desired to be kept active. When the NF Service Consumer creates multiple subscriptions in the NRF, it should use distinct callback URIs for each subscription.
+The subscription request may also include additional parameters indicating the list of attributes (including Vendor-Specific attributes, see 3GPP TS 29.500 [4], clause 6.6.3) in the NF Profile to be monitored (or to be excluded from monitoring), in order to determine whether a notification from NRF should be sent, or not, when any of those attributes is changed in the profile.
+The NF Service Consumer may request the creation of a subscription to a specific NF Instance, or to a set of NF Instances, where the set is determined according to different criteria specified in the request body, in the "subscrCond" attribute of the "SubscriptionData" object type (see clause 6.1.6.2.16).
+The subscription shall be authorized, or rejected, by the NRF by checking the relevant input attributes (e.g. reqNfType, reqNfFqdn, reqSnssais, reqPerPlmnSnssais, reqPlmnList, reqSnpnList, etc.) in the subscription request body (along with the contents of any optional Oauth2 access token provided in the API request) against the list of authorization attributes in the NF Profile of the target NF Instance to be monitored.
+An SCP may request a subscription to the complete profile of NF Instances (including, e.g. the authorization attributes of the target NF Instances to be monitored). Upon receiving such a request, the NRF shall verify that the requesting entity is authorized to subscribe to the complete profile of NF instances, based on local policies or the receipt of an Oauth2 access token granting such permission. If the requesting entity is not authorized to do so, the NRF shall reject the request or handle it as a subscription request without access to the complete profile.
+When the subscription request is for a set of NFs, the authorization attributes of the NF Instances in the set may differ, resulting in positive authorization of the subscription for only a part of the NF Instances in the set; in that case, the subscription to the set of NFs may be accepted by the NRF, but the NF Instances in the set that are not authorized for the NF Service Consumer that requested the subscription, shall not result in triggering any notification event from the NRF to the NF Service Consumer.
+2a.	On success, "201 Created" shall be returned. The response shall contain the data related to the created subscription, including the validity time, as determined by the NRF, after which the subscription becomes invalid. Once the subscription expires, if the NF Service Consumer wants to keep receiving status notifications, it shall create a new subscription in the NRF.
+2b.	On failure or redirection:
+-	If the creation of the subscription fails at the NRF due to errors in the SubscriptionData JSON object in the request body, the NRF shall return "400 Bad Request" status code with the ProblemDetails IE providing details of the error. E.g., the NRF may verify that the input attributes (e.g. reqNfType) in the subscription request match with the corresponding ones in, e.g. the public key certificate of the NF service consumer received during TLS initial handshake procedure (see 3GPP TS 33.310 [50]). If the verification is unsuccessful, the request shall be rejected with "400 Bad Request" status code and the "cause" attribute set to "INVALID_CLIENT".
+-	If the creation of the subscription fails at the NRF due to NRF internal errors, the NRF shall return "500 Internal Server Error" status code with the ProblemDetails IE providing details of the error.
+-	In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance.
+5.2.2.5.3	Subscription to NF Instances in a different PLMN
+The subscription to notifications on NF Instances in a different PLMN is done by creating a resource under the collection resource "subscriptions", in the NRF of the Home PLMN.
+For that, step 1 in clause 5.2.2.5.2 is executed (send a POST request to the NRF in the Serving PLMN); this request shall include the identity of the PLMN of the home NRF in the SubscriptionData parameter in the request body.
+If the NRF in Serving PLMN knows that Oauth2-based authorization is required for accessing the NFManagement service of the NRF in Home PLMN, e.g. by learning this during an earlier Bootstrapping procedure or local configuration, and if the request received at the NRF in Serving PLMN does not include an access token, the NRF in Serving PLMN may reject the request with a 401 Unauthorized as specified in clause 6.7.3 of 3GPP TS 29.500 [4].
+Then, steps 1-2 in Figure 5.2.2.5.3-1 are executed, between the NRF in the Serving PLMN and the NRF in the Home PLMN. In this step, the PLMN ID may be present in the SubscriptionData parameter. The NRF in the Home PLMN returns a subscriptionID identifying the created subscription.
+Finally, step 2 in clause 5.2.2.5.2 is executed; a new subscriptionID shall be generated by the NRF in the Serving PLMN as indicated in step 2 of Figure 5.2.2.5.3-1, and shall be sent to the NF Service Consumer in the Serving PLMN.
+
+Figure 5.2.2.5.3-1: Subscription to NF Instances in a different PLMN
+1.	The NRF in Serving PLMN shall send a POST request to the resource URI in the NRF in Home PLMN representing the "subscriptions" collection resource. The request body shall include the SubscriptionData as received by the NRF in Serving PLMN from the NF Service Consumer in the Serving PLMN (see 5.2.2.5.2), containing the data about the type of notifications that the NF Service Consumer is interested in receiving and the callback URI where the NF Service Consumer shall be prepared to receive the notifications from the NRF (see NFStatusNotify operation in 5.2.2.6).
+2a.	On success, "201 Created" shall be returned. If the subscription is created in a different NRF in the HPLMN than the NRF in the HPLMN that receives the subscription request, the latter should include information in the subscriptionID (after the first 5 or 6 digits and "-") such as to be able to forward the subsequent subscription modification or deletion request it may receive from the NRF in the serving PLMN towards the NRF in the HPLMN holding the subscription. The information to be included in the subscriptionID is left to implementation.
+If the Home NRF is located in a PLMN:
+The NRF in Serving PLMN should not keep state for this created subscription and shall send to the NF Service Consumer in Serving PLMN (step 2 in 5.2.2.5.2) a subscriptionID that shall consist on the following structure: <MCC>+<MNC>+"-"+<OriginalSubscriptionID>
+If the Home NRF is located in an SNPN:
+<MCC>+<MNC>+"-"+"x3Lf57A"+":nid="+<NID>+":"+<OriginalSubscriptionID>
+NOTE:	The fixed 7-character string "x3Lf57A" is used to prevent accidental collisions with subscription IDs generated according to earlier versions of this specification, where the subscription ID could only contain MCC and MNC values; this mechanism is commonly known as "magic cookie".
+EXAMPLE 1:	If the NRF in a Home PLMN (where MCC = 123, and MNC=456) creates a subscription with value "subs987654", the subscriptionID that the NRF in Serving PLMN would send to the NF Service Consumer in Serving PLMN is: "123456-subs987654"
+EXAMPLE 2:	If the NRF in an SNPN (where MCC = 321, MNC = 654 and NID = 023f245ac42) creates a subscription with value "subs987654", the subscriptionID that the NRF in Serving PLMN would send to the NF Service Consumer in Serving PLMN is:
+"321654-x3Lf57A:nid=023f245ac42:subs987654".
+The URI in the Location header that the NRF in Serving PLMN returns to the NF Service Consumer in Serving PLMN shall contain a <subscriptionId> modified as described above and, if it is as an absolute URI, an apiRoot pointing to the address of the NRF in Serving PLMN. The subscriptionId attribute in the message body that the NRF in Serving PLMN returns to the NF Service Consumer in Serving PLMN shall also contain a <subscriptionId> modified as described above.
+2b.	On failure or redirection:
+-	If the creation of the subscription fails at the NRF due to errors in the SubscriptionData JSON object in the request body, the NRF shall return "400 Bad Request" status code with the ProblemDetails IE providing details of the error.
+-	If the creation of the subscription fails at the NRF due to NRF internal errors, the NRF shall return "500 Internal Server Error" status code with the ProblemDetails IE providing details of the error.
+-	In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance.
+5.2.2.5.4	Subscription to NF Instances with intermediate forwarding NRF
+When multiple NRFs are deployed in one PLMN, an NF Instance can subscribe to changes of NF Instances registered in an NRF to which it is not directly interacting. The subscription message is forwarded by an intermediate NRF to which the subscribing NF instance is directly interacting.
+For that, step 1 in clause 5.2.2.5.2 is executed (send a POST request to the NRF-1 in the Serving PLMN); this request shall include the SubscriptionData parameter in the request body.
+Then, steps 1-4 in Figure 5.2.2.5.4-1 are executed between NF Service Consumer in Serving PLMN, NRF-1 in Serving PLMN and NRF-2 in Serving PLMN. In thest steps, NRF-1 sends the subscription request to a pre-configured NRF-2. NRF-2 requests corresponding NRF (e.g. the NF Service Producer registered NRF) and returns a subscriptionID identifying the created subscription and this subscriptionID is sent to the NF Service Consumer via NRF-1.
+Finally, step 2 in clause 5.2.2.5.2 is executed; the subscriptionID shall be sent to the NF Service Consumer.
+
+Figure 5.2.2.5.4-1: Subscription with intermediate forwarding NRF
+1.	NRF-1 receives a subscription request and sends the subscription request to a pre-configured NRF-2. This may for example include cases where NRF-1 does not have sufficient information as determined by the operator policy to fulfill the request locally.
+2.	Upon receiving a subscription request, based on the SubscriptionData contained in the subscription request (e.g.NF type) and locally stored information (see clause 5.2.2.2.3), NRF-2 shall identify the next hop NRF and forward the subscription request to that NRF (i.e. NF Service Producer registered NRF).
+3a.	On success, "201 Created" shall be returned by NRF-2.
+3b.	On failure, i.e. if the creation of the subscription fails, the NRF-2 shall return "4XX/5XX" response.
+3c.	In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance.
+4a.	NRF-1 forwards the success response to NF Service Consumer. The content of the POST response shall contain the representation describing the status of the request and the "Location" header shall be present and shall contain the URI of the created resource. The authority and/or deployment-specific string of the apiRoot of the created resource URI may differ from the authority and/or deployment-specific string of the apiRoot of the request URI received in the POST request.
+4b.	On failure, NRF-1 forwards the error response to NF Service Consumer.
+4c.	In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance.
+5.2.2.5.5	Subscription to NF Instances with intermediate redirecting NRF
+When multiple NRFs are deployed in one PLMN, an NF Instance can subscribe to changes of NF Instances registered in another NRF. The subscription message is redirected by a third NRF.
+For that, step 1 in clause 5.2.2.5.2 is executed (send a POST request to the NRF-1 in the Serving PLMN); this request shall include the SubscriptionData parameter in the request body.
+Then, steps 2-5 in Figure 5.2.2.5.5-1 are executed between NRF-1, NRF-2 and NRF-3.
+Finally, step 2 in clause 5.2.2.5.2 is executed; the subscriptionID shall be sent to the NF Service Consumer.
+
+Figure 5.2.2.5.5-1: Subscription to NF Instances with intermediate redirecting NRF
+1.	NF Service Consumer send a subscription request to NRF-1.
+2.	NRF-1 receives a subscription request but does not have the information to fulfil the request. Then NRF-1 sends the subscription request to a pre-configured NRF-2.
+3.	Upon receiving a subscription request, based on the SubscriptionData contained in the subscription request (e.g.NF type) and locally stored information (see clause 5.2.2.2.3), NRF-2 shall identify the next hop NRF, and redirect the subscription request by returning HTTP 307 Temporary Redirect response.
+The 307 Temporary Redirect response shall contain a Location header field, the host part of the URI in the Location header field represents NRF-3.
+4.	Upon receiving 307 Temporary Redirect response, NRF-1 sends the subscription request to NRF-3 by using the URI contained in the Location header field of the 307 Temporary Redirect response.
+5a.	On success, "201 Created" shall be returned by NRF-3.
+5b.	On failure, if the creation of the subscription fails at the NRF-3, the NRF-3 shall return "4XX/5XX" response.
+6a.	On success, "201 Created" shall be forwarded to NF Service Consumer via NRF-1. The content of the POST response shall contain the representation describing the status of the request and the "Location" header shall be present and shall contain the URI of the created resource. The authority and/or deployment-specific string of the apiRoot of the created resource URI may differ from the authority and/or deployment-specific string of the apiRoot of the request URI received in the POST request.
+6b.	On failure, if the creation of the subscription fails, "4XX/5XX" shall be forwarded to NF Service Consumer via NRF-1.
+5.2.2.5.6	Update of Subscription to NF Instances
+The subscription to notifications on NF Instances may be updated to refresh the validity time, when this time is about to expire. The NF Service Consumer may request a new validity time to the NRF, and the NRF shall answer with the new assigned validity time, if the operation is successful.
+This operation is executed by updating the resource identified by "subscriptionID". It is invoked by issuing an HTTP PATCH request on the URI representing the individual resource received in the Location header field of the "201 Created" response received during a successful subscription (see clause 5.2.2.5).
+
+Figure 5.2.2.5.6-1: Subscription to NF Instances in the same PLMN
+1.	The NF Service Consumer shall send a PATCH request to the resource URI identifying the individual subscription resource. The content of the PATCH request shall contain a "replace" operation on the "validityTime" attribute of the SubscriptionData structure and shall contain a new suggested value for it; no other attribute of the resource shall be updated as part of this operation.
+2a.	On success, if the NRF accepts the extension of the lifetime of the subscription, and it accepts the requested value for the "validityTime" attribute, a response with status code "204 No Content" shall be returned.
+2b.	On success, if the NRF accepts the extension of the lifetime of the subscription, but it assigns a validity time different than the value suggested by the NF Service Consumer, a "200 OK" response code shall be returned. The response shall contain the new resource representation of the "subscription" resource, which includes the new validity time, as determined by the NRF, after which the subscription becomes invalid.
+2c.	On failure or redirection:
+-	If the update of the subscription fails at the NRF due to errors in the JSON Patch object in the request body, the NRF shall return "400 Bad Request" status code with the ProblemDetails IE providing details of the error.
+-	If the update of the subscription fails at the NRF due to NRF internal errors, the NRF shall return "500 Internal Server Error" status code with the ProblemDetails IE providing details of the error.
+-	In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance.
+EXAMPLE:
+PATCH .../subscriptions/2a58bf47
+Content-Type: application/json-patch+json
+
+[
+{ "op": "replace", "path": "/validityTime", "value": "2018-12-30T23:20:50Z" },
+]
+
+
+HTTP/2 204 No Content
+
+5.2.2.5.7	Update of Subscription to NF Instances in a different PLMN
+The update of subscription in a different PLMN is done by updating a subscription resource identified by a "subscriptionID".
+For that, step 1 in clause 5.2.2.5.6 is executed (send a PATCH request to the NRF in the Serving PLMN); this request shall include the identity of the PLMN or SNPN of the home NRF (MCC/MNC/NID values) as a component values of the susbcriptionID.
+Then, steps 1-2 in Figure 5.2.2.5.7-1 are executed, between the NRF in the Serving PLMN and the NRF in the Home PLMN. In this step, the subscriptionID sent to the NRF in the Home PLMN shall not contain the identity of the PLMN (i.e., it shall be the same subscriptionID value as originally generated by the NRF in the Home PLMN). The NRF in the Home PLMN returns a status code with the result of the operation.
+If the subscription was created in a different NRF in the HPLMN than the NRF in the HPLMN that receives the subscription update request, the latter shall forward the request received from the NRF in the serving PLMN towards the NRF in the HPLMN holding the subscription, using the information included in the subscriptionID (see clause 5.2.2.5.3). The subscriptionID value in the request forwarded to the NRF in the HPLMN holding the subscription shall contain the same value as originally generated by the latter.
+Finally, step 2 in clause 5.2.2.5.7-2 is executed; a status code is returned to the NF Service Consumer in Serving PLMN in accordance to the result received from NRF in the Home PLMN.
+
+Figure 5.2.2.5.7-1: Update of Subscription to NF Instances in a different PLMN
+1.	The NRF in Serving PLMN shall send a PATCH request to the resource URI representing the individual subscription. The content of the PATCH request shall contain a "replace" operation on the "validityTime" attribute of the SubscriptionData structure and shall contain a new suggested value for it;
+2a.	On success, if the NRF in the Home PLMN accepts the extension of the lifetime of the subscription, and it accepts the requested value for the "validityTime" attribute, a response with status code "204 No Content" shall be returned.
+2b.	On success, if the NRF in the Home PLMN accepts the extension of the lifetime of the subscription, but it assigns a validity time different than the value suggested by the NF Service Consumer, a "200 OK" response code shall be returned. The response shall contain the new resource representation of the "subscription" resource, which includes the new validity time, as determined by the NRF in the Home PLMN, after which the subscription becomes invalid.
+2c.	On failure or redirection:
+-	If the update of the subscription fails at the NRF due to errors in the JSON Patch object in the request body, the NRF shall return "400 Bad Request" status code with the ProblemDetails IE providing details of the error.
+-	If the update of the subscription fails at the NRF due to NRF internal errors, the NRF shall return "500 Internal Server Error" status code with the ProblemDetails IE providing details of the error.
+-	In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance.
+5.2.2.6	NFStatusNotify
+5.2.2.6.1	General
+This service operation notifies each NF Service Consumer that was previously subscribed to receiving notifications of registration/deregistration of NF Instances, or notifications of changes of the NF profile of a given NF Instance. The notification is sent to a callback URI that each NF Service Consumer provided during the subscription (see NFStatusSubscribe operation in 5.2.2.5).
+If the "Shared-Data-Retrieval" feature is supported, this service operation may also be used to notify the shared data changes in the NRF.
+5.2.2.6.2	Notification from NRF in the same PLMN
+The operation is invoked by issuing a POST request to each callback URI of the different subscribed NF Instances.
+
+Figure 5.2.2.6.2-1: Notification from NRF in the same PLMN
+1.	The NRF shall send a POST request to the callback URI.
+For notifications of newly registered NF Instances, the request body shall include the data associated to the newly registered NF, and its services, according to the criteria indicated by the NF Service Consumer during the subscription operation. These data shall contain the nfInstanceURI of the NF Instance, an indication of the event being notified ("registration"), and the new profile data (including, among others, the services offered by the NF Instance).
+For notifications of changes of the profile of a NF Instance, the request body shall include the NFInstanceID of the NF Instance whose profile was changed, an indication of the event being notified ("profile change"), and the new profile data.
+For notifications of deregistration of the NF Instance from NRF, the request body shall include the NFInstanceID of the deregistered NF Instance, and an indication of the event being notified ("deregistration").
+NOTE 1:	When the NF Instance changes its NFStatus, the NRF notifies subscribing entities with an "NF_PROFILE_CHANGED" event, except if the new NFStatus changes to "CANARY_RELEASE" and the subscribing entity does not support the "Canary-Release" feature (see clause 6.1.9); in such case, the NRF notifies the subscribing entities with an "NF_DEREGISTERED" event (see clause 6.1.6.3.6).
+When an NF Instance is newly registered in NRF, the NRF notifies subscribing entities with an "NF_REGISTERED" event, except if such NF instance newly registers with status "CANARY_RELEASE" and the subscribing entity does not support the "Canary-Release" feature; in such case, the NRF does not send an "NF_REGISTERED" event to the subscribing entity.
+When an NF Service Instance changes its NFServiceStatus to "CANARY_RELEASE", and the subscribing entity does not support the "Canary-Release" feature, the NRF sends a notification with an "NF_PROFILE_CHANGED" event that removes such NF Service Instance from the NF profile, so the subscribing entity can remove such instance from the list of available service instances of the corresponding NF producer.
+NOTE 2:	When a subscribing entity receives a notification indicating the NF Instance (or the NF Service Instance) changes its NFStatus (or NFServiceStatus) to "UNDISCOVERABLE" together with a "shutdownTime" attribute, the subscribing entity may take this "shutdownTime" into account for corresponding actions, e.g. smoothly move the resources (e.g. PDU sessions) currently served by the to-be-shutdown NF Instance (or NF Service Instance) to any other candidate NF Instance (or NF Service Instance) within the indicated shutdown time period.
+When an NF Service Consumer subscribes to a set of NFs (using the different subscription conditions specified in clause 6.1.6.2.35), a change in the profile of the monitored NF Instance may result in such NF becoming a part of the NF set, or stops becoming a part of it (e.g., an NF Service Consumer subscribing to all NFs offering a given NF Service, and then, a certain NF Instance changes its profile by adding or removing an NF Service of its NF Profile); in such case, the NRF shall use the "NF_PROFILE_CHANGED" event type in the notification. Similarly, a change of the status (i.e. the "nfStatus" attribute of the NF Profile) shall result into the NRF to send notifications to subscribing NFs with event type set to "NF_PROFILE_CHANGED".
+When an NF Service Consumer subscribes to a set of NFs, using the subscription conditions specified in clause 6.1.6.2.35, in case of a change of profile(s) of NFs potentially related to those subscription conditions, the NRF shall send notification to subscribing NF Service Consumer(s) to those NFs no longer matching the subscription conditions, and to subscribing NF Service Consumer(s) to NFs that start matching the subscription conditions. In that case, the NRF indicates in the notification data whether the notification is due to the NF Instance to newly start or stop matching the subscription condition (i.e. based on the presence of the "conditionEvent" attribute of the NotificationData).
+The notification of changes of the profile may be done by the NRF either by sending the entire new NF Profile, or by indicating a number of "delta" changes (see clause 6.1.6.2.17) from an existing NF Profile that might have been previously received by the NF Service Consumer during an NFDiscovery search operation (see clause 5.3.2.2). If the NF Service Consumer receives "delta" changes related to an NF Service Instance (other than adding a new NF Service Instance) that had not been previously discovered, those changes shall be ignored by the NF Service Consumer, but any other "delta" changes related to NF Service Instances previously discovered or adding a new NF Service Instance shall be applied.
+Change of authorization attributes (allowedNfTypes, allowedNfDomains, allowedNssais, allowedPlmns etc) shall trigger a "NF_PROFILE_CHANGED" notification from NRF, if the change of the NF Profile results in that the NF Instance starts or stops being authorized to be accessed by an NF having subscribed to be notified about NF profile changes. In this case, the NRF indicates in the notification data whether the notification is due to the NF Instance to newly start or stop matching the subscription condition (i.e. based on the presence of the "conditionEvent" attribute of the NotificationData). Otherwise change of authorization attributes shall not trigger notification.
+The notifications of new registrations, or updates of existing registrations, shall not include the content (or the changes) of the authorization attributes ("allowedXXX" atributes) of the target NF profile being monitored, unless the subscribing entity explicitly requested so, in the "completeProfileSubscription" attribute in the subscription request message, and the NRF authorized such a request.
+2a.	On success, "204 No content" shall be returned by the NF Service Consumer.
+2b.	On failure or redirection:
+-	If the NF Service Consumer does not consider the "nfStatusNotificationUri" as a valid notification URI (e.g., because the URI does not belong to any of the existing subscriptions created by the NF Service Consumer in the NRF), the NF Service Consumer shall return "404 Not Found" status code with the ProblemDetails IE providing details of the error.
+-	In the case of redirection, the NF service consumer shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NF service consumer endpoint.
+5.2.2.6.3	Notification from NRF in a different PLMN
+The operation is invoked by issuing a POST request to each callback URI of the different subscribed NF Instances.
+
+Figure 5.2.2.6.3-1: Notification from NRF in a different PLMN
+Steps 1 and 2 are identical to steps 1 and 2 in Figure 5.2.2.6.2-1.
+It should be noted that the POST request shall be sent directly from the NRF in Home PLMN to the NF Service Consumer in Serving PLMN, without involvement of the NRF in Serving PLMN.
+5.2.2.6.4	Notification for subscription via intermediate NRF
+
+Figure 5.2.2.6.4-1: Notification for subscription via intermediate NRF
+Step 0 is the NF Service Consumer creates a subscription to NRF-2 via intermediate NRF.
+Steps 1 and 2 are identical to steps 1 and 2 in Figure 5.2.2.6.2-1.
+The POST request shall be sent directly from NRF-2 to the NF Service Consumer without involvement of NRF-1.
+5.2.2.7	NFStatusUnSubscribe
+5.2.2.7.1	General
+This service operation removes an existing subscription to notifications.
+If the "Shared-Data-retrieval" feature is supported, this service operation may also be used to remove and existing subscription to the shared data changes in the NRF.
+5.2.2.7.2	Subscription removal in the same PLMN
+It is executed by deleting a given resource identified by a "subscriptionID". The operation is invoked by issuing a DELETE request on the URI representing the specific subscription received in the Location header field of the "201 Created" response received during a successful subscription (see clause 5.2.2.5).
+
+Figure 5.2.2.7.2-1: Subscription removal in the same PLMN
+1.	The NF Service Consumer shall send a DELETE request to the resource URI representing the individual subscription. The request body shall be empty.
+2a.	On success, "204 No Content" shall be returned. The response body shall be empty.
+2b.	On failure or redirection:
+-	If the subscription, identified by the "subscriptionID", is not found in the list of active subscriptions in the NRF's database, the NRF shall return "404 Not Found" status code with the ProblemDetails IE providing details of the error.
+-	In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance.
+5.2.2.7.3	Subscription removal in a different PLMN
+The subscription removal in a different PLMN is done by deleting a resource identified by a "subscriptionID", in the NRF of the Home PLMN.
+For that, step 1 in clause 5.2.2.7.2 is executed (send a DELETE request to the NRF in the Serving PLMN); this request shall include the identity of the PLMN or SNPN of the home NRF (MCC/MNC/NID values) as component values of the subscriptionID (see clause 5.2.2.5.3).
+Then, steps 1-2 in Figure 5.2.2.7.3-1 are executed, between the NRF in the Serving PLMN and the NRF in the Home PLMN. In this step, the subscriptionID sent to the NRF in the Home PLMN shall not contain the identity of the PLMN (i.e., it shall be the same subscriptionID value as originally generated by the NRF in the Home PLMN). The NRF in the Home PLMN returns a status code with the result of the operation.
+If the subscription was created in a different NRF in the HPLMN than the NRF in the HPLMN that receives the subscription delete request, the latter shall forward the request received from the NRF in the serving PLMN towards the NRF in the HPLMN holding the subscription, using the information included in the subscriptionID (see clause 5.2.2.5.3). The subscriptionID value in the request forwarded to the NRF in the HPLMN holding the subscription shall contain the same value as originally generated by the latter.
+Finally, step 2 in clause 5.2.2.7.2 is executed; a status code is returned from the NRF in serving PLMN to the NF Service Consumer in Serving PLMN in accordance to the result received from NRF in Home PLMN.
+
+Figure 5.2.2.7.3-1: Subscription removal in a different PLMN
+1.	The NF Service Consumer shall send a DELETE request to the resource URI representing the individual subscription. The request body shall be empty.
+2a.	On success, "204 No Content" shall be returned. The response body shall be empty.
+2b.	On failure or redirection:
+-	If the subscription, identified by the "subscriptionID", is not found in the list of active subscriptions in the NRF's database, the NRF shall return "404 Not Found" status code with the ProblemDetails IE providing details of the error.
+-	In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance.
+5.2.2.8	NFListRetrieval
+5.2.2.8.1	General
+This service operation allows the retrieval of a list of NF Instances that are currently registered in NRF. The operation may apply to the whole set of registered NF instances or only to a subset of the NF instances, based on a given NF type and/or maximum number of NF instances to be returned.
+
+Figure 5.2.2.8.1-1: NF instance list retrieval
+1.	The NF Service Consumer shall send an HTTP GET request to the resource URI "nf-instances" collection resource. The optional input filter criteria (e.g. "nf-type") and pagination parameters for the retrieval request may be included in query parameters.
+2a.	On success, "200 OK" shall be returned. The response body shall contain the URI (conforming to the resource URI structure as described in clause 5.2.2.9.1) of each registered NF in the NRF that satisfy the retrieval filter criteria (e.g., all NF instances of the same NF type), or an empty list if there are no NFs to return in the query result (e.g., because there are no registered NFs in the NRF, or because there are no matching NFs of the type specified in the "nf-type" query parameter, currently registered in the NRF). The total count of items satisfying the filter criteria (e.g. "nf-type") should be returned in the response.
+2b.	On failure or redirection:
+-	If the NF Service Consumer is not allowed to retrieve the registered NF instances, the NRF shall return "403 Forbidden" status code.
+-	If the NF Instance list retrieval fails at the NRF due to errors in the input data in the URI query parameters, the NRF shall return "400 Bad Request" status code with the ProblemDetails IE providing details of the error.
+-	If the discovery request fails at the NRF due to NRF internal errors, the NRF shall return "500 Internal Server Error" status code with the ProblemDetails IE providing details of the error.
+-	In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance.
+5.2.2.9	NFProfileRetrieval
+5.2.2.9.1	General
+This service operation allows the retrieval of the NF profile of a given NF instance currently registered in NRF.
+
+Figure 5.2.2.9.1-1: NF profile retrieval
+1.	The NF Service Consumer shall send an HTTP GET request to the resource URI "nf-instances/{nfInstanceId}".
+2a.	On success, "200 OK" shall be returned. The response body shall contain the NF profile of the NF instance identified in the request.
+2b.	On failure or redirection:
+-	If the NF Service Consumer is not allowed to retrieve the NF profile of this specific registered NF instance, the NRF shall return "403 Forbidden" status code.
+-	If the NF Profile retrieval fails at the NRF due to NRF internal errors, the NRF shall return "500 Internal Server Error" status code with the ProblemDetails IE providing details of the error.
+-	In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance.
+5.2.2.10	SharedDataRetrieval
+This service operation retrieves Shared Data, by sending a HTTP GET request to the resource URI representing the "Shared Data" resource.
+In deployments where shared data are locally configured at a higher level NRF by means of OAM this service operation shall be used by lower level NRFs to retrieve unknown shared data from the higher level NRF.
+This service operation shall be used by Service Consumers having discovered/retrieved service profiles containing a single unknown shared data ID.
+
+Figure 5.2.2.10-1: Shared Data Retrieval
+1.	The Service Consumer shall send an HTTP GET request to the resource URI "shared-data/{sharedDataId}" document resource, where the URI parameter sharedDataId identifies the requested Shared Data.
+2a.	On success, "200 OK" shall be returned with the requested Shared Data in response body.
+2b.	On failure, the NRF shall return "4xx/5xx" response and the response body may contain a ProblemDetails object describing the detailed information of the failure.
+In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance.
+5.2.2.11	SharedDataListRetrieval
+This service operation retrieves a list of Shared Data, by sending a HTTP GET request to the resource URI representing the "Shared Data Store" resource.
+In deployments where shared data are locally configured at a higher level NRF by means of OAM this service operation shall be used by lower level NRFs to retrieve unknown shared data from the higher level NRF.
+This service operation shall be used by Service Consumers having discovered/retrieved service profiles containing multiple unknown shared data IDs.
+
+Figure 5.2.2.11-1: Shared Data List Retrieval
+1.	The Service Consumer shall send an HTTP GET request to the resource URI "shared-data" store resource, where the query parameter sharedDataIdList identifies the requested Shared Data.
+2a.	On success, "200 OK" shall be returned with the requested Shared Data in response body. If only a subset of the requested Shared Data is available (locally stored or could be retrieved from a higher level NRF), the NRF shall still return "200 OK" with the available and retrieved subset of the requested Shared Data in the response body.
+2b.	On failure, the NRF shall return "4xx/5xx" response and the response body may contain a ProblemDetails object describing the detailed information of the failure.
+In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance.

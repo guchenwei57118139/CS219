@@ -1,2 +1,0 @@
-5.4.1	Service Description
-The NRF offers an Nnrf_AccessToken service (used for OAuth2 authorization, see IETF RFC 6749 [16]), following the "Client Credentials" authorization grant, as specified in 3GPP TS 33.501 [15]. It exposes a "Token Endpoint" where the Access Token Request service operation can be requested by NF Service Consumers. It may also expose a URI where the Retrieve Request Request service operation can be requested.
