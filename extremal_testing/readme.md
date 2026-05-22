@@ -11,7 +11,8 @@ extremal_testing/
 │   ├── config/                    # Configuration files
 │   │   └── test_format.json       # Test case format template
 │   ├── AllOpsMetaData.json        # Operations metadata
-│   ├── operation_schemas.json     # Operation schemas and constraints
+│   ├── constraints/               # Per-operation resolved input schemas and constraints
+│   │   └── <Operation>.json       # One file per operation
 │   ├── testcases/                 # Generated test cases
 │   │   └── *_tests.json           # One suite file per operation
 │   ├── test_results/              # Per-operation implementation comparison results
@@ -40,14 +41,14 @@ The main end-to-end entrypoint is `nrf_agents/workflow/orchestrator.py`. It runs
 - Output: `json/AllOpsMetaData.json`
 - Dependency expansion happens inside the metadata agent before saving
 
-### 2. Generate Operation Schemas
-- Run `nrf_agents/workflow/schema_agent.py`
-- Input: `json/AllOpsMetaData.json`, `specs/original/nrf_management_api.txt`
-- Output: `json/operation_schemas.json`
+### 2. Generate Constraints
+- Run `nrf_agents/workflow/constraint_generation_agent.py`
+- Input: `json/AllOpsMetaData.json`, `specs/original/TS29510_Nnrf_NFManagement.yaml`, `specs/original/TS29571_CommonData.yaml`
+- Output: `json/constraints/{Operation}.json`
 
 ### 3. Generate Test Cases
 - Run `nrf_agents/workflow/testcase_agent.py`
-- Input: `json/operation_schemas.json`, `json/config/test_format.json`
+- Input: `json/constraints/`, `json/AllOpsMetaData.json`, `json/config/test_format.json`
 - Output: `json/testcases/{Operation}_tests.json`
 - Each suite uses `setup`, `tests`, and `cleanup` arrays
 - Each step uses `method`, `path`, `headers`, and optional `body`

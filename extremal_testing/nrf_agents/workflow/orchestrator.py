@@ -15,7 +15,7 @@ if str(REPO_ROOT) not in sys.path:
 from extremal_testing.implementation_testers.test_implementations import ImplementationComparisonRunner
 from extremal_testing.nrf_agents.workflow.confidence_agent import ConfidenceScoreAgent
 from extremal_testing.nrf_agents.workflow.metadata_agent import OperationMetadataAgent
-from extremal_testing.nrf_agents.workflow.schema_agent import OperationSchemaAgent
+from extremal_testing.nrf_agents.workflow.constraint_generation_agent import ConstraintGenerationAgent
 from extremal_testing.nrf_agents.workflow.testcase_agent import TestCaseAgent
 
 
@@ -51,16 +51,17 @@ class NRFExtremalTestingAgent:
             output_file=self.root_dir / "json" / "AllOpsMetaData.json",
         ).run()
 
-    def run_schema_extraction(self) -> None:
-        OperationSchemaAgent(
+    def run_constraint_generation(self) -> None:
+        ConstraintGenerationAgent(
             metadata_file=self.root_dir / "json" / "AllOpsMetaData.json",
             spec_file=self.root_dir / "specs" / "original" / "TS29510_Nnrf_NFManagement.yaml",
-            output_file=self.root_dir / "json" / "operation_schemas.json",
+            output_dir=self.root_dir / "json" / "constraints",
         ).run()
 
     def run_test_generation(self) -> None:
         TestCaseAgent(
-            operation_schemas_file=self.root_dir / "json" / "operation_schemas.json",
+            constraints_dir=self.root_dir / "json" / "constraints",
+            metadata_file=self.root_dir / "json" / "AllOpsMetaData.json",
             test_format_file=self.root_dir / "json" / "config" / "test_format.json",
             output_dir=self.root_dir / "json" / "testcases",
         ).run()
@@ -89,8 +90,8 @@ class NRFExtremalTestingAgent:
         print("[1/5] Generating operation metadata...", flush=True)
         self.run_metadata_extraction()
 
-        print("[2/5] Generating operation schemas...", flush=True)
-        self.run_schema_extraction()
+        print("[2/5] Generating constraints...", flush=True)
+        self.run_constraint_generation()
 
         print("[3/5] Generating test cases...", flush=True)
         self.run_test_generation()

@@ -94,15 +94,18 @@ class TestCaseAgent:
 
     def __init__(
         self,
-        operation_schemas_file: Path = ROOT_DIR / "json" / "operation_schemas.json",
+        constraints_dir: Path = ROOT_DIR / "json" / "constraints",
+        metadata_file: Path = ROOT_DIR / "json" / "AllOpsMetaData.json",
         test_format_file: Path = ROOT_DIR / "json" / "config" / "test_format.json",
         output_dir: Path = ROOT_DIR / "json" / "testcases",
     ):
-        self.operation_schemas_file = operation_schemas_file
+        self.constraints_dir = constraints_dir
+        self.metadata_file = metadata_file
         self.test_format_file = test_format_file
         self.output_dir = output_dir
         self.test_format: Optional[TestFormat] = None
         self.operations: List[OperationInfo] = []
+        self.operation_metadata_by_name: Dict[str, Dict[str, Any]] = {}
 
     def load_test_format(self) -> TestFormat:
         with open(self.test_format_file, "r", encoding="utf-8") as f:
@@ -113,20 +116,45 @@ class TestCaseAgent:
             test_case_structure=data.get("test_case_structure", {}),
         )
 
-    def load_operations(self) -> List[OperationInfo]:
-        with open(self.operation_schemas_file, "r", encoding="utf-8") as f:
+    def load_metadata_index(self) -> Dict[str, Dict[str, Any]]:
+        with open(self.metadata_file, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-        operations: List[OperationInfo] = []
+        metadata_by_name: Dict[str, Dict[str, Any]] = {}
         for op_data in data:
+            name = str(op_data.get("Operation", "")).strip()
+            if name:
+                metadata_by_name[name] = op_data
+        return metadata_by_name
+
+    def load_operations(self) -> List[OperationInfo]:
+        if not self.constraints_dir.exists():
+            raise FileNotFoundError(f"Constraints directory does not exist: {self.constraints_dir}")
+
+        self.operation_metadata_by_name = self.load_metadata_index()
+        constraint_files = sorted(
+            path for path in self.constraints_dir.iterdir() if path.is_file() and path.suffix.lower() == ".json"
+        )
+
+        operations: List[OperationInfo] = []
+        for file_path in constraint_files:
+            operation_name = file_path.stem
+            metadata = self.operation_metadata_by_name.get(operation_name)
+            if not metadata:
+                print(f"  → Skipping constraint file with no matching metadata: {file_path.name}", flush=True)
+                continue
+
+            with open(file_path, "r", encoding="utf-8") as f:
+                op_data = json.load(f)
+
             operations.append(
                 OperationInfo(
-                    operation=op_data.get("operation", ""),
-                    path=op_data.get("path", ""),
-                    method=op_data.get("method", ""),
+                    operation=operation_name,
+                    path=metadata.get("Paths", ""),
+                    method=metadata.get("Method", ""),
                     input_schema=op_data.get("input_schema", {}),
                     constraints=op_data.get("constraints", []),
-                    depends_on=op_data.get("depends_on", []),
+                    depends_on=metadata.get("DependsOn", []),
                 )
             )
         return operations
@@ -275,7 +303,7 @@ class TestCaseAgent:
         self.test_format = self.load_test_format()
         print("[*] Test format loaded", flush=True)
 
-        print(f"[*] Loading operations from {self.operation_schemas_file.name}...", flush=True)
+        print(f"[*] Loading operations from {self.constraints_dir.name}...", flush=True)
         self.operations = self.load_operations()
         print(f"[*] Loaded {len(self.operations)} operation(s)", flush=True)
 

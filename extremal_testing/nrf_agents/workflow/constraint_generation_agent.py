@@ -1,4 +1,4 @@
-"""Schema and constraint extraction agent for NRF operations."""
+"""Constraint generation agent for NRF operations."""
 
 from __future__ import annotations
 
@@ -23,20 +23,20 @@ from extremal_testing.nrf_agents.prompts.schema import SYSTEM_PROMPT_SCHEMA_EXTR
 from extremal_testing.nrf_agents.workflow.sdk import run_text_agent
 
 
-class OperationSchemaAgent:
-    """Extract schemas and constraints for operations."""
+class ConstraintGenerationAgent:
+    """Extract resolved input schemas and constraints for operations."""
 
     def __init__(
         self,
         metadata_file: Path = ROOT_DIR / "json" / "AllOpsMetaData.json",
         spec_file: Path = ROOT_DIR / "specs" / "original" / "TS29510_Nnrf_NFManagement.yaml",
         common_data_file: Path = ROOT_DIR / "specs" / "original" / "TS29571_CommonData.yaml",
-        output_file: Path = ROOT_DIR / "json" / "operation_schemas.json",
+        output_dir: Path = ROOT_DIR / "json" / "constraints",
     ):
         self.metadata_file = metadata_file
         self.spec_file = spec_file
         self.common_data_file = common_data_file
-        self.output_file = output_file
+        self.output_dir = output_dir
         self.spec_doc: Dict[str, Dict] = {}
         self.common_data_doc: Dict[str, Dict] = {}
         self._ref_cache: Dict[str, Dict] = {}
@@ -306,10 +306,10 @@ class OperationSchemaAgent:
 
         try:
             response_text = run_text_agent(
-                agent_name="NRF Schema Agent",
+                agent_name="NRF Constraint Generation Agent",
                 instructions=SYSTEM_PROMPT_SCHEMA_EXTRACTION,
                 prompt=prompt,
-                workflow_name="NRF Schema Extraction",
+                workflow_name="NRF Constraint Generation",
             )
         except Exception as exc:
             print(f"  → Error calling agent: {exc}", flush=True)
@@ -360,31 +360,27 @@ class OperationSchemaAgent:
         return results
 
     def save_results(self, schemas: List[OperationSchema]) -> None:
-        results = []
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        for existing_file in self.output_dir.glob("*.json"):
+            existing_file.unlink()
         for schema in schemas:
-            results.append(
-                {
-                    "operation": schema.operation,
-                    "path": schema.path,
-                    "method": schema.method,
-                    "input_schema": schema.input_schema,
-                    "constraints": schema.constraints,
-                    "depends_on": schema.depends_on,
-                }
-            )
-
-        with open(self.output_file, "w", encoding="utf-8") as f:
-            json.dump(results, f, indent=2, ensure_ascii=False)
+            output_file = self.output_dir / f"{schema.operation}.json"
+            payload = {
+                "input_schema": schema.input_schema,
+                "constraints": schema.constraints,
+            }
+            with open(output_file, "w", encoding="utf-8") as f:
+                json.dump(payload, f, indent=2, ensure_ascii=False)
 
     def run(self) -> None:
         schemas = self.extract_all_schemas()
         self.save_results(schemas)
-        print(f"\n[✓] Extracted schemas for {len(schemas)} operation(s)")
-        print(f"[✓] Results saved to {self.output_file}")
+        print(f"\n[✓] Extracted constraints for {len(schemas)} operation(s)")
+        print(f"[✓] Results saved to {self.output_dir}")
 
 
 def main() -> None:
-    OperationSchemaAgent().run()
+    ConstraintGenerationAgent().run()
 
 
 if __name__ == "__main__":
