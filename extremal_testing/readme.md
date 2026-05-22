@@ -16,7 +16,9 @@ extremal_testing/
 │   └── generated/                 # Derived outputs
 │       └── operation_constraints/  # One JSON file per operation after agent generation
 ├── text_parsers/                  # Deterministic text parsers
-│   └── parse_operations_descriptions.py # Split section 5 into per-operation descriptions
+│   ├── parse_operations_descriptions.py # Split section 5 into per-operation descriptions
+│   ├── parse_api_resources.py     # Parse resource-backed API sections from api_spec.pdf
+│   └── render_api_spec_markdown.py # Render api_spec.pdf to a Markdown inspection file
 └── implementation_testers/        # Test execution scripts
     ├── test_implementations.py    # Cross-implementation comparison runner
     └── test_free5gc.py            # Free5GC NRF tester
@@ -30,7 +32,19 @@ extremal_testing/
 - Output: in-memory operation description records
 - The parser is deterministic and does not write to `data/operation_descriptions/`
 
-### 2. Generate Constraints With Agents
+### 2. Parse PDF Resource Tables Into JSON
+- Run `text_parsers/parse_api_resources.py`
+- Input: `data/specs/api_spec.pdf`
+- Output: `data/generated/api_resources/{Section}_{Resource}.json`
+- The parser uses layout-preserving PDF extraction and writes one JSON file per resource
+
+### 3. Render the PDF to Markdown for inspection
+- Run `text_parsers/render_api_spec_markdown.py`
+- Input: `data/specs/api_spec.pdf`
+- Output: `data/generated/api_spec_markdown.md`
+- The renderer is deterministic and preserves section structure plus readable table blocks
+
+### 4. Generate Constraints With Agents
 - Run `agents/constraint_generation/cli.py`
 - Input: parsed operation descriptions from the parser module
 - Output: `data/generated/operation_constraints/{Operation}.json`

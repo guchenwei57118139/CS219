@@ -1,2 +1,1 @@
-"""Text parsers for spec-derived operation descriptions."""
-
+"""Deterministic parsers for spec-derived artifacts."""
