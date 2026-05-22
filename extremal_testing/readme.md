@@ -32,22 +32,21 @@ extremal_testing/
 
 ## Workflow
 
-### 1. Parse Specification
-- Use `utils/parse_spec.py` to parse spec documents
-- Input: `data/specs/original/1.docx` or `data/specs/original/nrf_management_api.txt`
-- Output: `data/specs/segments/section_*.txt`
+The main end-to-end entrypoint is `nrf_agents/workflow/orchestrator.py`. It runs the full pipeline in order and handles all stages below.
 
-### 2. Generate Operations Metadata
+- End-to-end run: `python3 extremal_testing/nrf_agents/workflow/orchestrator.py`
+
+### 1. Generate Operations Metadata
 - Run `nrf_agents/workflow/metadata_agent.py`
 - Input: `data/specs/segments/section_*.txt`
 - Output: `data/generated/AllOpsMetaData.json`
 
-### 3. Generate Operation Schemas
+### 2. Generate Operation Schemas
 - Run `nrf_agents/workflow/schema_agent.py`
 - Input: `data/generated/AllOpsMetaData.json`, `data/specs/original/nrf_management_api.txt`
 - Output: `data/generated/operation_schemas.json`
 
-### 4. Generate Test Cases
+### 3. Generate Test Cases
 - Run `nrf_agents/workflow/testcase_agent.py`
 - Input: `data/generated/operation_schemas.json`, `data/config/test_format.json`
 - Output: `data/generated/{Operation}_tests.json`
@@ -55,12 +54,12 @@ extremal_testing/
 - Each step uses `method`, `path`, `headers`, and optional `body`
 - Each test case adds `name` and `constraint`
 
-### 5. Run Tests
-- Run `implementation_testers/test_implementations.py data/generated/{Operation}_tests.json`
+### 4. Run Tests
+- The orchestrator runs `implementation_testers/test_implementations.py` logic directly over all generated suites
 - The comparison runner executes each test case against `free5gc`, `oai`, and `open5gs`
 - Output: `data/test_results/{Operation}.json`
 
-### 6. Generate Confidence Scores
+### 5. Generate Confidence Scores
 - Run `nrf_agents/workflow/confidence_agent.py`
 - Input: `data/test_results/{Operation}.json` and `data/generated/{Operation}_tests.json`
 - Only test cases with differing returned status codes are sent to the LLM
