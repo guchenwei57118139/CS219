@@ -28,55 +28,66 @@
   ],
   "tests": [
     {
-      "name": "Missing nfInstanceID Path Parameter",
-      "constraint": "The path parameter 'nfInstanceID' is required.",
-      "method": "DELETE",
-      "path": "/nf-instances",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "DEREGISTERING",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    {
-      "name": "Invalid NFInstanceId",
-      "constraint": "The path parameter must be a valid NfInstanceId.",
-      "method": "DELETE",
-      "path": "/nf-instances/not-a-uuid",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    {
-      "name": "Request Body Provided For DELETE",
-      "constraint": "This operation does not define a request body; no request body is required for the DELETE request.",
+      "id": "tc_1_pos",
+      "name": "tc_1_pos",
+      "constraint": "The nfInstanceID parameter is required in the path.",
       "method": "DELETE",
       "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
       "headers": {
         "Content-Type": "application/json"
       },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "DEREGISTERING",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
+      "body": {}
     },
     {
-      "name": "Missing OAuth2 Authorization",
-      "constraint": "The caller must be authorized using the oAuth2ClientCredentials security scheme with the scope 'nnrf-nfm:nf-instance:write'.",
+      "id": "tc_1_neg",
+      "name": "tc_1_neg",
+      "constraint": "The nfInstanceID parameter is required in the path.",
+      "method": "DELETE",
+      "path": "/nf-instances/",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {}
+    },
+    {
+      "id": "tc_2_pos",
+      "name": "tc_2_pos",
+      "constraint": "The nfInstanceID must be a unique ID of the NF Instance to deregister.",
       "method": "DELETE",
       "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {}
+    },
+    {
+      "id": "tc_2_neg",
+      "name": "tc_2_neg",
+      "constraint": "The nfInstanceID must be a unique ID of the NF Instance to deregister.",
+      "method": "DELETE",
+      "path": "/nf-instances/invalid-uuid",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {}
+    },
+    {
+      "id": "tc_3_pos",
+      "name": "tc_3_pos",
+      "constraint": "The nfInstanceID schema is referenced from 'TS29571_CommonData.yaml#/components/schemas/NfInstanceId'.",
+      "method": "DELETE",
+      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {}
+    },
+    {
+      "id": "tc_3_neg",
+      "name": "tc_3_neg",
+      "constraint": "The nfInstanceID schema is referenced from 'TS29571_CommonData.yaml#/components/schemas/NfInstanceId'.",
+      "method": "DELETE",
+      "path": "/nf-instances/invalid-uuid",
       "headers": {
         "Content-Type": "application/json"
       },

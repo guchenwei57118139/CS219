@@ -1,0 +1,105 @@
+{
+  "operation": "NFListRetrieve",
+  "path": "/nf-instances",
+  "method": "GET",
+  "setup": [],
+  "cleanup": [
+    {
+      "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+      "method": "DELETE",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    }
+  ],
+  "tests": [
+    {
+      "id": "tc_1_pos",
+      "name": "tc_1_pos",
+      "constraint": "The 'nf-type' query parameter is optional and refers to the type of NF.",
+      "method": "GET",
+      "path": "/nf-instances?nf-type=NRF",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {}
+    },
+    {
+      "id": "tc_1_neg",
+      "name": "tc_1_neg",
+      "constraint": "The 'nf-type' query parameter is optional and refers to the type of NF.",
+      "method": "GET",
+      "path": "/nf-instances?nf-type=INVALID_TYPE",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {}
+    },
+    {
+      "id": "tc_2_pos",
+      "name": "tc_2_pos",
+      "constraint": "The 'limit' query parameter is optional, must be an integer, and has a minimum value of 1.",
+      "method": "GET",
+      "path": "/nf-instances?limit=10",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {}
+    },
+    {
+      "id": "tc_2_neg",
+      "name": "tc_2_neg",
+      "constraint": "The 'limit' query parameter is optional, must be an integer, and has a minimum value of 1.",
+      "method": "GET",
+      "path": "/nf-instances?limit=0",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {}
+    },
+    {
+      "id": "tc_3_pos",
+      "name": "tc_3_pos",
+      "constraint": "The 'page-number' query parameter is optional, must be an integer, and has a minimum value of 1.",
+      "method": "GET",
+      "path": "/nf-instances?page-number=1",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {}
+    },
+    {
+      "id": "tc_3_neg",
+      "name": "tc_3_neg",
+      "constraint": "The 'page-number' query parameter is optional, must be an integer, and has a minimum value of 1.",
+      "method": "GET",
+      "path": "/nf-instances?page-number=0",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {}
+    },
+    {
+      "id": "tc_4_pos",
+      "name": "tc_4_pos",
+      "constraint": "The 'page-size' query parameter is optional, must be an integer, and has a minimum value of 1.",
+      "method": "GET",
+      "path": "/nf-instances?page-size=10",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {}
+    },
+    {
+      "id": "tc_4_neg",
+      "name": "tc_4_neg",
+      "constraint": "The 'page-size' query parameter is optional, must be an integer, and has a minimum value of 1.",
+      "method": "GET",
+      "path": "/nf-instances?page-size=0",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {}
+    }
+  ]
+}

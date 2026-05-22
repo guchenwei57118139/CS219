@@ -1,0 +1,107 @@
+{
+  "operation": "NFProfileRetrieve",
+  "path": "/nf-instances/{nfInstanceId}",
+  "method": "GET",
+  "setup": [],
+  "cleanup": [
+    {
+      "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+      "method": "DELETE",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    }
+  ],
+  "tests": [
+    {
+      "id": "tc_1_pos",
+      "name": "tc_1_pos",
+      "constraint": "The 'nfInstanceID' parameter is required and must be provided in the path.",
+      "method": "GET",
+      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {}
+    },
+    {
+      "id": "tc_1_neg",
+      "name": "tc_1_neg",
+      "constraint": "The 'nfInstanceID' parameter is required and must be provided in the path.",
+      "method": "GET",
+      "path": "/nf-instances/",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {}
+    },
+    {
+      "id": "tc_2_pos",
+      "name": "tc_2_pos",
+      "constraint": "The 'nfInstanceID' parameter must conform to the schema defined in 'TS29571_CommonData.yaml#/components/schemas/NfInstanceId'.",
+      "method": "GET",
+      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {}
+    },
+    {
+      "id": "tc_2_neg",
+      "name": "tc_2_neg",
+      "constraint": "The 'nfInstanceID' parameter must conform to the schema defined in 'TS29571_CommonData.yaml#/components/schemas/NfInstanceId'.",
+      "method": "GET",
+      "path": "/nf-instances/not-a-uuid",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {}
+    },
+    {
+      "id": "tc_3_pos",
+      "name": "tc_3_pos",
+      "constraint": "The 'requester-features' parameter is optional and can be provided in the query.",
+      "method": "GET",
+      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000?requester-features=feature1",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {}
+    },
+    {
+      "id": "tc_3_neg",
+      "name": "tc_3_neg",
+      "constraint": "The 'requester-features' parameter is optional and can be provided in the query.",
+      "method": "GET",
+      "path": "/nf-instances/invalid-uuid",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {}
+    },
+    {
+      "id": "tc_4_pos",
+      "name": "tc_4_pos",
+      "constraint": "The 'requester-features' parameter must conform to the schema defined in 'TS29571_CommonData.yaml#/components/schemas/SupportedFeatures'.",
+      "method": "GET",
+      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "headers": {
+        "Content-Type": "application/json",
+        "requester-features": "supported-feature"
+      },
+      "body": {}
+    },
+    {
+      "id": "tc_4_neg",
+      "name": "tc_4_neg",
+      "constraint": "The 'requester-features' parameter must conform to the schema defined in 'TS29571_CommonData.yaml#/components/schemas/SupportedFeatures'.",
+      "method": "GET",
+      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "headers": {
+        "Content-Type": "application/json",
+        "requester-features": "invalid-feature"
+      },
+      "body": {}
+    }
+  ]
+}

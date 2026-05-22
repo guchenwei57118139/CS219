@@ -14,23 +14,41 @@
   ],
   "tests": [
     {
-      "name": "Invalid NFInstanceId",
-      "constraint": "The path parameter must be a valid NfInstanceId.",
+      "id": "tc_1_pos",
+      "name": "tc_1_pos",
+      "constraint": "The 'nfInstanceID' parameter in the path is required and must be a unique ID of the NF Instance to register.",
+      "method": "PUT",
+      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    {
+      "id": "tc_1_neg",
+      "name": "tc_1_neg",
+      "constraint": "The 'nfInstanceID' parameter in the path is required and must be a unique ID of the NF Instance to register.",
       "method": "PUT",
       "path": "/nf-instances/not-a-uuid",
       "headers": {
         "Content-Type": "application/json"
       },
       "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfInstanceId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.com"
       }
     },
     {
-      "name": "Missing required nfStatus",
-      "constraint": "The request body is required and must be application/json conforming to the '#/components/schemas/NFProfile' schema.",
+      "id": "tc_2_pos",
+      "name": "tc_2_pos",
+      "constraint": "The request body must be in 'application/json' format and conform to the 'NFProfile' schema.",
       "method": "PUT",
       "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
       "headers": {
@@ -39,26 +57,30 @@
       "body": {
         "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
         "nfType": "NRF",
+        "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org"
       }
     },
     {
-      "name": "Missing nfStatus in NFProfile",
-      "constraint": "An NFProfile object must include the properties 'nfInstanceId', 'nfType' and 'nfStatus'.",
+      "id": "tc_2_neg",
+      "name": "tc_2_neg",
+      "constraint": "The request body must be in 'application/json' format and conform to the 'NFProfile' schema.",
       "method": "PUT",
       "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
       "headers": {
-        "Content-Type": "application/json"
+        "Content-Type": "text/plain"
       },
       "body": {
         "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
         "nfType": "NRF",
+        "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org"
       }
     },
     {
-      "name": "NFProfile missing addressing fields",
-      "constraint": "An NFProfile must include at least one of the following: 'fqdn', 'ipv4Addresses', or 'ipv6Addresses'.",
+      "id": "tc_3_pos",
+      "name": "tc_3_pos",
+      "constraint": "The 'Content-Encoding' header is optional and described in IETF RFC 9110.",
       "method": "PUT",
       "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
       "headers": {
@@ -68,28 +90,30 @@
         "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
-        "nfInstanceName": "nrf-no-address"
+        "fqdn": "nrf.example.3gppnetwork.org"
       }
     },
     {
-      "name": "CollocatedNfInstances Empty Array",
-      "constraint": "If present, 'collocatedNfInstances' MUST be an array with at least 1 item.",
+      "id": "tc_3_neg",
+      "name": "tc_3_neg",
+      "constraint": "The 'Content-Encoding' header is optional and described in IETF RFC 9110.",
       "method": "PUT",
       "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
       "headers": {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "Content-Encoding": "invalid-encoding"
       },
       "body": {
         "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "collocatedNfInstances": []
+        "fqdn": "nrf.example.3gppnetwork.org"
       }
     },
     {
-      "name": "Invalid heartBeatTimer Below Minimum",
-      "constraint": "If present, 'heartBeatTimer' MUST be an integer with a minimum value of 1.",
+      "id": "tc_4_pos",
+      "name": "tc_4_pos",
+      "constraint": "The 'Accept-Encoding' header is optional and described in IETF RFC 9110.",
       "method": "PUT",
       "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
       "headers": {
@@ -99,682 +123,23 @@
         "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "heartBeatTimer": 0
+        "fqdn": "nrf.example.3gppnetwork.org"
       }
     },
     {
-      "name": "Invalid empty plmnList",
-      "constraint": "If present, 'plmnList' MUST be an array with at least 1 item.",
+      "id": "tc_4_neg",
+      "name": "tc_4_neg",
+      "constraint": "The 'Accept-Encoding' header is optional and described in IETF RFC 9110.",
       "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "path": "/nf-instances/not-a-uuid",
       "headers": {
         "Content-Type": "application/json"
       },
       "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfInstanceId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "plmnList": []
-      }
-    },
-    {
-      "name": "Invalid empty snpnList",
-      "constraint": "If present, 'snpnList' MUST be an array with at least 1 item.",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "snpnList": []
-      }
-    },
-    {
-      "name": "sNssais present but empty",
-      "constraint": "If present, 'sNssais' MUST be an array with at least 1 item.",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "sNssais": []
-      }
-    },
-    {
-      "name": "perPlmnSnssaiList Empty Array",
-      "constraint": "If present, 'perPlmnSnssaiList' MUST be an array with at least 1 item.",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "perPlmnSnssaiList": []
-      }
-    },
-    {
-      "name": "Invalid empty nsiList",
-      "constraint": "If present, 'nsiList' MUST be an array of strings with at least 1 item.",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "nsiList": []
-      }
-    },
-    {
-      "name": "Invalid: empty ipv4Addresses array",
-      "constraint": "If present, 'ipv4Addresses' MUST be an array with at least 1 item.",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "ipv4Addresses": []
-      }
-    },
-    {
-      "name": "Invalid empty ipv6Addresses",
-      "constraint": "If present, 'ipv6Addresses' MUST be an array with at least 1 item.",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "ipv6Addresses": []
-      }
-    },
-    {
-      "name": "AllowedPlmns Empty Array",
-      "constraint": "If present, 'allowedPlmns' MUST be an array with at least 1 item.",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "allowedPlmns": []
-      }
-    },
-    {
-      "name": "Empty allowedSnpns Array",
-      "constraint": "If present, 'allowedSnpns' MUST be an array with at least 1 item.",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "allowedSnpns": []
-      }
-    },
-    {
-      "name": "Invalid allowedNfTypes empty array",
-      "constraint": "If present, 'allowedNfTypes' MUST be an array with at least 1 item.",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "allowedNfTypes": []
-      }
-    },
-    {
-      "name": "Invalid allowedNfDomains empty array",
-      "constraint": "If present, 'allowedNfDomains' MUST be an array with at least 1 item.",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "allowedNfDomains": []
-      }
-    },
-    {
-      "name": "Invalid empty allowedNssais",
-      "constraint": "If present, 'allowedNssais' MUST be an array with at least 1 item.",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "allowedNssais": []
-      }
-    },
-    {
-      "name": "AllowedRuleSet value missing required RuleSet fields",
-      "constraint": "If present, 'allowedRuleSet' MUST be an object with at least 1 property and each value must conform to the 'RuleSet' schema.",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "allowedRuleSet": {
-          "invalidRule": {}
-        }
-      }
-    },
-    {
-      "name": "Priority out of range (too large)",
-      "constraint": "If present, 'priority' MUST be an integer between 0 and 65535 (inclusive).",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "priority": 70000
-      }
-    },
-    {
-      "name": "Capacity Above Maximum",
-      "constraint": "If present, 'capacity' MUST be an integer between 0 and 65535 (inclusive).",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "capacity": 70000
-      }
-    },
-    {
-      "name": "Invalid load value (out of range)",
-      "constraint": "If present, 'load' MUST be an integer between 0 and 100 (inclusive).",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "load": 150
-      }
-    },
-    {
-      "name": "Empty udrInfoList map",
-      "constraint": "Map-type NFProfile properties such as 'udrInfoList' must have at least 1 property when present (minProperties = 1).",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "udrInfoList": {}
-      }
-    },
-    {
-      "name": "Invalid nfServices Empty Array",
-      "constraint": "If present, 'nfServices' (deprecated) MUST be an array with at least 1 item.",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "nfServices": []
-      }
-    },
-    {
-      "name": "Invalid nfServiceList empty object",
-      "constraint": "If present, 'nfServiceList' MUST be an object (map) with at least 1 property and each value must conform to the 'NFService' schema.",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "nfServiceList": {}
-      }
-    },
-    {
-      "name": "DefaultNotificationSubscriptions item missing callbackUri",
-      "constraint": "defaultNotificationSubscriptions items MUST include both 'notificationType' and 'callbackUri'.",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "defaultNotificationSubscriptions": [
-          {
-            "notificationType": "NF_STATUS"
-          }
-        ]
-      }
-    },
-    {
-      "name": "Empty nfSetIdList",
-      "constraint": "If present, 'nfSetIdList' MUST be an array with at least 1 item.",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "nfSetIdList": []
-      }
-    },
-    {
-      "name": "Empty servingScope array",
-      "constraint": "If present, 'servingScope' MUST be an array with at least 1 item.",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "servingScope": []
-      }
-    },
-    {
-      "name": "scpDomains present but empty",
-      "constraint": "If present, 'scpDomains' MUST be an array with at least 1 item.",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "scpDomains": []
-      }
-    },
-    {
-      "name": "Invalid empty hniList",
-      "constraint": "If present, 'hniList' MUST be an array with at least 1 item.",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "hniList": []
-      }
-    },
-    {
-      "name": "SupportedRcfs Empty Array",
-      "constraint": "If present, 'supportedRcfs' MUST be an array with at least 1 item.",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "supportedRcfs": []
-      }
-    },
-    {
-      "name": "supportedVendorSpecificFeatures with empty array value",
-      "constraint": "If present, 'supportedVendorSpecificFeatures' MUST be an object with at least 1 property and each property value MUST be an array with at least 1 item.",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "supportedVendorSpecificFeatures": {
-          "123456": []
-        }
-      }
-    },
-    {
-      "name": "Missing required NFService fields",
-      "constraint": "In the NFService object, the properties 'serviceInstanceId', 'serviceName', 'versions', 'scheme' and 'nfServiceStatus' are required.",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "nfServices": [
-          {
-            "serviceInstanceId": "svc-001",
-            "serviceName": "nrf-nfm-service"
-          }
-        ]
-      }
-    },
-    {
-      "name": "NFService with empty versions array",
-      "constraint": "In an NFService, 'versions' MUST be an array with at least 1 item when present.",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "nfServiceList": {
-          "service-1": {
-            "serviceInstanceId": "service-1",
-            "serviceName": "nf-service",
-            "versions": [],
-            "scheme": "https",
-            "nfServiceStatus": "REGISTERED",
-            "ipEndPoints": [
-              {
-                "ipv4Address": "198.51.100.1"
-              }
-            ]
-          }
-        }
-      }
-    },
-    {
-      "name": "NFService with empty ipEndPoints",
-      "constraint": "In an NFService, if 'ipEndPoints' is present it MUST be an array with at least 1 item.",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "nfServiceList": {
-          "service1": {
-            "serviceInstanceId": "service1",
-            "serviceName": "nrf-nfm",
-            "versions": [
-              "v1"
-            ],
-            "scheme": "https",
-            "nfServiceStatus": "REGISTERED",
-            "ipEndPoints": []
-          }
-        }
-      }
-    },
-    {
-      "name": "IpEndPoint with both ipv4Address and ipv6Address",
-      "constraint": "IpEndPoint must not contain both 'ipv4Address' and 'ipv6Address' properties together (violates IpEndPoint.not).",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "nfServices": [
-          {
-            "serviceInstanceId": "service-1",
-            "serviceName": "test-service",
-            "versions": [
-              "v1"
-            ],
-            "scheme": "https",
-            "nfServiceStatus": "REGISTERED",
-            "ipEndPoints": [
-              {
-                "ipv4Address": "192.0.2.1",
-                "ipv6Address": "2001:db8::1",
-                "transport": "TCP",
-                "port": 443
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "name": "IpEndPoint port out of range (too large)",
-      "constraint": "IpEndPoint 'port', when present, MUST be an integer between 0 and 65535 (inclusive).",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "nfServiceList": {
-          "service-1": {
-            "serviceInstanceId": "service-1",
-            "serviceName": "NRF_DISCOVERY",
-            "versions": [
-              "v1"
-            ],
-            "scheme": "https",
-            "nfServiceStatus": "REGISTERED",
-            "ipEndPoints": [
-              {
-                "ipv4Address": "198.51.100.10",
-                "transport": "TCP",
-                "port": 70000
-              }
-            ]
-          }
-        }
-      }
-    },
-    {
-      "name": "InterfaceUpfInfoItem Missing Endpoint Fields",
-      "constraint": "InterfaceUpfInfoItem requires 'interfaceType' and MUST include at least one of 'endpointFqdn', 'ipv4EndpointAddresses' or 'ipv6EndpointAddresses'. This test omits all endpoint fields.",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "upfInfo": {
-          "interfaces": [
-            {
-              "interfaceType": "N3"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "name": "PortRange End Out Of Range",
-      "constraint": "PortRange objects, when present, MUST include 'start' and 'end', and both MUST be integers between 0 and 65535 (inclusive).",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "upfInfo": {
-          "interfaceUpfInfoList": [
-            {
-              "interfaceType": "N3",
-              "endpointFqdn": "upf.example.3gppnetwork.org",
-              "portRangeList": [
-                {
-                  "start": 1024,
-                  "end": 70000
-                }
-              ]
-            }
-          ]
-        }
-      }
-    },
-    {
-      "name": "Missing RuleSet Required Fields",
-      "constraint": "RuleSet objects MUST include 'priority' and 'action'.",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "allowedRuleSet": {
-          "/invalidRule": {
-            "scopes": [
-              "read",
-              "write"
-            ]
-          }
-        }
-      }
-    },
-    {
-      "name": "Invalid VendorId Pattern",
-      "constraint": "VendorId, when present, MUST match the pattern '^[0-9]{6}$' (six digits).",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "vendorId": "ABC123"
-      }
-    },
-    {
-      "name": "Invalid ipv4Addresses value",
-      "constraint": "Where a property references an external schema (e.g. Ipv4Addr), the value MUST conform to that referenced schema. This test provides an invalid IPv4 address that does not conform to Ipv4Addr.",
-      "method": "PUT",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "ipv4Addresses": [
-          "999.999.999.999"
-        ]
+        "fqdn": "nrf.example.com"
       }
     }
   ]
