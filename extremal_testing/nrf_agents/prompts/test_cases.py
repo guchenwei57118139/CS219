@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from typing import Any, Dict, List
 
-from nrf_agents.models.common import OperationInfo, TestFormat
+from extremal_testing.nrf_agents.models.common import OperationInfo, TestFormat
 
 
 def build_test_case_prompt(
@@ -61,4 +61,3 @@ Rules:
 8. The target NRF type should always be NRF.
 9. Return valid JSON only, with no markdown or explanation.
 """
-

@@ -12,14 +12,16 @@ from typing import Any, Dict, List, Optional, Sequence
 sys.stdout.reconfigure(line_buffering=True) if hasattr(sys.stdout, "reconfigure") else None
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT_DIR))
+REPO_ROOT = Path(__file__).resolve().parents[3]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
-from nrf_agents.prompts.confidence import (
+from extremal_testing.nrf_agents.prompts.confidence import (
     DEFAULT_PROTOCOL,
     SYSTEM_PROMPT_CONFIDENCE_TRIAGE,
     build_confidence_prompt,
 )
-from nrf_agents.workflow.sdk import run_text_agent
+from extremal_testing.nrf_agents.workflow.sdk import run_text_agent
 
 DEFAULT_BATCH_SIZE = 5
 

@@ -12,14 +12,16 @@ from typing import Dict, List, Optional, Set
 sys.stdout.reconfigure(line_buffering=True) if hasattr(sys.stdout, "reconfigure") else None
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT_DIR))
+REPO_ROOT = Path(__file__).resolve().parents[3]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
-from nrf_agents.models.common import OperationMetadata
-from nrf_agents.prompts.metadata import (
+from extremal_testing.nrf_agents.models.common import OperationMetadata
+from extremal_testing.nrf_agents.prompts.metadata import (
     SYSTEM_PROMPT_OPERATION_EXTRACTION,
     build_operation_metadata_prompt,
 )
-from nrf_agents.workflow.sdk import run_text_agent
+from extremal_testing.nrf_agents.workflow.sdk import run_text_agent
 
 OUTPUT_FORMAT_PATH = ROOT_DIR / "json" / "AllOpsMetaData.json"
 SPEC_SEGMENT_DIR = ROOT_DIR / "specs" / "segments"

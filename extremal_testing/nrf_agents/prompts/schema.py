@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from nrf_agents.models.common import OperationMetadata
+from extremal_testing.nrf_agents.models.common import OperationMetadata
 
 
 SYSTEM_PROMPT_SCHEMA_EXTRACTION = """
@@ -57,4 +57,3 @@ Please extract:
 2. All validity constraints from the specification text related to this operation
 
 Return your response as a valid JSON object with "input_schema" and "constraints" keys."""
-

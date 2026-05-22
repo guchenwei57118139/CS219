@@ -11,11 +11,13 @@ from typing import Dict, List, Optional
 sys.stdout.reconfigure(line_buffering=True) if hasattr(sys.stdout, "reconfigure") else None
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT_DIR))
+REPO_ROOT = Path(__file__).resolve().parents[3]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
-from nrf_agents.models.common import OperationMetadata, OperationSchema
-from nrf_agents.prompts.schema import SYSTEM_PROMPT_SCHEMA_EXTRACTION, build_operation_schema_prompt
-from nrf_agents.workflow.sdk import run_text_agent
+from extremal_testing.nrf_agents.models.common import OperationMetadata, OperationSchema
+from extremal_testing.nrf_agents.prompts.schema import SYSTEM_PROMPT_SCHEMA_EXTRACTION, build_operation_schema_prompt
+from extremal_testing.nrf_agents.workflow.sdk import run_text_agent
 
 
 class OperationSchemaAgent:

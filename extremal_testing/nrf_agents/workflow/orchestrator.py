@@ -7,14 +7,16 @@ from pathlib import Path
 import sys
 from typing import Optional
 
-ROOT_DIR = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT_DIR))
+PROJECT_DIR = Path(__file__).resolve().parents[2]
+REPO_ROOT = Path(__file__).resolve().parents[3]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
-from implementation_testers.test_implementations import ImplementationComparisonRunner
-from nrf_agents.workflow.confidence_agent import ConfidenceScoreAgent
-from nrf_agents.workflow.metadata_agent import OperationMetadataAgent
-from nrf_agents.workflow.schema_agent import OperationSchemaAgent
-from nrf_agents.workflow.testcase_agent import TestCaseAgent
+from extremal_testing.implementation_testers.test_implementations import ImplementationComparisonRunner
+from extremal_testing.nrf_agents.workflow.confidence_agent import ConfidenceScoreAgent
+from extremal_testing.nrf_agents.workflow.metadata_agent import OperationMetadataAgent
+from extremal_testing.nrf_agents.workflow.schema_agent import OperationSchemaAgent
+from extremal_testing.nrf_agents.workflow.testcase_agent import TestCaseAgent
 
 
 @dataclass
@@ -40,7 +42,7 @@ class NRFExtremalTestingAgent:
     """Coordinate the full NRF extremal testing pipeline."""
 
     def __init__(self, root_dir: Optional[Path] = None) -> None:
-        self.root_dir = root_dir or ROOT_DIR
+        self.root_dir = root_dir or PROJECT_DIR
         self.paths = NRFWorkflowPaths(self.root_dir)
 
     def run_metadata_extraction(self) -> None:

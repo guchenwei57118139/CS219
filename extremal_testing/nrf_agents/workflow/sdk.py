@@ -23,7 +23,7 @@ def load_environment() -> None:
         return
 
     try:
-        project_root = Path(__file__).resolve().parents[2]
+        project_root = Path(__file__).resolve().parents[3]
         env_file = project_root / ".env"
         if env_file.exists():
             load_dotenv(env_file, override=False)
@@ -70,4 +70,3 @@ def run_text_agent(
         run_config=build_run_config(workflow_name=workflow_name, model=active_model),
     )
     return result.final_output_as(str)
-

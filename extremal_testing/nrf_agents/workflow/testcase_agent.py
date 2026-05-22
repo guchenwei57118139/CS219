@@ -12,11 +12,13 @@ from typing import Any, Dict, List, Optional
 sys.stdout.reconfigure(line_buffering=True) if hasattr(sys.stdout, "reconfigure") else None
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT_DIR))
+REPO_ROOT = Path(__file__).resolve().parents[3]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
-from nrf_agents.models.common import OperationInfo, TestFormat
-from nrf_agents.prompts.test_cases import build_test_case_prompt
-from nrf_agents.workflow.sdk import run_text_agent
+from extremal_testing.nrf_agents.models.common import OperationInfo, TestFormat
+from extremal_testing.nrf_agents.prompts.test_cases import build_test_case_prompt
+from extremal_testing.nrf_agents.workflow.sdk import run_text_agent
 
 CANONICAL_NF_INSTANCE_ID = "550e8400-e29b-41d4-a716-446655440000"
 CANONICAL_SUBSCRIPTION_ID = "{subscriptionId}"
