@@ -7,7 +7,7 @@ import re
 import sys
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional, Set
 
 sys.stdout.reconfigure(line_buffering=True) if hasattr(sys.stdout, "reconfigure") else None
 
@@ -18,7 +18,9 @@ if str(REPO_ROOT) not in sys.path:
 
 from extremal_testing.nrf_agents.models.common import OperationMetadata
 from extremal_testing.nrf_agents.prompts.metadata import (
+    SYSTEM_PROMPT_OPERATION_DEDUPLICATION,
     SYSTEM_PROMPT_OPERATION_EXTRACTION,
+    build_operation_metadata_deduplication_prompt,
     build_operation_metadata_prompt,
 )
 from extremal_testing.nrf_agents.workflow.sdk import run_text_agent
@@ -76,6 +78,40 @@ def normalize_operation_metadata(operation_dict: Dict[str, str]) -> OperationMet
         else:
             normalized["DependsOn"] = str(depends_on_value).strip()
     return normalized
+
+
+def operation_group_key(operation: Dict[str, Any]) -> str:
+    operation_name = str(operation.get("Operation", "")).strip().lower()
+    if operation_name:
+        return operation_name
+
+    path = str(operation.get("Paths", "")).strip().lower()
+    method = str(operation.get("Method", "")).strip().upper()
+    return f"{path}|{method}"
+
+
+def serialize_operation(operation: Dict[str, Any]) -> Dict[str, Any]:
+    payload: Dict[str, Any] = {
+        "Operation": operation.get("Operation", ""),
+        "Description": operation.get("Description", ""),
+        "Paths": operation.get("Paths", ""),
+        "Method": operation.get("Method", ""),
+    }
+    if "DependsOn" in operation and operation["DependsOn"]:
+        payload["DependsOn"] = operation["DependsOn"]
+    return payload
+
+
+def unique_operations(operations: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    seen: Set[str] = set()
+    deduped: List[Dict[str, Any]] = []
+    for operation in operations:
+        signature = json.dumps(operation, sort_keys=True, ensure_ascii=False)
+        if signature in seen:
+            continue
+        seen.add(signature)
+        deduped.append(operation)
+    return deduped
 
 
 def filter_nf_operations(operations: List[OperationMetadata]) -> List[OperationMetadata]:
@@ -220,6 +256,68 @@ class OperationMetadataAgent:
                 extracted_operations.append(normalize_operation_metadata(operation_item))
         return extracted_operations
 
+    def deduplicate_operations(self, operations: List[OperationMetadata]) -> List[OperationMetadata]:
+        if not operations:
+            return []
+
+        grouped_operations: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+        group_order: List[str] = []
+        for operation in operations:
+            serialized_operation = serialize_operation(operation)
+            key = operation_group_key(serialized_operation)
+            if key not in grouped_operations:
+                group_order.append(key)
+            grouped_operations[key].append(serialized_operation)
+
+        deduplicated_operations: List[OperationMetadata] = []
+        duplicate_groups = sum(1 for key in group_order if len(grouped_operations[key]) > 1)
+        if duplicate_groups == 0:
+            print("  → No duplicate candidate groups found; skipping LLM deduplication", flush=True)
+            return list(operations)
+
+        print(f"  → Running LLM deduplication across {duplicate_groups} duplicate candidate group(s)", flush=True)
+        for index, key in enumerate(group_order, 1):
+            group = grouped_operations[key]
+            if len(group) == 1:
+                deduplicated_operations.append(normalize_operation_metadata(group[0]))
+                continue
+
+            group_label = str(group[0].get("Operation", "")).strip() or key
+            print(f"    [dedupe {index}/{len(group_order)}] Reviewing {group_label} ({len(group)} candidate record(s))...", flush=True)
+
+            prompt = build_operation_metadata_deduplication_prompt(group_label, group)
+            try:
+                response_text = run_text_agent(
+                    agent_name="NRF Metadata Deduplication Agent",
+                    instructions=SYSTEM_PROMPT_OPERATION_DEDUPLICATION,
+                    prompt=prompt,
+                    workflow_name="NRF Metadata Deduplication",
+                )
+            except Exception as exc:
+                print(f"      → Error calling deduplication agent: {exc}", flush=True)
+                deduplicated_operations.extend(normalize_operation_metadata(item) for item in unique_operations(group))
+                continue
+
+            parsed_data = parse_json_from_llm_response(response_text)
+            if parsed_data is None or not isinstance(parsed_data, list):
+                print("      → Deduplication agent returned an invalid payload; keeping the original group", flush=True)
+                deduplicated_operations.extend(normalize_operation_metadata(item) for item in unique_operations(group))
+                continue
+
+            canonical_records: List[Dict[str, Any]] = []
+            for record in parsed_data:
+                if validate_operation_metadata(record):
+                    canonical_records.append(serialize_operation(normalize_operation_metadata(record)))
+
+            if not canonical_records:
+                print("      → No valid deduplicated records returned; keeping the original group", flush=True)
+                deduplicated_operations.extend(normalize_operation_metadata(item) for item in unique_operations(group))
+                continue
+
+            deduplicated_operations.extend(normalize_operation_metadata(item) for item in unique_operations(canonical_records))
+
+        return deduplicated_operations
+
     def find_spec_segment_files(self) -> List[Path]:
         section_file_pattern = re.compile(r"^section_5_2.*\.txt$")
         matching_files: List[Path] = []
@@ -258,9 +356,13 @@ class OperationMetadataAgent:
 
         extracted_operations = self.process_spec_segment_files()
 
-        print("Processing complete. Filtering NF operations...", flush=True)
-        nf_operations = filter_nf_operations(extracted_operations)
-        print(f"  → Found {len(nf_operations)} NF operation(s) out of {len(extracted_operations)} total", flush=True)
+        print("Processing complete. Deduplicating extracted operations...", flush=True)
+        deduplicated_operations = self.deduplicate_operations(extracted_operations)
+        print(f"  → Reduced to {len(deduplicated_operations)} operation(s) after deduplication", flush=True)
+
+        print("Filtering NF operations...", flush=True)
+        nf_operations = filter_nf_operations(deduplicated_operations)
+        print(f"  → Found {len(nf_operations)} NF operation(s) out of {len(deduplicated_operations)} deduplicated operation(s)", flush=True)
 
         print("Expanding dependencies (computing transitive closure)...", flush=True)
         dependency_processor = DependencyProcessor(nf_operations)
@@ -272,6 +374,7 @@ class OperationMetadataAgent:
         self.save_operations_metadata(expanded_operations)
 
         print(f"\n[✓] Extracted {len(extracted_operations)} operation(s) total")
+        print(f"[✓] Deduplicated to {len(deduplicated_operations)} operation(s)")
         print(f"[✓] Filtered to {len(nf_operations)} NF operation(s)")
         print(f"[✓] Expanded dependencies for {ops_with_deps} operation(s)", flush=True)
         print(f"[✓] Saved to {self.output_file.name}", flush=True)
