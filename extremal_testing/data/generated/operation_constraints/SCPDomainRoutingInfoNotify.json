@@ -4,54 +4,63 @@
   "operation": "SCPDomainRoutingInfoNotify",
   "source_file": "section_5_3.txt",
   "description": "Notification of SCP Domain Routing Info change sent by NRF to a subscriber callback URI.",
-  "normative_statements": [
-    "The NRF shall send a POST request to the callback URI.",
-    "The request body shall contain the updated SCP Domain Routing Information.",
-    "The request body shall contain the \"localInd\" IE with value \"true\" if the notification is for a change of local SCP Domain Routing Information.",
-    "On success, the NF Service Consumer shall return 204 No Content.",
-    "On failure, the NRF shall return a 4xx or 5xx response, and the response body may contain a ProblemDetails object."
-  ],
   "constraints": [
     {
-      "statement": "NRF shall invoke the notification by sending an HTTP POST request to the callback URI provided by the Service Consumer during subscription.",
+      "statement": "The NRF shall send a POST request to the callback URI provided by the Service Consumer during subscription.",
       "evidence": [
-        "The NRF shall send a POST request to the callback URI.",
-        "The notification is sent to a callback URI that Service Consumer provided during the subscription."
+        "\"The NRF shall send a POST request to the callback URI.\"",
+        "\"The notification is sent to a callback URI that Service Consumer provided during the subscription\""
       ],
-      "why_interesting": "This is the core routing/transport requirement for the notification API and is directly testable by observing the HTTP method and target URI.",
-      "category": "request method and routing"
+      "why_interesting": "This is the core routing behavior of the notification and is directly testable by observing the HTTP method and destination URI.",
+      "category": "request-method-and-routing"
     },
     {
-      "statement": "The POST request body shall contain the updated SCP Domain Routing Information.",
+      "statement": "The request body shall contain the updated SCP Domain Routing Information.",
       "evidence": [
-        "The request body shall contain the updated SCP Domain Routing Information."
+        "\"The request body shall contain the updated SCP Domain Routing Information.\""
       ],
-      "why_interesting": "This defines a required payload element that can be validated in request inspection.",
-      "category": "required request body content"
+      "why_interesting": "This defines a required payload element that can be validated in the callback request.",
+      "category": "request-body"
     },
     {
-      "statement": "If the notification is for a change of local SCP Domain Routing Information, the request body shall contain the \"localInd\" IE with value \"true\".",
+      "statement": "The request body shall contain the \"localInd\" IE with value \"true\" if the notification is for a change of local SCP Domain Routing Information.",
       "evidence": [
-        "The request body shall contain the \"localInd\" IE with value \"true\" if the notification is for a change of local SCP Domain Routing Information."
+        "\"The request body shall contain the \\\"localInd\\\" IE with value \\\"true\\\" if the notification is for a change of local SCP Domain Routing Information.\""
       ],
-      "why_interesting": "This is a conditional field/value requirement that affects payload correctness and can be tested for local-change scenarios.",
-      "category": "conditional request body content"
+      "why_interesting": "This is a conditional mandatory field/value rule that can be checked by inspecting the notification payload.",
+      "category": "request-body"
+    },
+    {
+      "statement": "If the SCP Domain Routing Information map is empty, it indicates that no SCP domain is registered in the network, or in the producer NRF for local SCP Domain Routing Information, after the change.",
+      "evidence": [
+        "\"SCP Domain Routing Information with empty map indicates that no SCP domain is registered in the network (or in the producer NRF for local SCP Domain Routing Information) after the change.\""
+      ],
+      "why_interesting": "This defines the semantic meaning of an empty map and can be used to verify payload interpretation in tests.",
+      "category": "payload-semantics"
     },
     {
       "statement": "On success, the NF Service Consumer shall return 204 No Content.",
       "evidence": [
-        "On success, \"204 No content\" shall be returned by the NF Service Consumer."
+        "\"On success, \\\"204 No content\\\" shall be returned by the NF Service Consumer.\""
       ],
-      "why_interesting": "This specifies the expected success response code for the callback interaction and is observable in integration tests.",
-      "category": "response status code"
+      "why_interesting": "This specifies the required success response status code for the callback interaction.",
+      "category": "response-status"
     },
     {
       "statement": "On failure, the NRF shall return a 4xx or 5xx response.",
       "evidence": [
-        "On failure, the NRF shall return \"4xx/5xx\" response and the response body may contain a ProblemDetails object describing the detailed information of the failure."
+        "\"On failure, the NRF shall return \\\"4xx/5xx\\\" response\""
       ],
-      "why_interesting": "This defines the allowed failure status-code class and can be checked by negative-path testing.",
-      "category": "response status code"
+      "why_interesting": "This constrains the failure response class and is observable in API testing.",
+      "category": "response-status"
+    },
+    {
+      "statement": "On failure, the response body may contain a ProblemDetails object describing the detailed information of the failure.",
+      "evidence": [
+        "\"the response body may contain a ProblemDetails object describing the detailed information of the failure.\""
+      ],
+      "why_interesting": "This identifies an optional error payload that can be checked when present.",
+      "category": "error-body"
     }
   ]
 }

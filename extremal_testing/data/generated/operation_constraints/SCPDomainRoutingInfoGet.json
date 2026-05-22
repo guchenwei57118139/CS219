@@ -3,87 +3,87 @@
   "section_id": "5.3.2.3",
   "operation": "SCPDomainRoutingInfoGet",
   "source_file": "section_5_3.txt",
-  "description": "Retrieves SCP domain routing information via HTTP GET on the \"scp-domain-routing-info\" resource, optionally with local=true to retrieve local SCP domain routing information.",
-  "normative_statements": [
-    "The Service Consumer (i.e. SCP) shall send an HTTP GET request to the resource URI \"scp-domain-routing-info\" document resource.",
-    "On success, \"200 OK\" shall be returned with SCP Domain Routing Information in response body.",
-    "On failure, the NRF shall return \"4xx/5xx\" response and the response body may contain a ProblemDetails object describing the detailed information of the failure.",
-    "When SCPs are registered to multiple NRFs in the network, any NRF providing SCP domain routing information for the whole network shall retrieve the local SCP domain routing information in other NRF(s) and perform aggregation.",
-    "The Service Consumer (i.e. SCP) shall send an HTTP GET request to the resource URI \"scp-domain-routing-info\" document resource with \"local\" query parameter set to value \"true\".",
-    "On success, \"200 OK\" shall be returned with local SCP Domain Routing Information in response body."
-  ],
+  "description": "Retrieves SCP domain routing information via HTTP GET on the \"scp-domain-routing-info\" resource, optionally with local=true for local-only information.",
   "constraints": [
     {
-      "statement": "The SCP shall use HTTP GET for the \"scp-domain-routing-info\" resource request.",
+      "statement": "The Service Consumer (SCP) shall send an HTTP GET request to the \"scp-domain-routing-info\" resource URI.",
       "evidence": [
         "\"The Service Consumer (i.e. SCP) shall send an HTTP GET request to the resource URI \\\"scp-domain-routing-info\\\" document resource.\""
       ],
-      "why_interesting": "This is the core method requirement and is directly testable by inspecting the request method.",
-      "category": "request method"
+      "why_interesting": "This is the core request method and target resource for the operation.",
+      "category": "request"
     },
     {
-      "statement": "The NRF shall return 200 OK on successful retrieval of SCP Domain Routing Information.",
+      "statement": "On success, the NRF shall return 200 OK with SCP Domain Routing Information in the response body.",
       "evidence": [
         "\"On success, \\\"200 OK\\\" shall be returned with SCP Domain Routing Information in response body.\""
       ],
-      "why_interesting": "This defines the required success status code for the API.",
-      "category": "response status code"
+      "why_interesting": "Defines the required successful status code and payload presence.",
+      "category": "response"
     },
     {
-      "statement": "The NRF response body on success shall contain SCP Domain Routing Information.",
+      "statement": "If the SCP Domain Routing Information contains an empty map, it indicates that no SCP domain is registered in the network.",
       "evidence": [
-        "\"On success, \\\"200 OK\\\" shall be returned with SCP Domain Routing Information in response body.\""
+        "\"SCP Domain Routing Information with empty map indicates that no SCP domain is registered in the network.\""
       ],
-      "why_interesting": "This is an observable response payload requirement.",
-      "category": "response body"
+      "why_interesting": "Defines the observable meaning of an empty-map success response.",
+      "category": "response semantics"
     },
     {
       "statement": "On failure, the NRF shall return a 4xx or 5xx response.",
       "evidence": [
-        "\"On failure, the NRF shall return \\\"4xx/5xx\\\" response and the response body may contain a ProblemDetails object describing the detailed information of the failure.\""
+        "\"On failure, the NRF shall return \\\"4xx/5xx\\\" response\""
       ],
-      "why_interesting": "This constrains the failure status code range and is testable.",
-      "category": "response status code"
+      "why_interesting": "Specifies the allowed failure status code classes.",
+      "category": "response"
     },
     {
-      "statement": "For failure responses, the NRF may include a ProblemDetails object in the response body.",
+      "statement": "On failure, the NRF response body may contain a ProblemDetails object describing the detailed information of the failure.",
       "evidence": [
-        "\"On failure, the NRF shall return \\\"4xx/5xx\\\" response and the response body may contain a ProblemDetails object describing the detailed information of the failure.\""
+        "\"the response body may contain a ProblemDetails object describing the detailed information of the failure.\""
       ],
-      "why_interesting": "This is a permitted optional error payload that can be checked in negative tests.",
-      "category": "response body"
+      "why_interesting": "Identifies an optional error payload that can be validated in tests.",
+      "category": "response"
     },
     {
-      "statement": "If SCPs are registered to multiple NRFs, any NRF that provides whole-network SCP domain routing information shall retrieve local SCP domain routing information from other NRFs and aggregate it.",
-      "evidence": [
-        "\"When SCPs are registered to multiple NRFs in the network, any NRF providing SCP domain routing information for the whole network shall retrieve the local SCP domain routing information in other NRF(s) and perform aggregation.\""
-      ],
-      "why_interesting": "This is a cross-NRF behavior rule that affects system integration and aggregation logic.",
-      "category": "cross-PLMN / multi-NRF behavior"
-    },
-    {
-      "statement": "To retrieve local SCP Domain Routing Information, the SCP shall send an HTTP GET request with the \"local\" query parameter set to \"true\".",
+      "statement": "To retrieve local SCP Domain Routing Information, the Service Consumer shall send an HTTP GET request to the \"scp-domain-routing-info\" resource URI with the local query parameter set to true.",
       "evidence": [
         "\"The Service Consumer (i.e. SCP) shall send an HTTP GET request to the resource URI \\\"scp-domain-routing-info\\\" document resource with \\\"local\\\" query parameter set to value \\\"true\\\".\""
       ],
-      "why_interesting": "This is a specific request-parameter requirement that can be validated in API tests.",
-      "category": "request parameter"
+      "why_interesting": "Defines the request variant used for local-only discovery.",
+      "category": "request"
     },
     {
-      "statement": "The NRF shall return 200 OK on successful retrieval of local SCP Domain Routing Information.",
+      "statement": "On success for the local query, the NRF shall return 200 OK with local SCP Domain Routing Information in the response body.",
       "evidence": [
         "\"On success, \\\"200 OK\\\" shall be returned with local SCP Domain Routing Information in response body.\""
       ],
-      "why_interesting": "This defines the required success status code for the local variant of the operation.",
-      "category": "response status code"
+      "why_interesting": "Specifies the required successful response for the local-only variant.",
+      "category": "response"
     },
     {
-      "statement": "The NRF response body on successful local retrieval shall contain local SCP Domain Routing Information.",
+      "statement": "If the local SCP Domain Routing Information contains an empty map, it indicates that no SCP domain is registered in the producer NRF.",
       "evidence": [
-        "\"On success, \\\"200 OK\\\" shall be returned with local SCP Domain Routing Information in response body.\""
+        "\"SCP Domain Routing Information with empty map indicates that no SCP domain is registered in the producer NRF.\""
       ],
-      "why_interesting": "This is an observable payload requirement for the local query variant.",
-      "category": "response body"
+      "why_interesting": "Defines the observable meaning of an empty-map local response.",
+      "category": "response semantics"
+    },
+    {
+      "statement": "On failure for the local query, the NRF shall return a 4xx or 5xx response.",
+      "evidence": [
+        "\"On failure, the NRF shall return \\\"4xx/5xx\\\" response\""
+      ],
+      "why_interesting": "Specifies the allowed failure status code classes for the local variant.",
+      "category": "response"
+    },
+    {
+      "statement": "On failure for the local query, the NRF response body may contain a ProblemDetails object describing the detailed information of the failure.",
+      "evidence": [
+        "\"the response body may contain a ProblemDetails object describing the detailed information of the failure.\""
+      ],
+      "why_interesting": "Identifies an optional error payload for the local-only variant.",
+      "category": "response"
     }
   ]
 }

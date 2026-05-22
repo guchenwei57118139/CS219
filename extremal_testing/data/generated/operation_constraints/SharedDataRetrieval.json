@@ -3,62 +3,78 @@
   "section_id": "5.2.2.10",
   "operation": "SharedDataRetrieval",
   "source_file": "section_5_2.txt",
-  "description": "Retrieves Shared Data by HTTP GET on the shared-data resource URI.",
-  "normative_statements": [
-    "The Service Consumer shall send an HTTP GET request to the resource URI \"shared-data/{sharedDataId}\".",
-    "The URI parameter sharedDataId shall identify the requested Shared Data.",
-    "On success, the NRF shall return 200 OK with the requested Shared Data in the response body.",
-    "On failure, the NRF shall return a 4xx or 5xx response.",
-    "In case of redirection, the NRF shall return a 3xx status code.",
-    "In case of redirection, the NRF shall include a Location header containing a URI pointing to the endpoint of another NRF service instance."
-  ],
+  "description": "Retrieves Shared Data by HTTP GET on the Shared Data resource.",
   "constraints": [
     {
       "statement": "The Service Consumer shall send an HTTP GET request to the resource URI \"shared-data/{sharedDataId}\".",
       "evidence": [
-        "The Service Consumer shall send an HTTP GET request to the resource URI \"shared-data/{sharedDataId}\" document resource, where the URI parameter sharedDataId identifies the requested Shared Data."
+        "\"The Service Consumer shall send an HTTP GET request to the resource URI \\\"shared-data/{sharedDataId}\\\" document resource\""
       ],
-      "why_interesting": "This is the core request method and path requirement for the operation.",
+      "why_interesting": "This is the core request shape and is directly testable by checking the method and URI.",
       "category": "request"
     },
     {
       "statement": "The URI parameter sharedDataId shall identify the requested Shared Data.",
       "evidence": [
-        "The Service Consumer shall send an HTTP GET request to the resource URI \"shared-data/{sharedDataId}\" document resource, where the URI parameter sharedDataId identifies the requested Shared Data."
+        "\"where the URI parameter sharedDataId identifies the requested Shared Data\""
       ],
-      "why_interesting": "It constrains the meaning of the path parameter and can be validated by request construction and routing behavior.",
+      "why_interesting": "This constrains the meaning of the path parameter and can be validated by request routing/lookup behavior.",
       "category": "request"
     },
     {
-      "statement": "On success, the NRF shall return 200 OK with the requested Shared Data in the response body.",
+      "statement": "On success, the NRF shall return 200 OK.",
       "evidence": [
-        "On success, \"200 OK\" shall be returned with the requested Shared Data in response body."
+        "\"On success, \\\"200 OK\\\" shall be returned with the requested Shared Data in response body.\""
       ],
-      "why_interesting": "This defines the required success status code and payload behavior.",
+      "why_interesting": "This defines the required success status code for the operation.",
+      "category": "response"
+    },
+    {
+      "statement": "On success, the response body shall contain the requested Shared Data.",
+      "evidence": [
+        "\"On success, \\\"200 OK\\\" shall be returned with the requested Shared Data in response body.\""
+      ],
+      "why_interesting": "This is an observable response payload requirement.",
       "category": "response"
     },
     {
       "statement": "On failure, the NRF shall return a 4xx or 5xx response.",
       "evidence": [
-        "On failure, the NRF shall return \"4xx/5xx\" response and the response body may contain a ProblemDetails object describing the detailed information of the failure."
+        "\"On failure, the NRF shall return \\\"4xx/5xx\\\" response\""
       ],
-      "why_interesting": "This specifies the allowed failure status code classes for negative cases.",
+      "why_interesting": "This constrains the failure status code class and is testable.",
+      "category": "response"
+    },
+    {
+      "statement": "On failure, the response body may contain a ProblemDetails object describing the detailed information of the failure.",
+      "evidence": [
+        "\"the response body may contain a ProblemDetails object describing the detailed information of the failure\""
+      ],
+      "why_interesting": "This identifies an optional error payload that can be checked when present.",
       "category": "response"
     },
     {
       "statement": "In case of redirection, the NRF shall return a 3xx status code.",
       "evidence": [
-        "In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance."
+        "\"In the case of redirection, the NRF shall return 3xx status code\""
       ],
-      "why_interesting": "This is a testable redirect status requirement.",
+      "why_interesting": "This specifies the required redirect status class.",
       "category": "response"
     },
     {
-      "statement": "In case of redirection, the NRF shall include a Location header containing a URI pointing to the endpoint of another NRF service instance.",
+      "statement": "In case of redirection, the NRF response shall contain a Location header.",
       "evidence": [
-        "In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance."
+        "\"which shall contain a Location header\""
       ],
-      "why_interesting": "This is a concrete header requirement that can be checked in API responses.",
+      "why_interesting": "This is a concrete header requirement for redirect handling.",
+      "category": "header"
+    },
+    {
+      "statement": "In case of redirection, the Location header shall contain a URI pointing to the endpoint of another NRF service instance.",
+      "evidence": [
+        "\"with an URI pointing to the endpoint of another NRF service instance\""
+      ],
+      "why_interesting": "This constrains the redirect target and is observable in the Location header value.",
       "category": "header"
     }
   ]

@@ -3,496 +3,279 @@
   "section_id": "5.2.2.5",
   "operation": "NFStatusSubscribe",
   "source_file": "section_5_2.txt",
-  "description": "Create and manage subscriptions for NF instance status/profile change notifications, including same-PLMN and cross-PLMN cases.",
-  "normative_statements": [
-    "The NF Service Consumer shall send a POST request to the resource URI representing the \"subscriptions\" collection resource.",
-    "The request body shall include the data indicating the type of notifications that the NF Service Consumer is interested in receiving.",
-    "The request body shall include a callback URI where the NF Service Consumer shall be prepared to receive the actual notification from the NRF.",
-    "The request body may include a validity time suggested by the NF Service Consumer.",
-    "The subscription shall be authorized or rejected by the NRF by checking the relevant input attributes in the subscription request body, along with any optional OAuth2 access token, against the authorization attributes in the NF Profile of the target NF Instance to be monitored.",
-    "Upon receiving a request to subscribe to the complete profile of NF instances, the NRF shall verify that the requesting entity is authorized to subscribe to the complete profile of NF instances, based on local policies or an OAuth2 access token granting such permission.",
-    "If the requesting entity is not authorized to subscribe to the complete profile of NF instances, the NRF shall reject the request or handle it as a subscription request without access to the complete profile.",
-    "When the subscription request is for a set of NFs, NF Instances in the set that are not authorized for the NF Service Consumer shall not result in triggering any notification event from the NRF to the NF Service Consumer.",
-    "On success, the NRF shall return \"201 Created\".",
-    "The response shall contain the data related to the created subscription, including the validity time as determined by the NRF.",
-    "If creation fails due to errors in the SubscriptionData JSON object in the request body, the NRF shall return \"400 Bad Request\" with ProblemDetails providing details of the error.",
-    "If verification of the input attributes against the NF Service Consumer certificate is unsuccessful, the request shall be rejected with \"400 Bad Request\" and the \"cause\" attribute set to \"INVALID_CLIENT\".",
-    "If creation fails due to NRF internal errors, the NRF shall return \"500 Internal Server Error\" with ProblemDetails providing details of the error.",
-    "In the case of redirection, the NRF shall return a 3xx status code containing a Location header with a URI pointing to another NRF service instance.",
-    "For a subscription to NF Instances in a different PLMN, the POST request sent to the NRF in the Serving PLMN shall include the identity of the PLMN of the home NRF in the SubscriptionData parameter in the request body.",
-    "The NRF in Serving PLMN shall send a POST request to the resource URI in the NRF in Home PLMN representing the \"subscriptions\" collection resource.",
-    "The request body sent from the NRF in Serving PLMN to the NRF in Home PLMN shall include the SubscriptionData received from the NF Service Consumer.",
-    "If the NRF in Serving PLMN knows that OAuth2-based authorization is required for accessing the NFManagement service of the NRF in Home PLMN and the request does not include an access token, the NRF in Serving PLMN may reject the request with \"401 Unauthorized\".",
-    "On success for a cross-PLMN subscription, the NRF in Serving PLMN shall generate a new subscriptionID and send it to the NF Service Consumer in the Serving PLMN.",
-    "If the Home NRF is located in a PLMN, the NRF in Serving PLMN shall send to the NF Service Consumer a subscriptionID of the form <MCC>+<MNC>+\"-\"+<OriginalSubscriptionID>.",
-    "If the Home NRF is located in an SNPN, the NRF in Serving PLMN shall send to the NF Service Consumer a subscriptionID of the form <MCC>+<MNC>+\"-\"+\"x3Lf57A\"+\":nid=\"+<NID>+\":\"+<OriginalSubscriptionID>.",
-    "The Location header returned by the NRF in Serving PLMN to the NF Service Consumer shall contain a subscriptionId modified as specified for cross-PLMN subscriptions.",
-    "If the Location header contains an absolute URI, its apiRoot shall point to the address of the NRF in Serving PLMN.",
-    "The subscriptionId attribute in the response body returned by the NRF in Serving PLMN shall contain the modified subscriptionId.",
-    "When an intermediate forwarding NRF identifies the next hop NRF, it shall forward the subscription request to that NRF.",
-    "On success in the intermediate forwarding NRF case, NRF-2 shall return \"201 Created\".",
-    "If creation fails in the intermediate forwarding NRF case, NRF-2 shall return a \"4XX/5XX\" response.",
-    "The content of the POST response forwarded by NRF-1 to the NF Service Consumer shall contain the representation describing the status of the request.",
-    "The Location header in the POST response forwarded by NRF-1 to the NF Service Consumer shall be present and shall contain the URI of the created resource.",
-    "When an intermediate redirecting NRF identifies the next hop NRF, it shall redirect the subscription request by returning HTTP 307 Temporary Redirect.",
-    "The 307 Temporary Redirect response shall contain a Location header field whose host part represents NRF-3.",
-    "Upon receiving a 307 Temporary Redirect response, NRF-1 shall send the subscription request to NRF-3 by using the URI contained in the Location header field.",
-    "On success in the intermediate redirecting NRF case, NRF-3 shall return \"201 Created\".",
-    "If creation fails in the intermediate redirecting NRF case, NRF-3 shall return \"4XX/5XX\".",
-    "On success in the intermediate redirecting NRF case, \"201 Created\" shall be forwarded to the NF Service Consumer via NRF-1.",
-    "On failure in the intermediate redirecting NRF case, \"4XX/5XX\" shall be forwarded to the NF Service Consumer via NRF-1.",
-    "The NF Service Consumer shall send a PATCH request to the resource URI identifying the individual subscription resource when updating a subscription.",
-    "The PATCH request shall contain a \"replace\" operation on the \"validityTime\" attribute of the SubscriptionData structure.",
-    "The PATCH request shall contain a new suggested value for the \"validityTime\" attribute.",
-    "No other attribute of the resource shall be updated as part of the PATCH operation.",
-    "If the NRF accepts the requested validityTime value when extending the subscription lifetime, it shall return \"204 No Content\".",
-    "If the NRF accepts the extension of the subscription lifetime but assigns a validity time different from the value suggested by the NF Service Consumer, it shall return \"200 OK\".",
-    "The response to such an update shall contain the new resource representation of the \"subscription\" resource.",
-    "The response representation shall include the new validity time as determined by the NRF.",
-    "If update fails due to errors in the JSON Patch object in the request body, the NRF shall return \"400 Bad Request\" with ProblemDetails providing details of the error.",
-    "If update fails due to NRF internal errors, the NRF shall return \"500 Internal Server Error\" with ProblemDetails providing details of the error.",
-    "For a cross-PLMN subscription update, the PATCH request sent to the NRF in the Serving PLMN shall include the identity of the PLMN or SNPN of the home NRF as component values of the subscriptionID.",
-    "The subscriptionID sent to the NRF in the Home PLMN shall not contain the identity of the PLMN.",
-    "If the subscription was created in a different NRF in the HPLMN than the NRF in the HPLMN that receives the update request, the latter shall forward the request toward the NRF in the HPLMN holding the subscription using the information included in the subscriptionID.",
-    "The subscriptionID value in the request forwarded to the NRF in the HPLMN holding the subscription shall contain the same value as originally generated by that NRF.",
-    "The NRF in Serving PLMN shall send a PATCH request to the resource URI representing the individual subscription for cross-PLMN updates.",
-    "If the NRF in the Home PLMN accepts the requested validityTime value when extending the subscription lifetime, it shall return \"204 No Content\".",
-    "If the NRF in the Home PLMN accepts the extension of the subscription lifetime but assigns a validity time different from the value suggested by the NF Service Consumer, it shall return \"200 OK\".",
-    "The response to a cross-PLMN update shall contain the new resource representation of the \"subscription\" resource.",
-    "The response representation for a cross-PLMN update shall include the new validity time as determined by the NRF in the Home PLMN."
-  ],
+  "description": "Subscription creation and update for NF status notifications, including same-PLMN, different-PLMN, and forwarding/redirecting NRF cases.",
   "constraints": [
     {
-      "statement": "The NF Service Consumer shall send a POST request to the resource URI representing the \"subscriptions\" collection resource.",
+      "statement": "The NF Service Consumer shall send a POST request to the resource URI representing the \"subscriptions\" collection resource to create an NF status subscription.",
       "evidence": [
-        "The NF Service Consumer shall send a POST request to the resource URI representing the \"subscriptions\" collection resource."
+        "\"The NF Service Consumer shall send a POST request to the resource URI representing the \\\"subscriptions\\\" collection resource.\""
       ],
-      "why_interesting": "This is the core request method/target for subscription creation and is directly testable.",
-      "category": "request-method-and-uri"
+      "why_interesting": "This defines the required HTTP method and target resource for subscription creation.",
+      "category": "request method and URI"
     },
     {
-      "statement": "The request body shall include the data indicating the type of notifications that the NF Service Consumer is interested in receiving.",
+      "statement": "The request body shall include the data indicating the type of notifications the NF Service Consumer is interested in receiving.",
       "evidence": [
-        "The request body shall include the data indicating the type of notifications that the NF Service Consumer is interested in receiving;"
+        "\"The request body shall include the data indicating the type of notifications that the NF Service Consumer is interested in receiving\""
       ],
-      "why_interesting": "Defines a required request-body field for subscription creation.",
-      "category": "request-body"
+      "why_interesting": "This is a required request payload element that can be validated by API tests.",
+      "category": "required request body content"
     },
     {
-      "statement": "The request body shall include a callback URI where the NF Service Consumer shall be prepared to receive the actual notification from the NRF.",
+      "statement": "The request body shall contain a callback URI where the NF Service Consumer shall be prepared to receive the notification.",
       "evidence": [
-        "it also contains a callback URI, where the NF Service Consumer shall be prepared to receive the actual notification from the NRF"
+        "\"it also contains a callback URI, where the NF Service Consumer shall be prepared to receive the actual notification from the NRF\""
       ],
-      "why_interesting": "Defines a required callback destination in the subscription request.",
-      "category": "request-body"
+      "why_interesting": "Callback URI presence is essential for notification delivery and is testable in request validation.",
+      "category": "required request body content"
     },
     {
-      "statement": "The subscription shall be authorized or rejected by the NRF by checking the relevant input attributes in the subscription request body, along with any optional OAuth2 access token, against the authorization attributes in the NF Profile of the target NF Instance to be monitored.",
+      "statement": "If the NF Service Consumer creates multiple subscriptions in the NRF, it should use distinct callback URIs for each subscription.",
       "evidence": [
-        "The subscription shall be authorized, or rejected, by the NRF by checking the relevant input attributes ... (along with the contents of any optional Oauth2 access token provided in the API request) against the list of authorization attributes in the NF Profile of the target NF Instance to be monitored."
+        "\"When the NF Service Consumer creates multiple subscriptions in the NRF, it should use distinct callback URIs for each subscription.\""
       ],
-      "why_interesting": "Specifies the authorization decision inputs the NRF must evaluate.",
-      "category": "authorization"
+      "why_interesting": "This is a behavioral recommendation, but not normative enough to keep as a constraint.",
+      "category": "excluded"
     },
     {
-      "statement": "Upon receiving a request to subscribe to the complete profile of NF instances, the NRF shall verify that the requesting entity is authorized to subscribe to the complete profile of NF instances, based on local policies or an OAuth2 access token granting such permission.",
+      "statement": "The subscription shall be authorized or rejected by the NRF by checking the relevant input attributes in the subscription request body against the list of authorization attributes in the NF Profile of the target NF Instance to be monitored.",
       "evidence": [
-        "Upon receiving such a request, the NRF shall verify that the requesting entity is authorized to subscribe to the complete profile of NF instances, based on local policies or the receipt of an Oauth2 access token granting such permission."
+        "\"The subscription shall be authorized, or rejected, by the NRF by checking the relevant input attributes ... against the list of authorization attributes in the NF Profile of the target NF Instance to be monitored.\""
       ],
-      "why_interesting": "Creates a concrete authorization check for a special subscription scope.",
+      "why_interesting": "This defines the authorization decision rule for subscription creation.",
       "category": "authorization"
     },
     {
       "statement": "If the requesting entity is not authorized to subscribe to the complete profile of NF instances, the NRF shall reject the request or handle it as a subscription request without access to the complete profile.",
       "evidence": [
-        "If the requesting entity is not authorized to do so, the NRF shall reject the request or handle it as a subscription request without access to the complete profile."
+        "\"If the requesting entity is not authorized to do so, the NRF shall reject the request or handle it as a subscription request without access to the complete profile.\""
       ],
-      "why_interesting": "Defines the allowed NRF behavior when authorization fails for complete-profile access.",
-      "category": "authorization"
+      "why_interesting": "This constrains NRF behavior when complete-profile access is unauthorized.",
+      "category": "authorization / access control"
     },
     {
-      "statement": "When the subscription request is for a set of NFs, NF Instances in the set that are not authorized for the NF Service Consumer shall not result in triggering any notification event from the NRF to the NF Service Consumer.",
+      "statement": "When the subscription request is for a set of NFs and some NF Instances are not authorized for the NF Service Consumer, those NF Instances shall not trigger any notification event from the NRF to the NF Service Consumer.",
       "evidence": [
-        "the NF Instances in the set that are not authorized for the NF Service Consumer that requested the subscription, shall not result in triggering any notification event from the NRF to the NF Service Consumer."
+        "\"the NF Instances in the set that are not authorized for the NF Service Consumer that requested the subscription, shall not result in triggering any notification event from the NRF to the NF Service Consumer.\""
       ],
-      "why_interesting": "This is a negative behavior rule that can be verified by observing absent notifications.",
-      "category": "notification-filtering"
+      "why_interesting": "This is a precise negative notification rule for partially authorized subscriptions.",
+      "category": "notification filtering"
     },
     {
-      "statement": "On success, the NRF shall return \"201 Created\".",
+      "statement": "On successful subscription creation, the NRF shall return 201 Created.",
       "evidence": [
-        "On success, \"201 Created\" shall be returned."
+        "\"On success, \\\"201 Created\\\" shall be returned.\""
       ],
-      "why_interesting": "Required success status code for subscription creation.",
-      "category": "response-status"
+      "why_interesting": "This is the required success status code for subscription creation.",
+      "category": "response status code"
     },
     {
-      "statement": "The response shall contain the data related to the created subscription, including the validity time as determined by the NRF.",
+      "statement": "On successful subscription creation, the response shall contain the data related to the created subscription, including the validity time determined by the NRF.",
       "evidence": [
-        "The response shall contain the data related to the created subscription, including the validity time, as determined by the NRF, after which the subscription becomes invalid."
+        "\"The response shall contain the data related to the created subscription, including the validity time, as determined by the NRF\""
       ],
-      "why_interesting": "Defines required response content on successful creation.",
-      "category": "response-body"
+      "why_interesting": "This specifies required response content on success.",
+      "category": "required response body content"
     },
     {
-      "statement": "If creation fails due to errors in the SubscriptionData JSON object in the request body, the NRF shall return \"400 Bad Request\" with ProblemDetails providing details of the error.",
+      "statement": "After the subscription expires, the NF Service Consumer shall create a new subscription in the NRF if it wants to keep receiving status notifications.",
       "evidence": [
-        "If the creation of the subscription fails at the NRF due to errors in the SubscriptionData JSON object in the request body, the NRF shall return \"400 Bad Request\" status code with the ProblemDetails IE providing details of the error."
+        "\"Once the subscription expires, if the NF Service Consumer wants to keep receiving status notifications, it shall create a new subscription in the NRF.\""
       ],
-      "why_interesting": "Maps malformed request data to a specific error response.",
-      "category": "error-handling"
+      "why_interesting": "This is a state-transition rule for expired subscriptions.",
+      "category": "lifecycle / state transition"
     },
     {
-      "statement": "If verification of the input attributes against the NF Service Consumer certificate is unsuccessful, the request shall be rejected with \"400 Bad Request\" and the \"cause\" attribute set to \"INVALID_CLIENT\".",
+      "statement": "If subscription creation fails due to errors in the SubscriptionData JSON object in the request body, the NRF shall return 400 Bad Request with ProblemDetails.",
       "evidence": [
-        "If the verification is unsuccessful, the request shall be rejected with \"400 Bad Request\" status code and the \"cause\" attribute set to \"INVALID_CLIENT\"."
+        "\"If the creation of the subscription fails at the NRF due to errors in the SubscriptionData JSON object in the request body, the NRF shall return \\\"400 Bad Request\\\" status code with the ProblemDetails IE providing details of the error.\""
       ],
-      "why_interesting": "Provides a specific error cause that can be asserted in tests.",
-      "category": "error-handling"
+      "why_interesting": "This is a specific client-error mapping for malformed subscription data.",
+      "category": "error handling / status code"
     },
     {
-      "statement": "If creation fails due to NRF internal errors, the NRF shall return \"500 Internal Server Error\" with ProblemDetails providing details of the error.",
+      "statement": "If verification of the subscription request against the NF service consumer certificate is unsuccessful, the request shall be rejected with 400 Bad Request and the cause attribute set to INVALID_CLIENT.",
       "evidence": [
-        "If the creation of the subscription fails at the NRF due to NRF internal errors, the NRF shall return \"500 Internal Server Error\" status code with the ProblemDetails IE providing details of the error."
+        "\"If the verification is unsuccessful, the request shall be rejected with \\\"400 Bad Request\\\" status code and the \\\"cause\\\" attribute set to \\\"INVALID_CLIENT\\\".\""
       ],
-      "why_interesting": "Defines the server-error response for internal failures.",
-      "category": "error-handling"
+      "why_interesting": "This is a concrete authorization/validation failure response that can be tested.",
+      "category": "authorization / error handling"
+    },
+    {
+      "statement": "If subscription creation fails due to NRF internal errors, the NRF shall return 500 Internal Server Error with ProblemDetails.",
+      "evidence": [
+        "\"If the creation of the subscription fails at the NRF due to NRF internal errors, the NRF shall return \\\"500 Internal Server Error\\\" status code with the ProblemDetails IE providing details of the error.\""
+      ],
+      "why_interesting": "This defines the server-error response for internal failures.",
+      "category": "error handling / status code"
     },
     {
       "statement": "In the case of redirection, the NRF shall return a 3xx status code containing a Location header with a URI pointing to another NRF service instance.",
       "evidence": [
-        "In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance."
+        "\"In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance.\""
       ],
-      "why_interesting": "Defines redirect behavior and required header.",
-      "category": "redirect"
+      "why_interesting": "This is a required redirect behavior and header requirement.",
+      "category": "redirect / header"
     },
     {
-      "statement": "For a subscription to NF Instances in a different PLMN, the POST request sent to the NRF in the Serving PLMN shall include the identity of the PLMN of the home NRF in the SubscriptionData parameter in the request body.",
+      "statement": "For subscription creation in a different PLMN, the POST request sent to the NRF in the Serving PLMN shall include the identity of the Home PLMN in the SubscriptionData parameter.",
       "evidence": [
-        "this request shall include the identity of the PLMN of the home NRF in the SubscriptionData parameter in the request body."
+        "\"this request shall include the identity of the PLMN of the home NRF in the SubscriptionData parameter in the request body.\""
       ],
-      "why_interesting": "Cross-PLMN request must carry home-PLMN identity.",
-      "category": "cross-plmn"
+      "why_interesting": "This is a required cross-PLMN request field.",
+      "category": "cross-PLMN request content"
     },
     {
-      "statement": "The NRF in Serving PLMN shall send a POST request to the resource URI in the NRF in Home PLMN representing the \"subscriptions\" collection resource.",
+      "statement": "If the NRF in the Serving PLMN knows that OAuth2-based authorization is required for accessing the NFManagement service of the NRF in the Home PLMN and the request does not include an access token, the NRF in the Serving PLMN may reject the request with 401 Unauthorized.",
       "evidence": [
-        "The NRF in Serving PLMN shall send a POST request to the resource URI in the NRF in Home PLMN representing the \"subscriptions\" collection resource."
+        "\"if the request received at the NRF in the Serving PLMN does not include an access token, the NRF in the Serving PLMN may reject the request with a 401 Unauthorized\""
       ],
-      "why_interesting": "Defines the forwarding target and method for cross-PLMN subscription creation.",
-      "category": "cross-plmn-routing"
+      "why_interesting": "This is an authorization-related conditional response, though expressed with MAY rather than SHALL.",
+      "category": "excluded"
     },
     {
-      "statement": "The request body sent from the NRF in Serving PLMN to the NRF in Home PLMN shall include the SubscriptionData received from the NF Service Consumer.",
+      "statement": "On successful cross-PLMN subscription creation, the NRF in the Serving PLMN shall generate a new subscriptionID and send it to the NF Service Consumer.",
       "evidence": [
-        "The request body shall include the SubscriptionData as received by the NRF in Serving PLMN from the NF Service Consumer in the Serving PLMN"
+        "\"a new subscriptionID shall be generated by the NRF in the Serving PLMN ... and shall be sent to the NF Service Consumer in the Serving PLMN.\""
       ],
-      "why_interesting": "Ensures the home NRF receives the original subscription data.",
-      "category": "cross-plmn-request-body"
+      "why_interesting": "This is a required identifier transformation for cross-PLMN subscriptions.",
+      "category": "identifier handling"
     },
     {
-      "statement": "If the NRF in Serving PLMN knows that OAuth2-based authorization is required for accessing the NFManagement service of the NRF in Home PLMN and the request does not include an access token, the NRF in Serving PLMN may reject the request with \"401 Unauthorized\".",
+      "statement": "If the Home NRF is located in a PLMN, the NRF in the Serving PLMN shall send a subscriptionID of the form <MCC>+<MNC>+\"-\"+<OriginalSubscriptionID> to the NF Service Consumer.",
       "evidence": [
-        "if the request received at the NRF in Serving PLMN does not include an access token, the NRF in Serving PLMN may reject the request with a 401 Unauthorized"
+        "\"If the Home NRF is located in a PLMN: The NRF in Serving PLMN ... shall send to the NF Service Consumer ... a subscriptionID that shall consist on the following structure: <MCC>+<MNC>+\\\"-\\\"+<OriginalSubscriptionID>\""
       ],
-      "why_interesting": "Captures an observable authorization failure path for cross-PLMN access.",
-      "category": "authorization"
+      "why_interesting": "This is a precise, testable formatting rule for returned subscription IDs.",
+      "category": "identifier formatting"
     },
     {
-      "statement": "On success for a cross-PLMN subscription, the NRF in Serving PLMN shall generate a new subscriptionID and send it to the NF Service Consumer in the Serving PLMN.",
+      "statement": "If the Home NRF is located in an SNPN, the NRF in the Serving PLMN shall send a subscriptionID of the form <MCC>+<MNC>+\"-\"+\"x3Lf57A\"+\":nid=\"+<NID>+\":\"+<OriginalSubscriptionID> to the NF Service Consumer.",
       "evidence": [
-        "a new subscriptionID shall be generated by the NRF in the Serving PLMN ... and shall be sent to the NF Service Consumer in the Serving PLMN."
+        "\"If the Home NRF is located in an SNPN: <MCC>+<MNC>+\\\"-\\\"+\\\"x3Lf57A\\\"+\\\":nid=\\\"+<NID>+\\\":\\\"+<OriginalSubscriptionID>\""
       ],
-      "why_interesting": "Defines the serving-side subscription identifier behavior.",
-      "category": "response-body"
+      "why_interesting": "This is a precise, testable formatting rule for SNPN subscription IDs.",
+      "category": "identifier formatting"
     },
     {
-      "statement": "If the Home NRF is located in a PLMN, the NRF in Serving PLMN shall send to the NF Service Consumer a subscriptionID of the form <MCC>+<MNC>+\"-\"+<OriginalSubscriptionID>.",
+      "statement": "The NRF in the Serving PLMN shall not keep state for a subscription created in a different PLMN.",
       "evidence": [
-        "The NRF in Serving PLMN should not keep state ... a subscriptionID that shall consist on the following structure: <MCC>+<MNC>+\"-\"+<OriginalSubscriptionID>"
+        "\"The NRF in Serving PLMN should not keep state for this created subscription\""
       ],
-      "why_interesting": "Specifies the exact cross-PLMN subscription ID format for PLMN home networks.",
-      "category": "identifier-format"
+      "why_interesting": "This is a cross-PLMN state-handling rule, but it is expressed with SHOULD rather than SHALL.",
+      "category": "excluded"
     },
     {
-      "statement": "If the Home NRF is located in an SNPN, the NRF in Serving PLMN shall send to the NF Service Consumer a subscriptionID of the form <MCC>+<MNC>+\"-\"+\"x3Lf57A\"+\":nid=\"+<NID>+\":\"+<OriginalSubscriptionID>.",
+      "statement": "The Location header URI returned by the NRF in the Serving PLMN shall contain the modified subscriptionId, and if it is an absolute URI, its apiRoot shall point to the address of the NRF in the Serving PLMN.",
       "evidence": [
-        "If the Home NRF is located in an SNPN: <MCC>+<MNC>+\"-\"+\"x3Lf57A\"+\":nid=\"+<NID>+\":\"+<OriginalSubscriptionID>"
+        "\"The URI in the Location header that the NRF in Serving PLMN returns ... shall contain a <subscriptionId> modified as described above and, if it is as an absolute URI, an apiRoot pointing to the address of the NRF in Serving PLMN.\""
       ],
-      "why_interesting": "Specifies the exact cross-PLMN subscription ID format for SNPN home networks.",
-      "category": "identifier-format"
+      "why_interesting": "This constrains both the Location header content and the apiRoot for cross-PLMN creation responses.",
+      "category": "response header / identifier formatting"
     },
     {
-      "statement": "The Location header returned by the NRF in Serving PLMN to the NF Service Consumer shall contain a subscriptionId modified as specified for cross-PLMN subscriptions.",
+      "statement": "The subscriptionId attribute in the response body returned by the NRF in the Serving PLMN shall also contain the modified subscriptionId.",
       "evidence": [
-        "The URI in the Location header that the NRF in Serving PLMN returns to the NF Service Consumer in Serving PLMN shall contain a <subscriptionId> modified as described above"
+        "\"The subscriptionId attribute in the message body that the NRF in Serving PLMN returns ... shall also contain a <subscriptionId> modified as described above.\""
       ],
-      "why_interesting": "Requires the Location URI to reflect the rewritten subscription identifier.",
-      "category": "response-header"
+      "why_interesting": "This is a required response-body identifier transformation.",
+      "category": "response body content"
     },
     {
-      "statement": "If the Location header contains an absolute URI, its apiRoot shall point to the address of the NRF in Serving PLMN.",
+      "statement": "For subscription update, the NF Service Consumer shall send a PATCH request to the individual subscription resource URI received in the Location header of the successful 201 Created response.",
       "evidence": [
-        "if it is as an absolute URI, an apiRoot pointing to the address of the NRF in Serving PLMN."
+        "\"It is invoked by issuing an HTTP PATCH request on the URI representing the individual resource received in the Location header field of the \\\"201 Created\\\" response received during a successful subscription\""
       ],
-      "why_interesting": "Constrains the authority/apiRoot in the returned Location URI.",
-      "category": "response-header"
+      "why_interesting": "This defines the required update method and target resource.",
+      "category": "request method and URI"
     },
     {
-      "statement": "The subscriptionId attribute in the response body returned by the NRF in Serving PLMN shall contain the modified subscriptionId.",
+      "statement": "The PATCH request content shall contain a replace operation on the validityTime attribute of the SubscriptionData structure and shall contain a new suggested value for it.",
       "evidence": [
-        "The subscriptionId attribute in the message body that the NRF in Serving PLMN returns to the NF Service Consumer in Serving PLMN shall also contain a <subscriptionId> modified as described above."
+        "\"The content of the PATCH request shall contain a \\\"replace\\\" operation on the \\\"validityTime\\\" attribute of the SubscriptionData structure and shall contain a new suggested value for it\""
       ],
-      "why_interesting": "Requires the response body to carry the rewritten identifier.",
-      "category": "response-body"
+      "why_interesting": "This is a precise request-body requirement for subscription updates.",
+      "category": "required request body content"
     },
     {
-      "statement": "When an intermediate forwarding NRF identifies the next hop NRF, it shall forward the subscription request to that NRF.",
+      "statement": "No other attribute of the subscription resource shall be updated as part of the PATCH operation.",
       "evidence": [
-        "NRF-2 shall identify the next hop NRF and forward the subscription request to that NRF"
+        "\"no other attribute of the resource shall be updated as part of this operation.\""
       ],
-      "why_interesting": "Defines forwarding behavior in the intermediate NRF case.",
-      "category": "routing"
+      "why_interesting": "This is a negative constraint on update scope.",
+      "category": "request semantics / field restriction"
     },
     {
-      "statement": "On success in the intermediate forwarding NRF case, NRF-2 shall return \"201 Created\".",
+      "statement": "If the NRF accepts the extension of the subscription lifetime and accepts the requested validityTime value, it shall return 204 No Content.",
       "evidence": [
-        "On success, \"201 Created\" shall be returned by NRF-2."
+        "\"if the NRF accepts the extension of the lifetime of the subscription, and it accepts the requested value for the \\\"validityTime\\\" attribute, a response with status code \\\"204 No Content\\\" shall be returned.\""
       ],
-      "why_interesting": "Required success status for the forwarding NRF.",
-      "category": "response-status"
+      "why_interesting": "This is the required success status when the requested validity time is accepted.",
+      "category": "response status code"
     },
     {
-      "statement": "If creation fails in the intermediate forwarding NRF case, NRF-2 shall return a \"4XX/5XX\" response.",
+      "statement": "If the NRF accepts the extension of the subscription lifetime but assigns a validity time different from the suggested value, it shall return 200 OK.",
       "evidence": [
-        "if the creation of the subscription fails, the NRF-2 shall return \"4XX/5XX\" response."
+        "\"if the NRF accepts the extension of the lifetime of the subscription, but it assigns a validity time different than the value suggested by the NF Service Consumer, a \\\"200 OK\\\" response code shall be returned.\""
       ],
-      "why_interesting": "Defines the error response class for the forwarding NRF.",
-      "category": "error-handling"
+      "why_interesting": "This distinguishes the response code based on whether the requested validity time is honored.",
+      "category": "response status code"
     },
     {
-      "statement": "The content of the POST response forwarded by NRF-1 to the NF Service Consumer shall contain the representation describing the status of the request.",
+      "statement": "When returning 200 OK for a subscription update, the response shall contain the new subscription resource representation including the new validity time determined by the NRF.",
       "evidence": [
-        "The content of the POST response shall contain the representation describing the status of the request"
+        "\"The response shall contain the new resource representation of the \\\"subscription\\\" resource, which includes the new validity time, as determined by the NRF\""
       ],
-      "why_interesting": "Requires a response representation to be forwarded to the consumer.",
-      "category": "response-body"
+      "why_interesting": "This is a required response-body content rule for partial acceptance of the update.",
+      "category": "response body content"
     },
     {
-      "statement": "The Location header in the POST response forwarded by NRF-1 to the NF Service Consumer shall be present and shall contain the URI of the created resource.",
+      "statement": "If subscription update fails due to errors in the JSON Patch object in the request body, the NRF shall return 400 Bad Request with ProblemDetails.",
       "evidence": [
-        "the \"Location\" header shall be present and shall contain the URI of the created resource."
+        "\"If the update of the subscription fails at the NRF due to errors in the JSON Patch object in the request body, the NRF shall return \\\"400 Bad Request\\\" status code with the ProblemDetails IE providing details of the error.\""
       ],
-      "why_interesting": "Defines a mandatory header in the forwarded success response.",
-      "category": "response-header"
+      "why_interesting": "This is a specific client-error mapping for malformed patch requests.",
+      "category": "error handling / status code"
     },
     {
-      "statement": "When an intermediate redirecting NRF identifies the next hop NRF, it shall redirect the subscription request by returning HTTP 307 Temporary Redirect.",
+      "statement": "If subscription update fails due to NRF internal errors, the NRF shall return 500 Internal Server Error with ProblemDetails.",
       "evidence": [
-        "NRF-2 shall identify the next hop NRF, and redirect the subscription request by returning HTTP 307 Temporary Redirect response."
+        "\"If the update of the subscription fails at the NRF due to NRF internal errors, the NRF shall return \\\"500 Internal Server Error\\\" status code with the ProblemDetails IE providing details of the error.\""
       ],
-      "why_interesting": "Specific redirect status code is testable.",
-      "category": "redirect"
+      "why_interesting": "This defines the server-error response for update failures.",
+      "category": "error handling / status code"
     },
     {
-      "statement": "The 307 Temporary Redirect response shall contain a Location header field whose host part represents NRF-3.",
+      "statement": "For subscription update in a different PLMN, the PATCH request sent to the NRF in the Serving PLMN shall include the identity of the Home NRF PLMN or SNPN as component values of the subscriptionID.",
       "evidence": [
-        "The 307 Temporary Redirect response shall contain a Location header field, the host part of the URI in the Location header field represents NRF-3."
+        "\"this request shall include the identity of the PLMN or SNPN of the home NRF (MCC/MNC/NID values) as a component values of the susbcriptionID.\""
       ],
-      "why_interesting": "Constrains the redirect target encoded in the Location header.",
-      "category": "redirect"
+      "why_interesting": "This is a required cross-PLMN identifier encoding rule for update requests.",
+      "category": "cross-PLMN request content"
     },
     {
-      "statement": "Upon receiving a 307 Temporary Redirect response, NRF-1 shall send the subscription request to NRF-3 by using the URI contained in the Location header field.",
+      "statement": "When forwarding a cross-PLMN subscription update to the NRF in the Home PLMN, the subscriptionID sent to the Home PLMN shall not contain the PLMN identity and shall be the same value as originally generated by the Home PLMN.",
       "evidence": [
-        "NRF-1 sends the subscription request to NRF-3 by using the URI contained in the Location header field of the 307 Temporary Redirect response."
+        "\"the subscriptionID sent to the NRF in the Home PLMN shall not contain the identity of the PLMN (i.e., it shall be the same subscriptionID value as originally generated by the NRF in the Home PLMN).\""
       ],
-      "why_interesting": "Defines how the redirect is followed.",
-      "category": "routing"
+      "why_interesting": "This is a precise forwarding rule for preserving the original home subscription ID.",
+      "category": "cross-PLMN forwarding / identifier handling"
     },
     {
-      "statement": "On success in the intermediate redirecting NRF case, NRF-3 shall return \"201 Created\".",
+      "statement": "If the subscription was created in a different NRF in the HPLMN, the NRF receiving the update request shall forward the request toward the NRF in the HPLMN holding the subscription using the information included in the subscriptionID.",
       "evidence": [
-        "On success, \"201 Created\" shall be returned by NRF-3."
+        "\"the latter shall forward the request received from the NRF in the serving PLMN towards the NRF in the HPLMN holding the subscription, using the information included in the subscriptionID\""
       ],
-      "why_interesting": "Required success status for the final NRF in redirect flow.",
-      "category": "response-status"
+      "why_interesting": "This is a required routing behavior for cross-PLMN updates.",
+      "category": "routing / forwarding"
     },
     {
-      "statement": "If creation fails in the intermediate redirecting NRF case, NRF-3 shall return \"4XX/5XX\".",
+      "statement": "If the subscription update is redirected, the NRF shall return a 3xx status code containing a Location header with a URI pointing to another NRF service instance.",
       "evidence": [
-        "On failure, if the creation of the subscription fails at the NRF-3, the NRF-3 shall return \"4XX/5XX\" response."
+        "\"In the case of redirection, the NRF shall return 3xx status code, which shall contain a Location header with an URI pointing to the endpoint of another NRF service instance.\""
       ],
-      "why_interesting": "Defines the error response class for the final NRF in redirect flow.",
-      "category": "error-handling"
-    },
-    {
-      "statement": "On success in the intermediate redirecting NRF case, \"201 Created\" shall be forwarded to the NF Service Consumer via NRF-1.",
-      "evidence": [
-        "\"201 Created\" shall be forwarded to NF Service Consumer via NRF-1."
-      ],
-      "why_interesting": "Defines the forwarded success status in the redirect chain.",
-      "category": "response-status"
-    },
-    {
-      "statement": "On failure in the intermediate redirecting NRF case, \"4XX/5XX\" shall be forwarded to the NF Service Consumer via NRF-1.",
-      "evidence": [
-        "\"4XX/5XX\" shall be forwarded to NF Service Consumer via NRF-1."
-      ],
-      "why_interesting": "Defines the forwarded error status in the redirect chain.",
-      "category": "error-handling"
-    },
-    {
-      "statement": "The NF Service Consumer shall send a PATCH request to the resource URI identifying the individual subscription resource when updating a subscription.",
-      "evidence": [
-        "The NF Service Consumer shall send a PATCH request to the resource URI identifying the individual subscription resource."
-      ],
-      "why_interesting": "Defines the update method and target resource.",
-      "category": "request-method-and-uri"
-    },
-    {
-      "statement": "The PATCH request shall contain a \"replace\" operation on the \"validityTime\" attribute of the SubscriptionData structure.",
-      "evidence": [
-        "The content of the PATCH request shall contain a \"replace\" operation on the \"validityTime\" attribute of the SubscriptionData structure"
-      ],
-      "why_interesting": "Specifies the only allowed patch operation target.",
-      "category": "request-body"
-    },
-    {
-      "statement": "The PATCH request shall contain a new suggested value for the \"validityTime\" attribute.",
-      "evidence": [
-        "and shall contain a new suggested value for it"
-      ],
-      "why_interesting": "Defines a required value in the patch payload.",
-      "category": "request-body"
-    },
-    {
-      "statement": "No other attribute of the resource shall be updated as part of the PATCH operation.",
-      "evidence": [
-        "no other attribute of the resource shall be updated as part of this operation."
-      ],
-      "why_interesting": "A strict update-scope constraint that can be checked by observing unchanged fields.",
-      "category": "state-transition"
-    },
-    {
-      "statement": "If the NRF accepts the requested validityTime value when extending the subscription lifetime, it shall return \"204 No Content\".",
-      "evidence": [
-        "a response with status code \"204 No Content\" shall be returned."
-      ],
-      "why_interesting": "Required status code for successful update with accepted requested value.",
-      "category": "response-status"
-    },
-    {
-      "statement": "If the NRF accepts the subscription lifetime extension but assigns a validity time different from the value suggested by the NF Service Consumer, it shall return \"200 OK\".",
-      "evidence": [
-        "a \"200 OK\" response code shall be returned."
-      ],
-      "why_interesting": "Required status code when NRF overrides the requested validity time.",
-      "category": "response-status"
-    },
-    {
-      "statement": "The response to such an update shall contain the new resource representation of the \"subscription\" resource.",
-      "evidence": [
-        "The response shall contain the new resource representation of the \"subscription\" resource"
-      ],
-      "why_interesting": "Defines required response content for the 200 OK update case.",
-      "category": "response-body"
-    },
-    {
-      "statement": "The response representation shall include the new validity time as determined by the NRF.",
-      "evidence": [
-        "which includes the new validity time, as determined by the NRF"
-      ],
-      "why_interesting": "Specifies the key field that must be present in the updated representation.",
-      "category": "response-body"
-    },
-    {
-      "statement": "If update fails due to errors in the JSON Patch object in the request body, the NRF shall return \"400 Bad Request\" with ProblemDetails providing details of the error.",
-      "evidence": [
-        "If the update of the subscription fails at the NRF due to errors in the JSON Patch object in the request body, the NRF shall return \"400 Bad Request\" status code with the ProblemDetails IE providing details of the error."
-      ],
-      "why_interesting": "Maps malformed patch payloads to a specific error response.",
-      "category": "error-handling"
-    },
-    {
-      "statement": "If update fails due to NRF internal errors, the NRF shall return \"500 Internal Server Error\" with ProblemDetails providing details of the error.",
-      "evidence": [
-        "If the update of the subscription fails at the NRF due to NRF internal errors, the NRF shall return \"500 Internal Server Error\" status code with the ProblemDetails IE providing details of the error."
-      ],
-      "why_interesting": "Defines the server-error response for update failures.",
-      "category": "error-handling"
-    },
-    {
-      "statement": "For a cross-PLMN subscription update, the PATCH request sent to the NRF in the Serving PLMN shall include the identity of the PLMN or SNPN of the home NRF as component values of the subscriptionID.",
-      "evidence": [
-        "this request shall include the identity of the PLMN or SNPN of the home NRF (MCC/MNC/NID values) as a component values of the susbcriptionID."
-      ],
-      "why_interesting": "Cross-PLMN update requests must encode home-network identity in the subscription ID.",
-      "category": "cross-plmn"
-    },
-    {
-      "statement": "The subscriptionID sent to the NRF in the Home PLMN shall not contain the identity of the PLMN.",
-      "evidence": [
-        "the subscriptionID sent to the NRF in the Home PLMN shall not contain the identity of the PLMN"
-      ],
-      "why_interesting": "Defines the stripped identifier used on the home-side request.",
-      "category": "cross-plmn"
-    },
-    {
-      "statement": "If the subscription was created in a different NRF in the HPLMN than the NRF in the HPLMN that receives the update request, the latter shall forward the request toward the NRF in the HPLMN holding the subscription using the information included in the subscriptionID.",
-      "evidence": [
-        "the latter shall forward the request received from the NRF in the serving PLMN towards the NRF in the HPLMN holding the subscription, using the information included in the subscriptionID"
-      ],
-      "why_interesting": "Defines forwarding behavior for cross-HPLMN update routing.",
-      "category": "cross-plmn-routing"
-    },
-    {
-      "statement": "The subscriptionID value in the request forwarded to the NRF in the HPLMN holding the subscription shall contain the same value as originally generated by that NRF.",
-      "evidence": [
-        "The subscriptionID value in the request forwarded to the NRF in the HPLMN holding the subscription shall contain the same value as originally generated by the latter."
-      ],
-      "why_interesting": "Ensures the forwarded update uses the original home-generated identifier.",
-      "category": "cross-plmn"
-    },
-    {
-      "statement": "The NRF in Serving PLMN shall send a PATCH request to the resource URI representing the individual subscription for cross-PLMN updates.",
-      "evidence": [
-        "The NRF in Serving PLMN shall send a PATCH request to the resource URI representing the individual subscription."
-      ],
-      "why_interesting": "Defines the method/target for cross-PLMN update initiation.",
-      "category": "cross-plmn-routing"
-    },
-    {
-      "statement": "If the NRF in the Home PLMN accepts the requested validityTime value when extending the subscription lifetime, it shall return \"204 No Content\".",
-      "evidence": [
-        "a response with status code \"204 No Content\" shall be returned."
-      ],
-      "why_interesting": "Required success status for home-PLMN update acceptance.",
-      "category": "response-status"
-    },
-    {
-      "statement": "If the NRF in the Home PLMN accepts the subscription lifetime extension but assigns a validity time different from the value suggested by the NF Service Consumer, it shall return \"200 OK\".",
-      "evidence": [
-        "a \"200 OK\" response code shall be returned."
-      ],
-      "why_interesting": "Required status when home NRF overrides the requested validity time.",
-      "category": "response-status"
-    },
-    {
-      "statement": "The response to a cross-PLMN update shall contain the new resource representation of the \"subscription\" resource.",
-      "evidence": [
-        "The response shall contain the new resource representation of the \"subscription\" resource"
-      ],
-      "why_interesting": "Defines required response content for cross-PLMN update success.",
-      "category": "response-body"
-    },
-    {
-      "statement": "The response representation for a cross-PLMN update shall include the new validity time as determined by the NRF in the Home PLMN.",
-      "evidence": [
-        "which includes the new validity time, as determined by the NRF in the Home PLMN"
-      ],
-      "why_interesting": "Specifies the key field in the cross-PLMN update response.",
-      "category": "response-body"
+      "why_interesting": "This is a required redirect behavior for update operations.",
+      "category": "redirect / header"
     }
   ]
 }
