@@ -9,10 +9,7 @@
     "Operation": "NFDeregister",
     "Description": "Deregisters an NF, SCP, or SEPP Instance from the NRF.",
     "Paths": "/nf-instances/{nfInstanceId}",
-    "Method": "DELETE",
-    "DependsOn": [
-      "NFRegister"
-    ]
+    "Method": "DELETE"
   },
   {
     "Operation": "NFProfileRetrieve",
@@ -27,23 +24,14 @@
     "Method": "GET"
   },
   {
-    "Operation": "NFRegister",
-    "Description": "Registers a new NF Instance in the NRF.",
-    "Paths": "/nf-instances/{nfInstanceId}",
-    "Method": "PUT"
-  },
-  {
-    "Operation": "NFDeregister",
-    "Description": "Removes the profile of a Network Function previously registered in the NRF.",
-    "Paths": "/nf-instances/{nfInstanceId}",
-    "Method": "DELETE",
-    "DependsOn": [
-      "NFRegister"
-    ]
+    "Operation": "NFStatusCheck",
+    "Description": "Checks whether the registered NFs, SCPs, and SEPPs are operative.",
+    "Paths": "/nf-instances/status",
+    "Method": "GET"
   },
   {
     "Operation": "NFStatusSubscribe",
-    "Description": "Creates a subscription for notifications on NF Instances.",
+    "Description": "Creates a subscription to be notified about changes in NF Instances.",
     "Paths": "/subscriptions",
     "Method": "POST"
   },
@@ -67,7 +55,7 @@
   },
   {
     "Operation": "NFListRetrieval",
-    "Description": "Retrieves a list of NF Instances currently registered in NRF.",
+    "Description": "Retrieves a list of NF Instances currently registered in the NRF.",
     "Paths": "/nf-instances",
     "Method": "GET"
   },
@@ -75,9 +63,6 @@
     "Operation": "NFProfileRetrieval",
     "Description": "Retrieves the profile of a given NF instance currently registered in NRF.",
     "Paths": "/nf-instances/{nfInstanceId}",
-    "Method": "GET",
-    "DependsOn": [
-      "NFRegister"
-    ]
+    "Method": "GET"
   }
 ]

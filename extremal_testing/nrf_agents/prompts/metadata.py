@@ -23,6 +23,8 @@ Please read the provided text, identify every API operation defined within (Reso
 - Method Differentiation: You must accurately distinguish between different operations using different HTTP methods under the same URI (e.g., PUT for registration, PATCH for update, DELETE for deregistration).
 - Variable Preservation: Keep URI variables exactly as they appear (e.g., {nfInstanceId})..
 - Assume that shared-data is not supported.
+- Canonical Naming: Treat `Operation` as a canonical identifier, not a free-form description. For the same `Paths` + `Method`, output exactly one operation and do not emit aliases, abbreviations, or near-duplicate spellings.
+- Canonical Choice: If the spec uses multiple wording variants for the same operation, prefer the exact 3GPP-style operation name used in the section heading or first explicit operation label, and do not generate alternate names.
 - JSON Integrity: The output must be valid JSON and should not contain any text outside of the Markdown code block.
 
 ### Output format (for each chunk):
@@ -74,6 +76,8 @@ def build_operation_metadata_deduplication_prompt(operation_name: str, operation
     return (
         "Here is a candidate duplicate group of operation metadata records.\n\n"
         f"Operation name: {operation_name}\n\n"
+        "Treat records with the same `Paths` and `Method` as duplicates even if their `Operation` strings differ.\n"
+        "Choose exactly one canonical record and discard the rest.\n\n"
         "=== Candidate Records START ===\n"
         f"{json.dumps(operations, indent=2, ensure_ascii=False)}\n"
         "=== Candidate Records END ===\n"

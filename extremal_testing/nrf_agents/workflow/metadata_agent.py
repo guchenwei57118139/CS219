@@ -81,13 +81,13 @@ def normalize_operation_metadata(operation_dict: Dict[str, str]) -> OperationMet
 
 
 def operation_group_key(operation: Dict[str, Any]) -> str:
-    operation_name = str(operation.get("Operation", "")).strip().lower()
-    if operation_name:
-        return operation_name
-
     path = str(operation.get("Paths", "")).strip().lower()
     method = str(operation.get("Method", "")).strip().upper()
-    return f"{path}|{method}"
+    if path or method:
+        return f"{path}|{method}"
+
+    operation_name = str(operation.get("Operation", "")).strip().lower()
+    return operation_name
 
 
 def serialize_operation(operation: Dict[str, Any]) -> Dict[str, Any]:
@@ -112,6 +112,13 @@ def unique_operations(operations: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         seen.add(signature)
         deduped.append(operation)
     return deduped
+
+
+def first_valid_operation(operations: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    for operation in operations:
+        if validate_operation_metadata(operation):
+            return serialize_operation(normalize_operation_metadata(operation))
+    return None
 
 
 def filter_nf_operations(operations: List[OperationMetadata]) -> List[OperationMetadata]:
@@ -301,7 +308,9 @@ class OperationMetadataAgent:
             parsed_data = parse_json_from_llm_response(response_text)
             if parsed_data is None or not isinstance(parsed_data, list):
                 print("      → Deduplication agent returned an invalid payload; keeping the original group", flush=True)
-                deduplicated_operations.extend(normalize_operation_metadata(item) for item in unique_operations(group))
+                fallback_operation = first_valid_operation(group)
+                if fallback_operation is not None:
+                    deduplicated_operations.append(normalize_operation_metadata(fallback_operation))
                 continue
 
             canonical_records: List[Dict[str, Any]] = []
@@ -311,10 +320,15 @@ class OperationMetadataAgent:
 
             if not canonical_records:
                 print("      → No valid deduplicated records returned; keeping the original group", flush=True)
-                deduplicated_operations.extend(normalize_operation_metadata(item) for item in unique_operations(group))
+                fallback_operation = first_valid_operation(group)
+                if fallback_operation is not None:
+                    deduplicated_operations.append(normalize_operation_metadata(fallback_operation))
                 continue
 
-            deduplicated_operations.extend(normalize_operation_metadata(item) for item in unique_operations(canonical_records))
+            deduplicated_operations.extend(
+                normalize_operation_metadata(item)
+                for item in unique_operations(canonical_records)
+            )
 
         return deduplicated_operations
 
