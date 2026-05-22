@@ -1,37 +1,40 @@
 [
   {
     "Operation": "NFRegister",
-    "Description": "Registers a new NF, SCP, or SEPP Instance in the NRF.",
+    "Description": "Registers a new NF Instance in the NRF.",
     "Paths": "/nf-instances/{nfInstanceId}",
     "Method": "PUT"
   },
   {
     "Operation": "NFDeregister",
-    "Description": "Deregisters an NF, SCP, or SEPP Instance from the NRF.",
+    "Description": "Deregisters an NF Instance from the NRF.",
     "Paths": "/nf-instances/{nfInstanceId}",
-    "Method": "DELETE"
+    "Method": "DELETE",
+    "DependsOn": [
+      "NFRegister"
+    ]
   },
   {
     "Operation": "NFProfileRetrieve",
-    "Description": "Retrieves the NF Profile of a given NF, SCP, or SEPP Instance.",
+    "Description": "Retrieves the NF Profile of a given NF, SCP or SEPP Instance.",
     "Paths": "/nf-instances/{nfInstanceId}",
     "Method": "GET"
   },
   {
     "Operation": "NFListRetrieve",
-    "Description": "Retrieves a list of NF, SCP, or SEPP Instances currently registered in the NRF.",
+    "Description": "Retrieves a list of NF, SCP or SEPP Instances currently registered in the NRF.",
     "Paths": "/nf-instances",
     "Method": "GET"
   },
   {
     "Operation": "NFStatusCheck",
-    "Description": "Checks whether the registered NFs, SCPs, and SEPPs are operative.",
-    "Paths": "/nf-instances/status",
+    "Description": "Checks whether the registered NFs, SCPs and SEPPs are operative.",
+    "Paths": "/nf-instances/{nfInstanceId}/status",
     "Method": "GET"
   },
   {
     "Operation": "NFStatusSubscribe",
-    "Description": "Creates a subscription to be notified about changes in NF Instances.",
+    "Description": "Creates a subscription for notifications on NF Instances.",
     "Paths": "/subscriptions",
     "Method": "POST"
   },
@@ -52,17 +55,5 @@
     "DependsOn": [
       "NFStatusSubscribe"
     ]
-  },
-  {
-    "Operation": "NFListRetrieval",
-    "Description": "Retrieves a list of NF Instances currently registered in the NRF.",
-    "Paths": "/nf-instances",
-    "Method": "GET"
-  },
-  {
-    "Operation": "NFProfileRetrieval",
-    "Description": "Retrieves the profile of a given NF instance currently registered in NRF.",
-    "Paths": "/nf-instances/{nfInstanceId}",
-    "Method": "GET"
   }
 ]
