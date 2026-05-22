@@ -1,0 +1,126 @@
+{
+  "service": "Nnrf_NFManagement",
+  "section_id": "6.1.5.2.2",
+  "resource_name": "NF Instance Status Notification",
+  "resource_kind": "Notification",
+  "method": "POST",
+  "operation_title": "The NF Service Consumer provides a callback URI for getting notified about NF Instances status events, the NRF shall notify the NF Service Consumer, when the conditions specified in the subscription are met.",
+  "resource_uri": "{nfStatusNotificationUri}",
+  "uri_variables": [],
+  "query_parameters": [],
+  "request_body": [
+    {
+      "name": "NotificationData",
+      "data_type": "NotificationData",
+      "cardinality": "1",
+      "description": "Representation of the NF Instance status notification."
+    }
+  ],
+  "response_body": [
+    {
+      "data_type": "n/a",
+      "description": "This case represents a successful notification of the NF Instance status event.",
+      "response_code": "204 No Content"
+    }
+  ],
+  "notes": [
+    "The POST method shall be used for NF Instance Status notification and the URI shall be the callback reference provided by the NF Service Consumer during the subscription to this notification.",
+    "Support of URI query parameters is specified in table 6.1.5.2.2-1.",
+    "No query parameters are defined for this method.",
+    "Support of request data structures is specified in table 6.1.5.2.2-2, and support of response data structures and response codes is specified in table 6.1.5.2.2-3.",
+    "NOTE: The mandatory HTTP error status codes for the PUT method listed in Table 5.2.7.1-1 of 3GPP TS 29.500 [4] other than those specified in the table above also apply, with a ProblemDetails data type (see subclause 5.2.7 of 3GPP TS 29.500 [4])."
+  ],
+  "constraints": [
+    {
+      "id": "C1",
+      "section_id": "6.1.5.2.2",
+      "statement": "The notification callback shall use the POST method.",
+      "category": "method"
+    },
+    {
+      "id": "C2",
+      "section_id": "6.1.5.2.2",
+      "statement": "The request URI shall be the callback reference provided by the NF Service Consumer during subscription.",
+      "category": "routing"
+    },
+    {
+      "id": "C3",
+      "section_id": "6.1.5.2.2",
+      "statement": "No query parameters are defined for this method.",
+      "category": "request-structure"
+    },
+    {
+      "id": "C4",
+      "section_id": "6.1.5.2.2",
+      "statement": "The request body shall contain exactly one NotificationData object.",
+      "category": "cardinality"
+    },
+    {
+      "id": "C5",
+      "section_id": "6.1.5.2.2",
+      "statement": "A successful notification response shall use HTTP 204 No Content.",
+      "category": "status-code"
+    },
+    {
+      "id": "C6",
+      "section_id": "6.1.5.2.2",
+      "statement": "The NotificationData.event field shall be present exactly once.",
+      "category": "cardinality"
+    },
+    {
+      "id": "C7",
+      "section_id": "6.1.5.2.2",
+      "statement": "NotificationData.event shall be one of NF_REGISTERED, NF_DEREGISTERED, or NF_PROFILE_CHANGED.",
+      "category": "enum"
+    },
+    {
+      "id": "C8",
+      "section_id": "6.1.5.2.2",
+      "statement": "The NotificationData.nfInstanceUri field shall be present exactly once.",
+      "category": "cardinality"
+    },
+    {
+      "id": "C9",
+      "section_id": "6.1.5.2.2",
+      "statement": "The NotificationData.nfProfile field may be present at most once.",
+      "category": "cardinality"
+    },
+    {
+      "id": "C10",
+      "section_id": "6.1.5.2.2",
+      "statement": "The NotificationData.profileChanges field shall be present one or more times.",
+      "category": "cardinality"
+    },
+    {
+      "id": "C11",
+      "section_id": "6.1.5.2.2",
+      "statement": "If the notification event is NF_PROFILE_CHANGED, the notification shall include profileChanges.",
+      "category": "conditional"
+    },
+    {
+      "id": "C12",
+      "section_id": "6.1.5.2.2",
+      "statement": "If the notification event is NF_PROFILE_CHANGED, the notification may include nfProfile.",
+      "category": "conditional"
+    },
+    {
+      "id": "C13",
+      "section_id": "6.1.5.2.2",
+      "statement": "If the notification event is NF_REGISTERED or NF_DEREGISTERED, the notification shall not include nfProfile.",
+      "category": "conditional"
+    },
+    {
+      "id": "C14",
+      "section_id": "6.1.5.2.2",
+      "statement": "If the notification event is NF_REGISTERED or NF_DEREGISTERED, the notification shall not include profileChanges.",
+      "category": "conditional"
+    },
+    {
+      "id": "C15",
+      "section_id": "6.1.5.2.2",
+      "statement": "The NRF shall apply the mandatory HTTP error status codes defined by 3GPP TS 29.500 for this notification operation, with ProblemDetails as the error payload type.",
+      "category": "error-handling"
+    }
+  ],
+  "dependent_operations": []
+}

@@ -1,0 +1,108 @@
+{
+  "service": "Nnrf_NFManagement",
+  "section_id": "6.1.3.2.3.1",
+  "resource_name": "nf-instances",
+  "resource_kind": "Store",
+  "method": "GET",
+  "operation_title": "This method retrieves a list of all NF instances currently registered in the NRF. This method shall support the URI query parameters specified in table 6.1.3.2.3.1-1.",
+  "resource_uri": "{apiRoot}/nnrf-nfm/v1/nf-instances",
+  "uri_variables": [
+    {
+      "name": "apiRoot",
+      "data_type": "apiRoot",
+      "description": "See subclause 6.1.1"
+    }
+  ],
+  "query_parameters": [
+    {
+      "name": "nf-type",
+      "data_type": "NFType",
+      "cardinality": "0..1",
+      "description": "The type of NF to restrict the list of returned NF Instances."
+    },
+    {
+      "name": "limit",
+      "data_type": "integer",
+      "cardinality": "0..1",
+      "description": "Maximum number of items to be returned in this query."
+    }
+  ],
+  "request_body": [],
+  "response_body": [
+    {
+      "data_type": "UriList",
+      "cardinality": "1",
+      "description": "The response body contains a \"_links\" object containing the URI of each registered NF in the NRF, or an empty object if there are no NFs to return in the query result (e.g., because there are no registered NFs in the NRF, or because there are no matching NFs of the type specified in the \"nf-type\" query parameter, currently registered in the NRF).",
+      "response_code": "200 OK"
+    }
+  ],
+  "notes": [
+    "This method shall support the request data structures specified in table 6.1.3.2.3.1-2 and the response data structures and response codes specified in table 6.1.3.2.3.1-3.",
+    "No request body data structures are defined for this method.",
+    "NOTE: The mandatory HTTP error status codes for the GET method listed in Table 5.2.7.1-1 of 3GPP TS 29.500 [4] other than those specified in the table above also apply, with a ProblemDetails data type (see subclause 5.2.7 of 3GPP TS 29.500 [4]).",
+    "There are no resource custom operations for the Nnrf_NFManagement service in this release of the specification."
+  ],
+  "constraints": [
+    {
+      "id": "C1",
+      "section_id": "6.1.3.2.3.1",
+      "statement": "The request URI shall be GET {apiRoot}/nnrf-nfm/v1/nf-instances.",
+      "category": "routing"
+    },
+    {
+      "id": "C2",
+      "section_id": "6.1.3.2.3.1",
+      "statement": "The query parameter nf-type is optional and may appear at most once.",
+      "category": "cardinality"
+    },
+    {
+      "id": "C3",
+      "section_id": "6.1.3.2.3.1",
+      "statement": "The query parameter limit is optional and may appear at most once.",
+      "category": "cardinality"
+    },
+    {
+      "id": "C4",
+      "section_id": "6.1.3.2.3.1",
+      "statement": "If present, nf-type shall be one of the NFType enumeration values: NRF, UDM, AMF, SMF, AUSF, NEF, PCF, SMSF, NSSF, UDR, LMF, GMLC, 5G_EIR, SEPP, UPF, N3IWF, AF, UDSF, BSF, CHF, or NWDAF.",
+      "category": "enum"
+    },
+    {
+      "id": "C5",
+      "section_id": "6.1.3.2.3.1",
+      "statement": "The response body for HTTP 200 OK shall be of type UriList.",
+      "category": "response"
+    },
+    {
+      "id": "C6",
+      "section_id": "6.1.3.2.3.1",
+      "statement": "The UriList response body shall contain the _links member with cardinality 1..N.",
+      "category": "response"
+    },
+    {
+      "id": "C7",
+      "section_id": "6.1.3.2.3.1",
+      "statement": "The response body may be an empty object when there are no registered NFs to return or when no registered NFs match the nf-type filter.",
+      "category": "conditional"
+    },
+    {
+      "id": "C8",
+      "section_id": "6.1.3.2.3.1",
+      "statement": "For this GET method, the mandatory HTTP error status codes defined for GET in 3GPP TS 29.500 Table 5.2.7.1-1 also apply.",
+      "category": "response"
+    },
+    {
+      "id": "C9",
+      "section_id": "6.1.3.2.3.1",
+      "statement": "Any applicable HTTP error response for this GET method shall use the ProblemDetails data type.",
+      "category": "response"
+    },
+    {
+      "id": "C10",
+      "section_id": "6.1.3.2.3.1",
+      "statement": "No request body is defined for this method.",
+      "category": "request"
+    }
+  ],
+  "dependent_operations": []
+}

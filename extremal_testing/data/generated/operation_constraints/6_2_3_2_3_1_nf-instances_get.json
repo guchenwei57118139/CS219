@@ -1,0 +1,518 @@
+{
+  "service": "Nnrf_NFDiscovery",
+  "section_id": "6.2.3.2.3.1",
+  "resource_name": "nf-instances",
+  "resource_kind": "Store",
+  "method": "GET",
+  "operation_title": "This operation retrieves a list of NF Instances, and their offered services, currently registered in the NRF, satisfying a number of filter criteria.",
+  "resource_uri": "{apiRoot}/nnrf-disc/v1/nf-instances",
+  "uri_variables": [
+    {
+      "name": "apiRoot",
+      "data_type": "apiRoot",
+      "description": "See subclause 6.1.1"
+    }
+  ],
+  "query_parameters": [
+    {
+      "name": "target-nf-type",
+      "data_type": "NFType",
+      "cardinality": "1",
+      "description": "NF type of the NF Service Producer being discovered."
+    },
+    {
+      "name": "requester-nf-type",
+      "data_type": "NFType",
+      "cardinality": "1",
+      "description": "NF type of the NF Service Consumer invoking the service."
+    },
+    {
+      "name": "service-names",
+      "data_type": "array(ServiceName)",
+      "cardinality": "1..N",
+      "description": "Array of service names to query; NRF returns NF profiles with at least one matching NF service, or all service names if omitted."
+    },
+    {
+      "name": "requester-nf-instance-fqdn",
+      "data_type": "Fqdn",
+      "cardinality": "0..1",
+      "description": "FQDN of the NF Service Consumer; used to return only NF profiles with allowedNfDomains matching the requester domain."
+    },
+    {
+      "name": "target-plmn-list",
+      "data_type": "array(PlmnId)",
+      "cardinality": "1..N",
+      "description": "PLMN ID(s) of the target NF; if multiple are included, any listed PLMN matches."
+    },
+    {
+      "name": "requester-plmn-list",
+      "data_type": "array(PlmnId)",
+      "cardinality": "1..N",
+      "description": "PLMN ID(s) of the requester NF."
+    },
+    {
+      "name": "target-nf-instance-id",
+      "data_type": "NfInstanceId",
+      "cardinality": "0..1",
+      "description": "Identity of the NF instance being discovered."
+    },
+    {
+      "name": "target-nf-fqdn",
+      "data_type": "Fqdn",
+      "cardinality": "0..1",
+      "description": "FQDN of the target NF instance being discovered."
+    },
+    {
+      "name": "hnrf-uri",
+      "data_type": "Uri",
+      "cardinality": "0..1",
+      "description": "API URI of the home NRF discovery service."
+    },
+    {
+      "name": "snssais",
+      "data_type": "array(Snssai)",
+      "cardinality": "1..N",
+      "description": "List of S-NSSAI served by the services being discovered."
+    },
+    {
+      "name": "plmn-specific-snssai-list",
+      "data_type": "array(PlmnSnssai)",
+      "cardinality": "1..N",
+      "description": "List of PLMN-specific S-NSSAI entries served by the NF service being discovered."
+    },
+    {
+      "name": "nsi-list",
+      "data_type": "array(string)",
+      "cardinality": "1..N",
+      "description": "List of NSI IDs served by the services being discovered."
+    },
+    {
+      "name": "dnn",
+      "data_type": "Dnn",
+      "cardinality": "0..1",
+      "description": "DNN for which NF services are discovered; may be included for BSF, SMF, or UPF."
+    },
+    {
+      "name": "smf-serving-area",
+      "data_type": "string",
+      "cardinality": "0..1",
+      "description": "Serving area of the SMF; may be included for UPF."
+    },
+    {
+      "name": "tai",
+      "data_type": "Tai",
+      "cardinality": "0..1",
+      "description": "Tracking Area Identity."
+    },
+    {
+      "name": "amf-region-id",
+      "data_type": "AmfRegionId",
+      "cardinality": "0..1",
+      "description": "AMF Region Identity."
+    },
+    {
+      "name": "amf-set-id",
+      "data_type": "AmfSetId",
+      "cardinality": "0..1",
+      "description": "AMF Set Identity."
+    },
+    {
+      "name": "guami",
+      "data_type": "Guami",
+      "cardinality": "0..1",
+      "description": "Guami used to search for an appropriate AMF."
+    },
+    {
+      "name": "supi",
+      "data_type": "Supi",
+      "cardinality": "0..1",
+      "description": "SUPI of the requester UE to search for an appropriate NF."
+    },
+    {
+      "name": "ue-ipv4-address",
+      "data_type": "Ipv4Addr",
+      "cardinality": "0..1",
+      "description": "IPv4 address of the UE for which a BSF needs to be discovered."
+    },
+    {
+      "name": "ip-domain",
+      "data_type": "string",
+      "cardinality": "0..1",
+      "description": "IPv4 address domain of the UE for which a BSF needs to be discovered."
+    },
+    {
+      "name": "ue-ipv6-prefix",
+      "data_type": "Ipv6Prefix",
+      "cardinality": "0..1",
+      "description": "IPv6 prefix of the UE for which a BSF needs to be discovered."
+    },
+    {
+      "name": "pgw-ind",
+      "data_type": "boolean",
+      "cardinality": "0..1",
+      "description": "Indicates whether a combined SMF/PGW-C or a standalone SMF needs to be discovered."
+    },
+    {
+      "name": "pgw",
+      "data_type": "Fqdn",
+      "cardinality": "0..1",
+      "description": "PGW FQDN received by the AMF from the MME to find the combined SMF/PGW."
+    },
+    {
+      "name": "gpsi",
+      "data_type": "Gpsi",
+      "cardinality": "0..1",
+      "description": "GPSI of the requester UE to search for an appropriate NF."
+    },
+    {
+      "name": "external-group-identity",
+      "data_type": "GroupId",
+      "cardinality": "0..1",
+      "description": "External group identifier of the requester UE to search for an appropriate NF."
+    },
+    {
+      "name": "data-set",
+      "data_type": "DataSetId",
+      "cardinality": "0..1",
+      "description": "Data set to be supported by the NF to be discovered."
+    },
+    {
+      "name": "routing-indicator",
+      "data_type": "string",
+      "cardinality": "0..1",
+      "description": "Routing Indicator information used to route signaling with SUCI to an AUSF and UDM instance."
+    },
+    {
+      "name": "group-id-list",
+      "data_type": "array(NfGroupId)",
+      "cardinality": "1..N",
+      "description": "Identity of the group(s) of the NFs of the target NF type to be discovered."
+    },
+    {
+      "name": "dnai-list",
+      "data_type": "array(Dnai)",
+      "cardinality": "1..N",
+      "description": "Data network access identifiers."
+    },
+    {
+      "name": "upf-iwk-eps-ind",
+      "data_type": "boolean",
+      "cardinality": "0..1",
+      "description": "Indicates whether a UPF supporting interworking with EPS needs to be discovered."
+    },
+    {
+      "name": "chf-supported-plmn",
+      "data_type": "PlmnId",
+      "cardinality": "0..1",
+      "description": "PLMN ID that a CHF supports."
+    },
+    {
+      "name": "preferred-locality",
+      "data_type": "string",
+      "cardinality": "0..1",
+      "description": "Preferred target NF location."
+    },
+    {
+      "name": "access-type",
+      "data_type": "AccessType",
+      "cardinality": "0..1",
+      "description": "Access type required to be supported by the target Network Function."
+    },
+    {
+      "name": "supported-features",
+      "data_type": "SupportedFeatures",
+      "cardinality": "0..1",
+      "description": "Features required to be supported by the target Network Function; only applicable with a single service-name or when the target NF supports no service.",
+      "applicability": "Query-Params-Ext1"
+    },
+    {
+      "name": "required-features",
+      "data_type": "array(SupportedFeatures)",
+      "cardinality": "1..N",
+      "description": "Features required to be supported by the target Network Function; one entry per service-name.",
+      "applicability": "Query-Params-Ext1"
+    },
+    {
+      "name": "complex-query",
+      "data_type": "ComplexQuery",
+      "cardinality": "0..1",
+      "description": "Overrides the default logical relationship of query parameters.",
+      "applicability": "Complex-Query"
+    },
+    {
+      "name": "limit",
+      "data_type": "integer",
+      "cardinality": "0..1",
+      "description": "Maximum number of NFProfiles to be returned.",
+      "applicability": "Query-Params-Ext1"
+    },
+    {
+      "name": "max-payload-size",
+      "data_type": "integer",
+      "cardinality": "0..1",
+      "description": "Maximum response payload size in kilo octets.",
+      "applicability": "Query-Params-Ext1"
+    },
+    {
+      "name": "pdu-session-types",
+      "data_type": "array(PduSessionType)",
+      "cardinality": "1..N",
+      "description": "PDU session type(s) requested to be supported by the target Network Function.",
+      "applicability": "Query-Params-Ext1"
+    }
+  ],
+  "request_body": [],
+  "response_body": [
+    {
+      "data_type": "SearchResult",
+      "cardinality": "1",
+      "description": "Result of the search over the list of registered NF Instances.",
+      "response_code": "200 OK"
+    },
+    {
+      "data_type": "n/a",
+      "description": "Used when the intermediate NRF redirects the service discovery request.",
+      "response_code": "307 Temporary Redirect"
+    },
+    {
+      "data_type": "ProblemDetails",
+      "cardinality": "1",
+      "description": "Error reason of the request message.",
+      "response_code": "400 Bad Request"
+    },
+    {
+      "data_type": "ProblemDetails",
+      "cardinality": "1",
+      "description": "Returned if the NF Service Consumer is not allowed to discover the queried NF Service(s).",
+      "response_code": "403 Forbidden"
+    },
+    {
+      "data_type": "ProblemDetails",
+      "cardinality": "1",
+      "description": "Error reason of the request message.",
+      "response_code": "500 Internal Server Error"
+    }
+  ],
+  "notes": [
+    "NOTE 1: If this parameter is present and no AMF supporting the requested GUAMI is available due to AMF Failure or planned AMF removal, the NRF shall return in the response AMF instances acting as a backup for AMF failure or planned AMF removal respectively for this GUAMI. NOTE 2: If the combined SMF/PGW-C is requested to be discovered, the NRF shall return in the response the SMF instances registered with the SmfInfo containing pgwFqdn. NOTE 3: If a UPF supporting interworking with EPS is requested to be discovered, the NRF shall return in the response the UPF instances registered with the upfInfo containing iwkEpsInd set to true. NOTE 4: This attribute has a different semantic than what is defined in subclause 6.6.2 of 3GPP TS 29.500 [4], i.e. it is not used to signal optional features of the Nnrf_NFDiscovery Service API supported by the requester NF.",
+    "The default logical relationship among the query parameters is logical \"AND\", i.e. all the provided query parameters shall be matched, with the exception of the \"preferred-locality\" query.",
+    "The NRF may support the Complex query expression as defined in 3GPP TS 29.501 [2] for the NF Discovery service. If the \"complexQuery\" query parameter is included, then the logical relationship among the query parameters contained in \"complexQuery\" query parameter is as defined in 3GPP TS 29.571 [7].",
+    "A NRF not supporting Complex query expression shall reject a NF service discovery request including a complexQuery parameter, with a ProblemDetails IE including the cause attribute set to INVALID_QUERY_PARAM and the invalidParams attribute indicating the complexQuery parameter.",
+    "This method shall support the request data structures specified in table 6.1.3.2.3.1-2 and the response data structures and response codes specified in table 6.1.3.2.3.1-3.",
+    "No request body data structures are defined for this method.",
+    "There are no resource custom operations for the Nnrf_NFDiscovery service in this release of the specification."
+  ],
+  "constraints": [
+    {
+      "id": "C1",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "The request shall include target-nf-type.",
+      "category": "required query parameter"
+    },
+    {
+      "id": "C2",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "The request shall include requester-nf-type.",
+      "category": "required query parameter"
+    },
+    {
+      "id": "C3",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "The request shall include at least one service-name value when service-names is present.",
+      "category": "cardinality"
+    },
+    {
+      "id": "C4",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "The request shall include at least one target-plmn-list value when target-plmn-list is present.",
+      "category": "cardinality"
+    },
+    {
+      "id": "C5",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "The request shall include at least one requester-plmn-list value when requester-plmn-list is present.",
+      "category": "cardinality"
+    },
+    {
+      "id": "C6",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "The request shall include at least one snssais value when snssais is present.",
+      "category": "cardinality"
+    },
+    {
+      "id": "C7",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "The request shall include at least one plmn-specific-snssai-list value when plmn-specific-snssai-list is present.",
+      "category": "cardinality"
+    },
+    {
+      "id": "C8",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "The request shall include at least one nsi-list value when nsi-list is present.",
+      "category": "cardinality"
+    },
+    {
+      "id": "C9",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "The request shall include at least one group-id-list value when group-id-list is present.",
+      "category": "cardinality"
+    },
+    {
+      "id": "C10",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "The request shall include at least one dnai-list value when dnai-list is present.",
+      "category": "cardinality"
+    },
+    {
+      "id": "C11",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "The request shall include at least one required-features value when required-features is present.",
+      "category": "cardinality"
+    },
+    {
+      "id": "C12",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "The request shall include at least one pdu-session-types value when pdu-session-types is present.",
+      "category": "cardinality"
+    },
+    {
+      "id": "C13",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "The response shall use 200 OK with a SearchResult body on successful discovery.",
+      "category": "response code"
+    },
+    {
+      "id": "C14",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "The response shall use 307 Temporary Redirect when the intermediate NRF redirects the discovery request.",
+      "category": "response code"
+    },
+    {
+      "id": "C15",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "The response shall use 400 Bad Request with a ProblemDetails body for an invalid request message.",
+      "category": "response code"
+    },
+    {
+      "id": "C16",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "The response shall use 403 Forbidden with a ProblemDetails body when the NF Service Consumer is not allowed to discover the queried NF Service(s).",
+      "category": "response code"
+    },
+    {
+      "id": "C17",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "The response shall use 500 Internal Server Error with a ProblemDetails body for server-side request processing errors.",
+      "category": "response code"
+    },
+    {
+      "id": "C18",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "The request shall not include a request body.",
+      "category": "forbidden request field"
+    },
+    {
+      "id": "C19",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "If complex-query is included and the NRF does not support Complex query expression, the NRF shall reject the request with ProblemDetails cause INVALID_QUERY_PARAM and invalidParams identifying complex-query.",
+      "category": "conditional error handling"
+    },
+    {
+      "id": "C20",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "If supported-features is included, it is only applicable when exactly one service-name is provided or when the target NF supports no service.",
+      "category": "conditional applicability"
+    },
+    {
+      "id": "C21",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "If required-features is included, the request shall provide one required-features entry per service-name value.",
+      "category": "cross-field dependency"
+    },
+    {
+      "id": "C22",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "The default logical relationship among query parameters shall be AND, except for preferred-locality.",
+      "category": "logical rule"
+    },
+    {
+      "id": "C23",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "If complex-query is included, the logical relationship among the query parameters inside complex-query shall follow the Complex Query expression rules.",
+      "category": "logical rule"
+    },
+    {
+      "id": "C24",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "The response body for 200 OK shall contain exactly one SearchResult object.",
+      "category": "response cardinality"
+    },
+    {
+      "id": "C25",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "The SearchResult body shall include validityPeriod.",
+      "category": "required response field"
+    },
+    {
+      "id": "C26",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "The SearchResult body may include nfInstances with zero or more NFProfile entries.",
+      "category": "response cardinality"
+    },
+    {
+      "id": "C27",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "Each NFProfile in nfInstances shall include nfInstanceID, nfType, nfStatus, plmnList, sNssais, perPlmnSnssaiList, nsiList, and nfServices.",
+      "category": "required response fields"
+    },
+    {
+      "id": "C28",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "Each NFProfile.plmnList shall contain one or more PLMN IDs.",
+      "category": "cardinality"
+    },
+    {
+      "id": "C29",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "Each NFProfile.sNssais shall contain one or more S-NSSAI values.",
+      "category": "cardinality"
+    },
+    {
+      "id": "C30",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "Each NFProfile.perPlmnSnssaiList shall contain one or more PlmnSnssai entries.",
+      "category": "cardinality"
+    },
+    {
+      "id": "C31",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "Each PlmnSnssai shall include plmnId and sNssaiList.",
+      "category": "required response fields"
+    },
+    {
+      "id": "C32",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "Each PlmnSnssai.sNssaiList shall contain one or more S-NSSAI values.",
+      "category": "cardinality"
+    },
+    {
+      "id": "C33",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "Each NFProfile.nsiList shall contain one or more NSI identifiers.",
+      "category": "cardinality"
+    },
+    {
+      "id": "C34",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "Each NFProfile.nfServices shall contain one or more NFService entries.",
+      "category": "cardinality"
+    },
+    {
+      "id": "C35",
+      "section_id": "6.2.3.2.3.1",
+      "statement": "The SearchResult body may include nrfSupportedFeatures as an optional field.",
+      "category": "optional response field"
+    }
+  ],
+  "dependent_operations": []
+}

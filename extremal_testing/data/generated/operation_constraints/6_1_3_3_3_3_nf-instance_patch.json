@@ -1,0 +1,105 @@
+{
+  "service": "Nnrf_NFManagement",
+  "section_id": "6.1.3.3.3.3",
+  "resource_name": "nf-instance",
+  "resource_kind": "Document",
+  "method": "PATCH",
+  "operation_title": "This method updates partially the profile of a given NF instance.",
+  "resource_uri": "{apiRoot}/nnrf-nfm/v1/nf-instances/{nfInstanceID}",
+  "uri_variables": [
+    {
+      "name": "apiRoot",
+      "data_type": "apiRoot",
+      "description": "See subclause 6.1.1"
+    },
+    {
+      "name": "nfInstanceID",
+      "data_type": "nfInstanceID",
+      "description": "Represents a specific NF Instance"
+    }
+  ],
+  "query_parameters": [],
+  "request_body": [
+    {
+      "data_type": "PatchDocument",
+      "cardinality": "1",
+      "description": "It contains the list of changes to be made to the profile of the NF Instance, according to the JSON PATCH format specified in IETF RFC 6902 [13]."
+    }
+  ],
+  "response_body": [
+    {
+      "data_type": "NFProfile",
+      "cardinality": "1",
+      "description": "Upon success, a response body is returned containing the updated profile of the NF Instance.",
+      "response_code": "200 OK"
+    },
+    {
+      "data_type": "n/a",
+      "description": "Successful response sent when there is no need to provide a full updated profile of the NF Instance (e.g., in the Heart-Beat operation response described in subclause 5.2.2.3.2).",
+      "response_code": "204 No Content"
+    }
+  ],
+  "notes": [
+    "This method shall support the URI query parameters specified in table 6.1.3.3.3.3-1.",
+    "No query parameters are defined for this method.",
+    "This method shall support the request data structures specified in table 6.1.3.3.3.2 and the response data structures and response codes specified in table 6.1.3.3.3.3-3.",
+    "NOTE: The mandatory HTTP error status codes for the PATCH method listed in Table 5.2.7.1-1 of 3GPP TS 29.500 [4] other than those specified in the table above also apply, with a ProblemDetails data type (see subclause 5.2.7 of 3GPP TS 29.500 [4])."
+  ],
+  "constraints": [
+    {
+      "id": "C1",
+      "section_id": "6.1.3.3.3.3",
+      "statement": "The request body shall contain exactly one PatchDocument.",
+      "category": "request"
+    },
+    {
+      "id": "C2",
+      "section_id": "6.1.3.3.3.3",
+      "statement": "The PATCH operation shall not define any query parameters.",
+      "category": "request"
+    },
+    {
+      "id": "C3",
+      "section_id": "6.1.3.3.3.3",
+      "statement": "A successful response shall use either 200 OK or 204 No Content.",
+      "category": "response"
+    },
+    {
+      "id": "C4",
+      "section_id": "6.1.3.3.3.3",
+      "statement": "A 200 OK response shall include an NFProfile response body.",
+      "category": "response"
+    },
+    {
+      "id": "C5",
+      "section_id": "6.1.3.3.3.3",
+      "statement": "A 204 No Content response shall not include a response body.",
+      "category": "response"
+    },
+    {
+      "id": "C6",
+      "section_id": "6.1.3.3.3.3",
+      "statement": "The request URI shall include the nfInstanceID path variable.",
+      "category": "routing"
+    },
+    {
+      "id": "C7",
+      "section_id": "6.1.3.3.3.3",
+      "statement": "The nfInstanceID path variable identifies a specific NF instance.",
+      "category": "routing"
+    },
+    {
+      "id": "C8",
+      "section_id": "6.1.3.3.3.3",
+      "statement": "The PatchDocument shall use the JSON Patch format defined in RFC 6902.",
+      "category": "request"
+    },
+    {
+      "id": "C9",
+      "section_id": "6.1.3.3.3.3",
+      "statement": "On error responses, the operation shall support the mandatory HTTP error status codes applicable to PATCH in 3GPP TS 29.500, with ProblemDetails as the error body type.",
+      "category": "response"
+    }
+  ],
+  "dependent_operations": []
+}

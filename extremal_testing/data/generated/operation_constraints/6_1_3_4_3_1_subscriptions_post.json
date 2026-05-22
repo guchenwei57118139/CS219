@@ -1,0 +1,130 @@
+{
+  "service": "Nnrf_NFManagement",
+  "section_id": "6.1.3.4.3.1",
+  "resource_name": "subscriptions",
+  "resource_kind": "Collection",
+  "method": "POST",
+  "operation_title": "This method creates a new subscription. This method shall support the URI query parameters specified in table 6.1.3.4.3.1-1.",
+  "resource_uri": "{apiRoot}/nnrf-nfm/v1/subscriptions",
+  "uri_variables": [
+    {
+      "name": "apiRoot",
+      "data_type": "apiRoot",
+      "description": "See subclause 6.1.1"
+    }
+  ],
+  "query_parameters": [],
+  "request_body": [
+    {
+      "data_type": "SubscriptionData",
+      "cardinality": "1",
+      "description": "The request body contains the input parameters for the subscription. These parameters include, e.g.: Target NF type; Target Service Name; Callback URI of the Requester NF."
+    }
+  ],
+  "response_body": [
+    {
+      "data_type": "SubscriptionData",
+      "cardinality": "1",
+      "description": "This case represents the successful creation of a subscription.",
+      "response_code": "201 Created"
+    }
+  ],
+  "notes": [
+    "No query parameters are defined for this method.",
+    "This method shall support the request data structures specified in table 6.1.3.4.3.1-2 and the response data structures and response codes specified in table 6.1.3.4.3.1-3.",
+    "Upon success, the HTTP response shall include a \"Location\" HTTP header that contains the resource URI of the created resource. NOTE: The mandatory HTTP error status codes for the PUT method listed in Table 5.2.7.1-1 of 3GPP TS 29.500 [4] other than those specified in the table above also apply, with a ProblemDetails data type (see subclause 5.2.7 of 3GPP TS 29.500 [4])."
+  ],
+  "constraints": [
+    {
+      "id": "C1",
+      "section_id": "6.1.3.4.3.1",
+      "statement": "The request body shall be present and contain exactly one SubscriptionData object.",
+      "category": "request"
+    },
+    {
+      "id": "C2",
+      "section_id": "6.1.3.4.3.1",
+      "statement": "The response for successful subscription creation shall use HTTP status code 201 Created.",
+      "category": "response"
+    },
+    {
+      "id": "C3",
+      "section_id": "6.1.3.4.3.1",
+      "statement": "On successful creation, the response shall include a Location header containing the URI of the created resource.",
+      "category": "header"
+    },
+    {
+      "id": "C4",
+      "section_id": "6.1.3.4.3.1",
+      "statement": "This operation shall not define any URI query parameters.",
+      "category": "request"
+    },
+    {
+      "id": "C5",
+      "section_id": "6.1.3.4.3.1",
+      "statement": "The request body shall include nfStatusNotificationUri with cardinality 1.",
+      "category": "request"
+    },
+    {
+      "id": "C6",
+      "section_id": "6.1.3.4.3.1",
+      "statement": "The request body shall include reqNotifEvents with cardinality 1..N.",
+      "category": "request"
+    },
+    {
+      "id": "C7",
+      "section_id": "6.1.3.4.3.1",
+      "statement": "The request body shall not include subscriptionId because it is read-only.",
+      "category": "request"
+    },
+    {
+      "id": "C8",
+      "section_id": "6.1.3.4.3.1",
+      "statement": "If reqNotifEvents is present, each item shall be one of NF_REGISTERED, NF_DEREGISTERED, or NF_PROFILE_CHANGED.",
+      "category": "enum"
+    },
+    {
+      "id": "C9",
+      "section_id": "6.1.3.4.3.1",
+      "statement": "If reqNfType is present, its value shall be one of the NFType enumeration values.",
+      "category": "enum"
+    },
+    {
+      "id": "C10",
+      "section_id": "6.1.3.4.3.1",
+      "statement": "If notifCondition.monitoredAttributes is present, it shall contain one or more strings.",
+      "category": "cardinality"
+    },
+    {
+      "id": "C11",
+      "section_id": "6.1.3.4.3.1",
+      "statement": "If notifCondition.unmonitoredAttributes is present, it shall contain one or more strings.",
+      "category": "cardinality"
+    },
+    {
+      "id": "C12",
+      "section_id": "6.1.3.4.3.1",
+      "statement": "If subscrCond is absent, the subscription request applies to all NFs in the NRF.",
+      "category": "conditional"
+    },
+    {
+      "id": "C13",
+      "section_id": "6.1.3.4.3.1",
+      "statement": "If reqNotifEvents is absent, notifications for all event types are requested.",
+      "category": "conditional"
+    },
+    {
+      "id": "C14",
+      "section_id": "6.1.3.4.3.1",
+      "statement": "If notifCondition.monitoredAttributes is present, the NRF shall send notifications only for changes in the listed attributes.",
+      "category": "conditional"
+    },
+    {
+      "id": "C15",
+      "section_id": "6.1.3.4.3.1",
+      "statement": "If notifCondition.unmonitoredAttributes is present, the NRF shall send notifications for changes on any attribute except those listed.",
+      "category": "conditional"
+    }
+  ],
+  "dependent_operations": []
+}

@@ -1,0 +1,101 @@
+{
+  "service": "Nnrf_NFManagement",
+  "section_id": "6.1.3.3.3.2",
+  "resource_name": "nf-instance",
+  "resource_kind": "Document",
+  "method": "PUT",
+  "operation_title": "This method registers a new NF instance in the NRF, or replaces completely an existing NF instance.",
+  "resource_uri": "{apiRoot}/nnrf-nfm/v1/nf-instances/{nfInstanceID}",
+  "uri_variables": [
+    {
+      "name": "nfInstanceID",
+      "data_type": "nfInstanceID",
+      "description": "Represents a specific NF Instance"
+    }
+  ],
+  "query_parameters": [],
+  "request_body": [
+    {
+      "data_type": "NFProfile",
+      "cardinality": "1",
+      "description": "Profile of the NF Instance to be registered, or completely replaced, in NRF."
+    }
+  ],
+  "response_body": [
+    {
+      "data_type": "NFProfile",
+      "cardinality": "1",
+      "description": "This case represents the successful replacement of an existing NF Instance profile.",
+      "response_code": "200 OK"
+    },
+    {
+      "data_type": "NFProfile",
+      "cardinality": "1",
+      "description": "This case represents the successful registration of a new NF Instance. Upon success, a response body is returned containing the newly created NF Instance profile; also, the HTTP response shall include a \"Location\" HTTP header that contains the resource URI of the created NF Instance.",
+      "response_code": "201 Created"
+    }
+  ],
+  "notes": [
+    "This method shall support the URI query parameters specified in table 6.1.3.3.3.2-1.",
+    "No query parameters are defined for this method.",
+    "This method shall support the request data structures specified in table 6.1.3.3.3.2-2 and the response data structures and response codes specified in table 6.1.3.3.3.2-3.",
+    "NOTE: The mandatory HTTP error status codes for the PUT method listed in Table 5.2.7.1-1 of 3GPP TS 29.500 [4] other than those specified in the table above also apply, with a ProblemDetails data type (see subclause 5.2.7 of 3GPP TS 29.500 [4])."
+  ],
+  "constraints": [
+    {
+      "id": "C1",
+      "section_id": "6.1.3.3.3.2",
+      "statement": "The request body shall contain exactly one NFProfile object.",
+      "category": "request"
+    },
+    {
+      "id": "C2",
+      "section_id": "6.1.3.3.3.2",
+      "statement": "The URI shall include the nfInstanceID path variable.",
+      "category": "uri"
+    },
+    {
+      "id": "C3",
+      "section_id": "6.1.3.3.3.2",
+      "statement": "No query parameters are defined for this PUT operation; requests with query parameters shall be rejected.",
+      "category": "query"
+    },
+    {
+      "id": "C4",
+      "section_id": "6.1.3.3.3.2",
+      "statement": "A successful replacement of an existing NF instance shall return HTTP 200 OK.",
+      "category": "response-code"
+    },
+    {
+      "id": "C5",
+      "section_id": "6.1.3.3.3.2",
+      "statement": "A successful registration of a new NF instance shall return HTTP 201 Created.",
+      "category": "response-code"
+    },
+    {
+      "id": "C6",
+      "section_id": "6.1.3.3.3.2",
+      "statement": "A 201 Created response shall include a Location header containing the resource URI of the created NF instance.",
+      "category": "header"
+    },
+    {
+      "id": "C7",
+      "section_id": "6.1.3.3.3.2",
+      "statement": "A successful response body shall contain exactly one NFProfile object.",
+      "category": "response"
+    },
+    {
+      "id": "C8",
+      "section_id": "6.1.3.3.3.2",
+      "statement": "HTTP error responses applicable to PUT as defined in 3GPP TS 29.500 Table 5.2.7.1-1 shall also be supported.",
+      "category": "response-code"
+    },
+    {
+      "id": "C9",
+      "section_id": "6.1.3.3.3.2",
+      "statement": "Applicable HTTP error responses shall use the ProblemDetails data type.",
+      "category": "response"
+    }
+  ],
+  "dependent_operations": []
+}
