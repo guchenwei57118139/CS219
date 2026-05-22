@@ -8,6 +8,89 @@ from typing import Any, Dict
 from extremal_testing.nrf_agents.models.common import OperationMetadata
 
 
+_SCHEMA_VALUE_KEYS = {
+    "type",
+    "format",
+    "nullable",
+    "minimum",
+    "maximum",
+    "exclusiveMinimum",
+    "exclusiveMaximum",
+    "minLength",
+    "maxLength",
+    "pattern",
+    "enum",
+    "const",
+    "default",
+    "required",
+    "readOnly",
+    "writeOnly",
+    "minItems",
+    "maxItems",
+    "minProperties",
+    "maxProperties",
+    "description",
+}
+
+_SCHEMA_WRAPPER_KEYS = {
+    "parameters",
+    "request_body",
+    "requestBody",
+    "content",
+    "schema",
+    "properties",
+    "patternProperties",
+    "dependentSchemas",
+    "items",
+    "additionalProperties",
+    "not",
+    "contains",
+    "allOf",
+    "anyOf",
+    "oneOf",
+}
+
+_PARAMETER_KEYS = {
+    "name",
+    "in",
+    "required",
+    "description",
+    "deprecated",
+    "allowEmptyValue",
+    "style",
+    "explode",
+    "allowReserved",
+}
+
+
+def _trim_text(text: Any, limit: int = 280) -> Any:
+    if not isinstance(text, str):
+        return text
+    cleaned = " ".join(text.split())
+    if len(cleaned) <= limit:
+        return cleaned
+    return cleaned[: limit - 3].rstrip() + "..."
+
+
+def _compact_schema_for_prompt(node: Any) -> Any:
+    if isinstance(node, list):
+        return [_compact_schema_for_prompt(item) for item in node]
+    if not isinstance(node, dict):
+        return node
+
+    compacted: Dict[str, Any] = {}
+    for key, value in node.items():
+        if key in {"properties", "patternProperties", "dependentSchemas"} and isinstance(value, dict):
+            compacted[key] = {prop_key: _compact_schema_for_prompt(prop_value) for prop_key, prop_value in value.items()}
+        elif key in {"items", "additionalProperties", "not", "contains", "schema", "content", "request_body", "requestBody", "parameters"}:
+            compacted[key] = _compact_schema_for_prompt(value)
+        elif key in {"allOf", "anyOf", "oneOf"} and isinstance(value, list):
+            compacted[key] = [_compact_schema_for_prompt(item) for item in value]
+        elif key in _SCHEMA_VALUE_KEYS or key in _PARAMETER_KEYS:
+            compacted[key] = _trim_text(value) if key == "description" else value
+    return compacted
+
+
 SYSTEM_PROMPT_SCHEMA_EXTRACTION = """
 You are an expert in OpenAPI specifications and API constraint extraction.
 
@@ -43,7 +126,8 @@ def build_operation_schema_prompt(
     resolved_input_schema: Dict[str, Any],
 ) -> str:
     operation_spec_json = json.dumps(operation_spec, indent=2, ensure_ascii=False)
-    input_schema_json = json.dumps(resolved_input_schema, indent=2, ensure_ascii=False)
+    compact_input_schema = _compact_schema_for_prompt(resolved_input_schema)
+    input_schema_json = json.dumps(compact_input_schema, indent=2, ensure_ascii=False)
 
     return f"""Analyze the following OpenAPI operation definition and extract all input constraints:
 

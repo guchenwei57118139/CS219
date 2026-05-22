@@ -1,0 +1,23 @@
+{
+  "input_schema": {
+    "parameters": [
+      {
+        "name": "nfInstanceID",
+        "in": "path",
+        "required": true,
+        "description": "Unique ID of the NF Instance to deregister",
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "description": "String uniquely identifying a NF instance. The format of the NF Instance ID shall be a  Universally Unique Identifier (UUID) version 4, as described in IETF RFC 4122. \n"
+        }
+      }
+    ]
+  },
+  "constraints": [
+    "The nfInstanceID parameter is required.",
+    "The nfInstanceID parameter must be provided in the path.",
+    "The nfInstanceID must be a string.",
+    "The nfInstanceID must be in the format of a UUID version 4."
+  ]
+}

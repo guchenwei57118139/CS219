@@ -15,37 +15,22 @@
     ]
   },
   {
-    "Operation": "NFProfileRetrieve",
-    "Description": "Retrieves the NF Profile of a given NF, SCP or SEPP Instance.",
+    "Operation": "NFInstanceRetrieve",
+    "Description": "Retrieves the NF Profile of a given NF Instance.",
     "Paths": "/nf-instances/{nfInstanceId}",
     "Method": "GET"
   },
   {
     "Operation": "NFListRetrieve",
-    "Description": "Retrieves a list of NF, SCP or SEPP Instances currently registered in the NRF.",
+    "Description": "Retrieves a list of NF Instances currently registered in the NRF.",
     "Paths": "/nf-instances",
     "Method": "GET"
   },
   {
-    "Operation": "NFStatusCheck",
-    "Description": "Checks whether the registered NFs, SCPs and SEPPs are operative.",
-    "Paths": "/nf-instances/{nfInstanceId}/status",
-    "Method": "GET"
-  },
-  {
     "Operation": "NFStatusSubscribe",
-    "Description": "Creates a subscription for notifications on NF Instances.",
+    "Description": "Creates a subscription to be notified of changes on the status of NF Instances.",
     "Paths": "/subscriptions",
     "Method": "POST"
-  },
-  {
-    "Operation": "NFStatusNotify",
-    "Description": "Notifies subscribed NF or SCP Instances of changes on the status of NF or SEPP Instances.",
-    "Paths": "/callback-uri",
-    "Method": "POST",
-    "DependsOn": [
-      "NFStatusSubscribe"
-    ]
   },
   {
     "Operation": "NFStatusUnsubscribe",

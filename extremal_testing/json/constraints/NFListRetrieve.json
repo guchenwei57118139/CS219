@@ -1,0 +1,135 @@
+{
+  "input_schema": {
+    "parameters": [
+      {
+        "name": "nf-type",
+        "in": "query",
+        "required": false,
+        "description": "Type of NF",
+        "schema": {
+          "description": "NF types known to NRF",
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "NRF",
+                "UDM",
+                "AMF",
+                "SMF",
+                "AUSF",
+                "NEF",
+                "PCF",
+                "SMSF",
+                "NSSF",
+                "UDR",
+                "LMF",
+                "GMLC",
+                "5G_EIR",
+                "SEPP",
+                "UPF",
+                "N3IWF",
+                "AF",
+                "UDSF",
+                "BSF",
+                "CHF",
+                "NWDAF",
+                "PCSCF",
+                "CBCF",
+                "HSS",
+                "UCMF",
+                "SOR_AF",
+                "SPAF",
+                "MME",
+                "SCSAS",
+                "SCEF",
+                "SCP",
+                "NSSAAF",
+                "ICSCF",
+                "SCSCF",
+                "DRA",
+                "IMS_AS",
+                "AANF",
+                "5G_DDNMF",
+                "NSACF",
+                "MFAF",
+                "EASDF",
+                "DCCF",
+                "MB_SMF",
+                "TSCTSF",
+                "ADRF",
+                "GBA_BSF",
+                "CEF",
+                "MB_UPF",
+                "NSWOF",
+                "PKMF",
+                "MNPF",
+                "SMS_GMSC",
+                "SMS_IWMSC",
+                "MBSF",
+                "MBSTF",
+                "PANF",
+                "IP_SM_GW",
+                "SMS_ROUTER",
+                "DCSF",
+                "MRF",
+                "MRFP",
+                "MF",
+                "SLPKMF",
+                "RH",
+                "EIF",
+                "AIOTF",
+                "ADM"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ]
+        }
+      },
+      {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "description": "How many items to return at one time",
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      {
+        "name": "page-number",
+        "in": "query",
+        "required": false,
+        "description": "Page number where the response shall start",
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      {
+        "name": "page-size",
+        "in": "query",
+        "description": "Maximum number of items in each returned page",
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    ]
+  },
+  "constraints": [
+    "The 'nf-type' query parameter is optional.",
+    "The 'nf-type' query parameter must be a string.",
+    "The 'nf-type' query parameter can be one of the predefined NF types such as 'NRF', 'UDM', 'AMF', etc.",
+    "The 'limit' query parameter is optional.",
+    "The 'limit' query parameter must be an integer.",
+    "The 'limit' query parameter must be at least 1.",
+    "The 'page-number' query parameter is optional.",
+    "The 'page-number' query parameter must be an integer.",
+    "The 'page-number' query parameter must be at least 1.",
+    "The 'page-size' query parameter is optional.",
+    "The 'page-size' query parameter must be an integer.",
+    "The 'page-size' query parameter must be at least 1."
+  ]
+}

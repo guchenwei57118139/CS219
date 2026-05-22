@@ -1,0 +1,34 @@
+{
+  "input_schema": {
+    "parameters": [
+      {
+        "name": "nfInstanceID",
+        "in": "path",
+        "required": true,
+        "description": "Unique ID of the NF Instance",
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "description": "String uniquely identifying a NF instance. The format of the NF Instance ID shall be a  Universally Unique Identifier (UUID) version 4, as described in IETF RFC 4122. \n"
+        }
+      },
+      {
+        "name": "requester-features",
+        "in": "query",
+        "description": "Features supported by the NF Service Consumer",
+        "schema": {
+          "type": "string",
+          "pattern": "^[A-Fa-f0-9]*$",
+          "description": "A string used to indicate the features supported by an API that is used as defined in clause  6.6 in 3GPP TS 29.500. The string shall contain a bitmask indicating supported features in  hexadecimal representation Each character in the string shall take a value of \"0\" to \"9\",  \"a\" to \"f\" or \"A\" to \"F\" and shall represent the support of 4 features as described in  table 5.2.2-3. The most significant character representing the highest-numbered features shall  appear first in the string, and the character representing features 1 to 4 shall appear last  in the string. The list of features and their numbering (starting with 1) are defined  separately for each API. If the string contains a lower number of characters than there are  defined features for an API, all features that would be represented by characters that are not  present in the string are not supported.\n"
+        }
+      }
+    ]
+  },
+  "constraints": [
+    "The nfInstanceID parameter is required.",
+    "The nfInstanceID parameter must be a string.",
+    "The nfInstanceID parameter must be formatted as a UUID version 4.",
+    "The requester-features parameter must be a string.",
+    "The requester-features parameter must match the pattern ^[A-Fa-f0-9]*$."
+  ]
+}
