@@ -1,1 +1,0 @@
-6.4	Nnrf_Bootstrapping Service API

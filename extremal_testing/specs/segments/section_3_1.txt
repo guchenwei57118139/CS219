@@ -1,3 +1,0 @@
-3.1	Definitions
-For the purposes of the present document, the terms and definitions given in 3GPP TR 21.905 [1] and the following apply. A term defined in the present document takes precedence over the definition of the same term, if any, in 3GPP TR 21.905 [1].
-Canary Release: When an NF Instance is software upgraded, a canary release allows to have features incrementally tested by a small set of users, which can be targeted by geographic locations or user attributes (e.g., SUPI, PEI, …). If a feature's performance is not satisfactory, then it can be rolled back without any adverse effects on the rest of the system.

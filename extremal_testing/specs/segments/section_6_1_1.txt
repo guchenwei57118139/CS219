@@ -1,4 +1,0 @@
-6.1.1	API URI
-URIs of this API shall have the following root:
-{apiRoot}/{apiName}/{apiVersion}
-where "apiRoot" is defined in clause 4.4.1 of 3GPP TS 29.501 [5], the "apiName" shall be set to "nnrf-nfm" and the "apiVersion" shall be set to "v1" for the current version of this specification.
