@@ -1,4 +1,4 @@
-"""Generate suite-level invalid test cases for NRF operations."""
+"""Generate suite-level positive and negative test cases for NRF operations."""
 
 from __future__ import annotations
 
@@ -202,6 +202,7 @@ class TestCaseGenerator:
         constraint: str,
         shared_setup: List[Dict[str, Any]],
         shared_cleanup: List[Dict[str, Any]],
+        constraint_index: int,
     ) -> str:
         if not self.test_format:
             raise RuntimeError("Test format not loaded")
@@ -212,11 +213,12 @@ class TestCaseGenerator:
         setup_json = json.dumps(shared_setup, indent=2)
         cleanup_json = json.dumps(shared_cleanup, indent=2)
 
-        return f"""Generate exactly one invalid test case for the operation below.
+        return f"""Generate exactly two test cases for the operation below: one positive and one negative.
 
 Operation: {operation.operation}
 Path: {operation.path}
 Method: {operation.method}
+Constraint index: {constraint_index}
 
 Shared setup executed before every test in this suite:
 {setup_json}
@@ -240,27 +242,52 @@ Target suite/test format:
 {test_format_json}
 
 Rules:
-1. Return only a single JSON object for the test case.
-2. Include only: name, constraint, method, path, headers, body.
-3. Do not include request, violated_constraints, driving_state, setup, cleanup, description, or notes.
-4. The test must be invalid and must violate the supplied constraint.
-5. Use the shared setup context instead of inventing test-specific prerequisite state.
-6. Keep Content-Type as application/json unless the constraint requires otherwise.
-7. The target NRF type should always be NRF.
-8. Return valid JSON only, with no markdown or explanation.
+1. Return only a single JSON object with exactly these keys: positive_test_case, negative_test_case.
+2. Each test case object may include only: name, constraint, method, path, headers, body.
+3. Do not include request, violated_constraints, driving_state, setup, cleanup, description, notes, or id.
+4. The positive test case must satisfy the supplied constraint.
+5. The negative test case must violate the supplied constraint.
+6. Use the shared setup context instead of inventing test-specific prerequisite state.
+7. Keep Content-Type as application/json unless the constraint requires otherwise.
+8. The target NRF type should always be NRF.
+9. Return valid JSON only, with no markdown or explanation.
 """
 
-    def generate_suite_test_case(
+    def _standardize_generated_test_case(
+        self,
+        test_case: Dict[str, Any],
+        test_id: str,
+        constraint: str,
+    ) -> Dict[str, Any]:
+        standardized = {
+            "id": test_id,
+            "name": test_id,
+            "constraint": constraint,
+            "method": test_case.get("method", ""),
+            "path": test_case.get("path", ""),
+            "headers": test_case.get("headers", {}),
+            "body": test_case.get("body"),
+        }
+        return standardized
+
+    def generate_suite_test_pair(
         self,
         operation: OperationInfo,
         constraint: str,
         shared_setup: List[Dict[str, Any]],
         shared_cleanup: List[Dict[str, Any]],
-    ) -> Optional[Dict[str, Any]]:
+        constraint_index: int,
+    ) -> Optional[List[Dict[str, Any]]]:
         if not self.llm_client:
             raise RuntimeError("LLM client not initialized. Call initialize_llm() first.")
 
-        prompt = self.create_test_generation_prompt(operation, constraint, shared_setup, shared_cleanup)
+        prompt = self.create_test_generation_prompt(
+            operation,
+            constraint,
+            shared_setup,
+            shared_cleanup,
+            constraint_index,
+        )
         try:
             response_text = self.llm_client.ask_llm(prompt, use_history=False)
         except Exception as exc:
@@ -270,7 +297,19 @@ Rules:
         parsed = _parse_json_object(response_text)
         if not parsed:
             return None
-        return parsed
+
+        positive = parsed.get("positive_test_case")
+        negative = parsed.get("negative_test_case")
+        if not isinstance(positive, dict) or not isinstance(negative, dict):
+            print("  → LLM response did not include both positive_test_case and negative_test_case", flush=True)
+            return None
+
+        positive_id = f"tc_{constraint_index}_pos"
+        negative_id = f"tc_{constraint_index}_neg"
+        return [
+            self._standardize_generated_test_case(positive, positive_id, constraint),
+            self._standardize_generated_test_case(negative, negative_id, constraint),
+        ]
 
     def generate_operation_suite(self, operation: OperationInfo) -> Optional[Dict[str, Any]]:
         if not operation.constraints:
@@ -281,17 +320,17 @@ Rules:
         shared_cleanup = self.build_shared_cleanup(operation)
         print(f"  → Shared setup steps: {len(shared_setup)}", flush=True)
         print(f"  → Shared cleanup steps: {len(shared_cleanup)}", flush=True)
-        print(f"  → Generating {len(operation.constraints)} test case(s) with one shared setup...", flush=True)
+        print(f"  → Generating {len(operation.constraints) * 2} test case(s) with one shared setup...", flush=True)
 
         tests: List[Dict[str, Any]] = []
         for idx, constraint in enumerate(operation.constraints, 1):
             print(f"  → Processing constraint {idx}/{len(operation.constraints)}...", flush=True)
-            test_case = self.generate_suite_test_case(operation, constraint, shared_setup, shared_cleanup)
-            if not test_case:
-                print(f"  → Failed to parse test case from LLM response for constraint {idx}", flush=True)
+            test_pair = self.generate_suite_test_pair(operation, constraint, shared_setup, shared_cleanup, idx)
+            if not test_pair:
+                print(f"  → Failed to parse test pair from LLM response for constraint {idx}", flush=True)
                 continue
-            tests.append(test_case)
-            print(f"  → Generated test case for constraint {idx}", flush=True)
+            tests.extend(test_pair)
+            print(f"  → Generated positive and negative test cases for constraint {idx}", flush=True)
 
         if not tests:
             return None
