@@ -18,11 +18,10 @@ extremal_testing/
 │   │   └── *.json                 # One comparison file per operation
 │   └── confidence_scores/         # LLM confidence judgments
 │       └── *.json                 # One confidence file per operation
-├── llm_prompts/                   # LLM-based generation scripts
-│   ├── generate_operations_metadata.py  # Extract operations from spec segments
-│   ├── generate_operation_schemas.py    # Generate schemas and constraints
-│   ├── generate_test_cases.py          # Generate test cases
-│   └── generate_confidence_scores.py    # Score status-code anomalies with an LLM
+├── nrf_agents/                    # OpenAI Agents SDK-based workflow implementation
+│   ├── prompts/                   # Prompt builders and system prompts
+│   ├── models/                    # Shared dataclasses and workflow models
+│   └── workflow/                  # Metadata/schema/test/confidence agents and orchestrator
 ├── utils/                         # Utility scripts
 │   ├── parse_spec.py              # Parse spec documents into segments
 │   └── postprocess_dependencies.py # Post-process dependencies
@@ -39,17 +38,17 @@ extremal_testing/
 - Output: `data/specs/segments/section_*.txt`
 
 ### 2. Generate Operations Metadata
-- Run `llm_prompts/generate_operations_metadata.py`
+- Run `nrf_agents/workflow/metadata_agent.py`
 - Input: `data/specs/segments/section_*.txt`
 - Output: `data/generated/AllOpsMetaData.json`
 
 ### 3. Generate Operation Schemas
-- Run `llm_prompts/generate_operation_schemas.py`
+- Run `nrf_agents/workflow/schema_agent.py`
 - Input: `data/generated/AllOpsMetaData.json`, `data/specs/original/nrf_management_api.txt`
 - Output: `data/generated/operation_schemas.json`
 
 ### 4. Generate Test Cases
-- Run `llm_prompts/generate_test_cases.py`
+- Run `nrf_agents/workflow/testcase_agent.py`
 - Input: `data/generated/operation_schemas.json`, `data/config/test_format.json`
 - Output: `data/generated/{Operation}_tests.json`
 - Each suite uses `setup`, `tests`, and `cleanup` arrays
@@ -62,7 +61,7 @@ extremal_testing/
 - Output: `data/test_results/{Operation}.json`
 
 ### 6. Generate Confidence Scores
-- Run `llm_prompts/generate_confidence_scores.py`
+- Run `nrf_agents/workflow/confidence_agent.py`
 - Input: `data/test_results/{Operation}.json` and `data/generated/{Operation}_tests.json`
 - Only test cases with differing returned status codes are sent to the LLM
 - Anomalies are batched in groups of 5 per LLM call
@@ -72,7 +71,7 @@ extremal_testing/
 ## Configuration
 
 - `data/config/test_format.json`: Defines the structure for generated test cases
-- LLM API keys: Configure in environment variables or `.env` file (see `llm_prompts/llm.py`)
+- OpenAI API key: Configure `OPENAI_API_KEY` in the environment or `.env`
 
 ## TODO
 - Generate test cases for each operation

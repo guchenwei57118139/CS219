@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-"""Generate confidence scores for implementation anomalies using an LLM."""
+"""Confidence scoring agent for NRF implementation anomalies."""
 
 from __future__ import annotations
 
@@ -10,82 +9,23 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence
 
-ROOT_DIR = Path(__file__).resolve().parent.parent
+sys.stdout.reconfigure(line_buffering=True) if hasattr(sys.stdout, "reconfigure") else None
+
+ROOT_DIR = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT_DIR))
 
-from llm_prompts.llm import GPT
+from nrf_agents.prompts.confidence import (
+    DEFAULT_PROTOCOL,
+    SYSTEM_PROMPT_CONFIDENCE_TRIAGE,
+    build_confidence_prompt,
+)
+from nrf_agents.workflow.sdk import run_text_agent
 
-DEFAULT_PROTOCOL = "NRF"
 DEFAULT_BATCH_SIZE = 5
 
 TEST_RESULTS_DIR = ROOT_DIR / "data" / "test_results"
 GENERATED_DIR = ROOT_DIR / "data" / "generated"
 CONFIDENCE_SCORES_DIR = ROOT_DIR / "data" / "confidence_scores"
-
-SYSTEM_PROMPT_CONFIDENCE_TRIAGE = """
-Role:
-You are helping triage differences between {protocol} implementations.
-
-Inputs:
-You will receive test results where multiple implementations produced
-different responses for the same test case.
-
-Field description:
-The test results follow this JSON output format:
-[
-  {{
-    "test_id": 0,
-    "test_name": "string",
-    "original_test_case": {{
-      "name": "string",
-      "constraint": "string",
-      "method": "string",
-      "path": "string",
-      "headers": {{ }},
-      "body": {{ }}
-    }},
-    "implementations": {{
-      "free5gc": {{
-        "status_code": 200,
-        "response_body": "string or null",
-        "error": "string or null"
-      }},
-      "oai": {{
-        "status_code": 201,
-        "response_body": "string or null",
-        "error": "string or null"
-      }},
-      "open5gs": {{
-        "status_code": 201,
-        "response_body": "string or null",
-        "error": "string or null"
-      }}
-    }}
-  }}
-]
-
-Task:
-For each test:
-1. Reason about the differences between implementation outputs.
-2. Decide whether one implementation likely violates the RFC.
-3. Consider whether the difference might be acceptable behavior or configuration.
-4. Write a short comment explaining the judgment.
-5. Assign confidence from 0 to 10.
-
-Confidence:
-0 = probably not a bug.
-10 = almost certainly a real RFC violation / implementation bug.
-
-Output:
-Return only a JSON array:
-[
-  {{
-    "test_id": <same test_id as input>,
-    "comment": "<short explanation>",
-    "confidence": <integer 0-10>
-  }}
-]
-""".strip()
 
 
 def _strip_code_fences(text: str) -> str:
@@ -107,7 +47,7 @@ def _parse_json_array(text: str) -> Optional[List[Dict[str, Any]]]:
     try:
         parsed = json.loads(cleaned)
     except json.JSONDecodeError as exc:
-        print(f"Warning: Failed to parse LLM response as JSON: {exc}", flush=True)
+        print(f"Warning: Failed to parse agent response as JSON: {exc}", flush=True)
         print(f"Response text: {cleaned[:500]}...", flush=True)
         return None
     return parsed if isinstance(parsed, list) else None
@@ -156,14 +96,10 @@ def _normalize_score_item(item: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         except (TypeError, ValueError):
             return None
     confidence = max(0, min(10, confidence))
-    return {
-        "test_id": test_id,
-        "comment": comment.strip(),
-        "confidence": confidence,
-    }
+    return {"test_id": test_id, "comment": comment.strip(), "confidence": confidence}
 
 
-class ConfidenceScoreGenerator:
+class ConfidenceScoreAgent:
     """Generate confidence scores for status-code anomalies, grouped by operation."""
 
     def __init__(
@@ -179,14 +115,6 @@ class ConfidenceScoreGenerator:
         self.output_dir = output_dir
         self.batch_size = batch_size
         self.protocol = protocol
-        self.llm_client: Optional[GPT] = None
-
-    def initialize_llm(self) -> None:
-        self.llm_client = GPT(
-            system_prompt=SYSTEM_PROMPT_CONFIDENCE_TRIAGE.format(protocol=self.protocol),
-            max_retries=3,
-            retry_delay_seconds=2.0,
-        )
 
     def discover_result_files(self) -> List[Path]:
         if not self.test_results_dir.exists():
@@ -269,26 +197,6 @@ class ConfidenceScoreGenerator:
 
         return anomalies
 
-    def build_prompt(
-        self,
-        operation: str,
-        batch: List[Dict[str, Any]],
-        result_file: Path,
-        suite_file: Path,
-    ) -> str:
-        input_payload = {
-            "operation": operation,
-            "source_test_results_file": str(result_file),
-            "source_tests_file": str(suite_file),
-            "tests": batch,
-        }
-        return (
-            f"Operation: {operation}\n"
-            f"Protocol: {self.protocol}\n\n"
-            "Review the following anomaly batch and return only the JSON array requested by the system prompt.\n\n"
-            f"{json.dumps(input_payload, indent=2, ensure_ascii=False)}"
-        )
-
     def score_batch(
         self,
         operation: str,
@@ -296,14 +204,22 @@ class ConfidenceScoreGenerator:
         result_file: Path,
         suite_file: Path,
     ) -> List[Dict[str, Any]]:
-        if not self.llm_client:
-            raise RuntimeError("LLM client not initialized. Call initialize_llm() first.")
-
-        prompt = self.build_prompt(operation, batch, result_file, suite_file)
+        prompt = build_confidence_prompt(
+            operation=operation,
+            batch=batch,
+            result_file=str(result_file),
+            suite_file=str(suite_file),
+            protocol=self.protocol,
+        )
         try:
-            response_text = self.llm_client.ask_llm(prompt, use_history=False)
+            response_text = run_text_agent(
+                agent_name="NRF Confidence Agent",
+                instructions=SYSTEM_PROMPT_CONFIDENCE_TRIAGE.format(protocol=self.protocol),
+                prompt=prompt,
+                workflow_name="NRF Confidence Scoring",
+            )
         except Exception as exc:
-            print(f"  → Error calling LLM for {operation}: {exc}", flush=True)
+            print(f"  → Error calling agent for {operation}: {exc}", flush=True)
             return []
 
         parsed = _parse_json_array(response_text)
@@ -344,15 +260,11 @@ class ConfidenceScoreGenerator:
         if not anomalies:
             return self.write_operation_scores(operation, result_file, suite_file, [])
 
-        if not self.llm_client:
-            raise RuntimeError("LLM client not initialized. Call initialize_llm() first.")
-
         all_scores: List[Dict[str, Any]] = []
         batches = _chunked(anomalies, self.batch_size)
         for batch_index, batch in enumerate(batches, 1):
             print(
-                f"  → Scoring {operation} anomaly batch {batch_index}/{len(batches)} "
-                f"({len(batch)} test(s))",
+                f"  → Scoring {operation} anomaly batch {batch_index}/{len(batches)} ({len(batch)} test(s))",
                 flush=True,
             )
             batch_scores = self.score_batch(operation, batch, result_file, suite_file)
@@ -361,9 +273,6 @@ class ConfidenceScoreGenerator:
         return self.write_operation_scores(operation, result_file, suite_file, all_scores)
 
     def run(self, result_files: Optional[Sequence[Path]] = None) -> List[Path]:
-        if not self.llm_client:
-            self.initialize_llm()
-
         if result_files is None:
             result_files = self.discover_result_files()
 
@@ -405,7 +314,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
         "--batch-size",
         type=int,
         default=DEFAULT_BATCH_SIZE,
-        help="Maximum number of anomaly tests to send to the LLM per call.",
+        help="Maximum number of anomaly tests to send to the agent per call.",
     )
     return parser
 
@@ -413,7 +322,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
 def main() -> None:
     parser = build_arg_parser()
     args = parser.parse_args()
-    generator = ConfidenceScoreGenerator(
+    generator = ConfidenceScoreAgent(
         test_results_dir=args.test_results_dir,
         generated_dir=args.generated_dir,
         output_dir=args.output_dir,

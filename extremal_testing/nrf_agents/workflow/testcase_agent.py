@@ -1,4 +1,4 @@
-"""Generate suite-level positive and negative test cases for NRF operations."""
+"""Test-case generation agent for NRF operations."""
 
 from __future__ import annotations
 
@@ -9,11 +9,14 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-ROOT_DIR = Path(__file__).resolve().parent.parent
+sys.stdout.reconfigure(line_buffering=True) if hasattr(sys.stdout, "reconfigure") else None
+
+ROOT_DIR = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT_DIR))
 
-from llm_prompts.llm import GPT
-
+from nrf_agents.models.common import OperationInfo, TestFormat
+from nrf_agents.prompts.test_cases import build_test_case_prompt
+from nrf_agents.workflow.sdk import run_text_agent
 
 CANONICAL_NF_INSTANCE_ID = "550e8400-e29b-41d4-a716-446655440000"
 CANONICAL_SUBSCRIPTION_ID = "{subscriptionId}"
@@ -21,9 +24,7 @@ CANONICAL_SUBSCRIPTION_ID = "{subscriptionId}"
 CANONICAL_REGISTER_STEP: Dict[str, Any] = {
     "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
     "method": "PUT",
-    "headers": {
-        "Content-Type": "application/json",
-    },
+    "headers": {"Content-Type": "application/json"},
     "body": {
         "nfInstanceId": CANONICAL_NF_INSTANCE_ID,
         "nfType": "NRF",
@@ -35,13 +36,9 @@ CANONICAL_REGISTER_STEP: Dict[str, Any] = {
 CANONICAL_SUBSCRIBE_STEP: Dict[str, Any] = {
     "path": "/nnrf-nfm/v1/subscriptions",
     "method": "POST",
-    "headers": {
-        "Content-Type": "application/json",
-    },
+    "headers": {"Content-Type": "application/json"},
     "body": {
-        "callbackReference": {
-            "notifyUri": "https://example.client/callback",
-        },
+        "callbackReference": {"notifyUri": "https://example.client/callback"},
         "eventTypes": ["NF_STATUS_CHANGE"],
         "duration": 3600,
         "targetNfType": "NRF",
@@ -63,27 +60,6 @@ REGISTER_DEPENDENT_OPERATION_NAMES = {
     "NFStatusNotify",
     "NFStatusUnsubscribe",
 }
-
-
-@dataclass
-class OperationInfo:
-    """Metadata for a single operation."""
-
-    operation: str
-    path: str
-    method: str
-    input_schema: Dict[str, Any]
-    constraints: List[str]
-    depends_on: List[str]
-
-
-@dataclass
-class TestFormat:
-    """Container for the suite/test shape used in prompts."""
-
-    suite_structure: Dict[str, Any]
-    step_structure: Dict[str, Any]
-    test_case_structure: Dict[str, Any]
 
 
 def _strip_code_fences(text: str) -> str:
@@ -111,14 +87,18 @@ def _parse_json_object(text: str) -> Optional[Dict[str, Any]]:
     return parsed if isinstance(parsed, dict) else None
 
 
-class TestCaseGenerator:
+class TestCaseAgent:
     """Generate operation suites with one shared setup and cleanup."""
 
-    def __init__(self, operation_schemas_file: Path, test_format_file: Path, output_dir: Path):
+    def __init__(
+        self,
+        operation_schemas_file: Path = ROOT_DIR / "data" / "generated" / "operation_schemas.json",
+        test_format_file: Path = ROOT_DIR / "data" / "config" / "test_format.json",
+        output_dir: Path = ROOT_DIR / "data" / "generated",
+    ):
         self.operation_schemas_file = operation_schemas_file
         self.test_format_file = test_format_file
         self.output_dir = output_dir
-        self.llm_client: Optional[GPT] = None
         self.test_format: Optional[TestFormat] = None
         self.operations: List[OperationInfo] = []
 
@@ -149,16 +129,6 @@ class TestCaseGenerator:
             )
         return operations
 
-    def initialize_llm(self) -> None:
-        self.llm_client = GPT(
-            system_prompt=(
-                "You are an expert in API testing. Generate only the requested JSON object "
-                "and do not include markdown or commentary."
-            ),
-            max_retries=3,
-            retry_delay_seconds=2.0,
-        )
-
     def build_shared_setup(self, operation: OperationInfo) -> List[Dict[str, Any]]:
         if operation.operation == "NFRegister":
             return []
@@ -179,9 +149,7 @@ class TestCaseGenerator:
                 {
                     "path": f"/nnrf-nfm/v1/subscriptions/{CANONICAL_SUBSCRIPTION_ID}",
                     "method": "DELETE",
-                    "headers": {
-                        "Content-Type": "application/json",
-                    },
+                    "headers": {"Content-Type": "application/json"},
                 }
             )
 
@@ -189,69 +157,10 @@ class TestCaseGenerator:
             {
                 "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
                 "method": "DELETE",
-                "headers": {
-                    "Content-Type": "application/json",
-                },
+                "headers": {"Content-Type": "application/json"},
             }
         )
         return cleanup
-
-    def create_test_generation_prompt(
-        self,
-        operation: OperationInfo,
-        constraint: str,
-        shared_setup: List[Dict[str, Any]],
-        shared_cleanup: List[Dict[str, Any]],
-        constraint_index: int,
-    ) -> str:
-        if not self.test_format:
-            raise RuntimeError("Test format not loaded")
-
-        suite_format_json = json.dumps(self.test_format.suite_structure, indent=2)
-        step_format_json = json.dumps(self.test_format.step_structure, indent=2)
-        test_format_json = json.dumps(self.test_format.test_case_structure, indent=2)
-        setup_json = json.dumps(shared_setup, indent=2)
-        cleanup_json = json.dumps(shared_cleanup, indent=2)
-
-        return f"""Generate exactly two test cases for the operation below: one positive and one negative.
-
-Operation: {operation.operation}
-Path: {operation.path}
-Method: {operation.method}
-Constraint index: {constraint_index}
-
-Shared setup executed before every test in this suite:
-{setup_json}
-
-Shared cleanup executed after every test in this suite:
-{cleanup_json}
-
-Input Schema:
-{json.dumps(operation.input_schema, indent=2)}
-
-Constraint to violate:
-{constraint}
-
-Suite format:
-{suite_format_json}
-
-Step format:
-{step_format_json}
-
-Target suite/test format:
-{test_format_json}
-
-Rules:
-1. Return only a single JSON object with exactly these keys: positive_test_case, negative_test_case.
-2. Each test case object may include only: name, constraint, method, path, headers, body.
-3. Do not include request, violated_constraints, driving_state, setup, cleanup, description, notes, or id.
-4. The positive test case must satisfy the supplied constraint.
-5. The negative test case must violate the supplied constraint.
-6. Use the shared setup context instead of inventing test-specific prerequisite state.
-7. Keep Content-Type as application/json unless the constraint requires otherwise.
-8. The target NRF type should always be NRF.
-9. Return valid JSON only, with no markdown or explanation.
-"""
 
     def _standardize_generated_test_case(
         self,
@@ -259,7 +168,7 @@ Rules:
         test_id: str,
         constraint: str,
     ) -> Dict[str, Any]:
-        standardized = {
+        return {
             "id": test_id,
             "name": test_id,
             "constraint": constraint,
@@ -268,7 +177,6 @@ Rules:
             "headers": test_case.get("headers", {}),
             "body": test_case.get("body"),
         }
-        return standardized
 
     def generate_suite_test_pair(
         self,
@@ -278,20 +186,30 @@ Rules:
         shared_cleanup: List[Dict[str, Any]],
         constraint_index: int,
     ) -> Optional[List[Dict[str, Any]]]:
-        if not self.llm_client:
-            raise RuntimeError("LLM client not initialized. Call initialize_llm() first.")
+        if not self.test_format:
+            raise RuntimeError("Test format not loaded")
 
-        prompt = self.create_test_generation_prompt(
+        prompt = build_test_case_prompt(
             operation,
             constraint,
             shared_setup,
             shared_cleanup,
+            self.test_format,
             constraint_index,
         )
+
         try:
-            response_text = self.llm_client.ask_llm(prompt, use_history=False)
+            response_text = run_text_agent(
+                agent_name="NRF Test Case Agent",
+                instructions=(
+                    "You are an expert in API testing. Generate only the requested JSON object "
+                    "and do not include markdown or commentary."
+                ),
+                prompt=prompt,
+                workflow_name="NRF Test Case Generation",
+            )
         except Exception as exc:
-            print(f"  → Error calling LLM: {exc}", flush=True)
+            print(f"  → Error calling agent: {exc}", flush=True)
             return None
 
         parsed = _parse_json_object(response_text)
@@ -301,7 +219,7 @@ Rules:
         positive = parsed.get("positive_test_case")
         negative = parsed.get("negative_test_case")
         if not isinstance(positive, dict) or not isinstance(negative, dict):
-            print("  → LLM response did not include both positive_test_case and negative_test_case", flush=True)
+            print("  → Agent response did not include both positive_test_case and negative_test_case", flush=True)
             return None
 
         positive_id = f"tc_{constraint_index}_pos"
@@ -327,7 +245,7 @@ Rules:
             print(f"  → Processing constraint {idx}/{len(operation.constraints)}...", flush=True)
             test_pair = self.generate_suite_test_pair(operation, constraint, shared_setup, shared_cleanup, idx)
             if not test_pair:
-                print(f"  → Failed to parse test pair from LLM response for constraint {idx}", flush=True)
+                print(f"  → Failed to parse test pair from agent response for constraint {idx}", flush=True)
                 continue
             tests.extend(test_pair)
             print(f"  → Generated positive and negative test cases for constraint {idx}", flush=True)
@@ -359,10 +277,6 @@ Rules:
         self.operations = self.load_operations()
         print(f"[*] Loaded {len(self.operations)} operation(s)", flush=True)
 
-        print("[*] Initializing LLM client...", flush=True)
-        self.initialize_llm()
-        print("[*] LLM client initialized", flush=True)
-
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
         for idx, operation in enumerate(self.operations, 1):
@@ -377,18 +291,12 @@ Rules:
 
         print("\n[✓] Test case generation complete", flush=True)
 
+    def run(self) -> None:
+        self.generate_all_test_cases()
+
 
 def main() -> None:
-    script_dir = Path(__file__).resolve().parent.parent
-    operation_schemas_file = script_dir / "data" / "generated" / "operation_schemas.json"
-    test_format_file = script_dir / "data" / "config" / "test_format.json"
-    output_dir = script_dir / "data" / "generated"
-
-    if not test_format_file.exists():
-        raise FileNotFoundError(f"test_format.json not found at {test_format_file}")
-
-    generator = TestCaseGenerator(operation_schemas_file, test_format_file, output_dir)
-    generator.generate_all_test_cases()
+    TestCaseAgent().run()
 
 
 if __name__ == "__main__":
