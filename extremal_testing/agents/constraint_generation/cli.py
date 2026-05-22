@@ -1,4 +1,4 @@
-"""CLI for generating per-operation constraints from parsed section-5 text."""
+"""CLI for generating per-operation constraint bundles from the markdown spec."""
 
 from __future__ import annotations
 
@@ -8,6 +8,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+from ...text_parsers.spec_indexer import DEFAULT_SPEC_PATH
 from .workflow import DEFAULT_OUTPUT_DIR, generate_constraints
 
 sys.stdout.reconfigure(line_buffering=True) if hasattr(sys.stdout, "reconfigure") else None
@@ -21,7 +22,8 @@ def load_environment() -> None:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Generate constraints from section-5 operation descriptions.")
+    parser = argparse.ArgumentParser(description="Generate constraints from the normalized NRF markdown spec.")
+    parser.add_argument("--spec-path", type=Path, default=DEFAULT_SPEC_PATH, help="Path to the normalized markdown spec.")
     parser.add_argument(
         "--output-dir",
         type=Path,
@@ -36,6 +38,7 @@ def main() -> None:
     load_environment()
     args = parse_args()
     generate_constraints(
+        spec_path=args.spec_path,
         output_dir=args.output_dir,
         extract_model=args.extract_model or "gpt-5.4-mini",
     )
