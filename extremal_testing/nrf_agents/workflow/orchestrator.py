@@ -54,7 +54,7 @@ class NRFExtremalTestingAgent:
     def run_schema_extraction(self) -> None:
         OperationSchemaAgent(
             metadata_file=self.root_dir / "json" / "AllOpsMetaData.json",
-            spec_file=self.root_dir / "specs" / "original" / "nrf_management_api.txt",
+            spec_file=self.root_dir / "specs" / "original" / "TS29510_Nnrf_NFManagement.yaml",
             output_file=self.root_dir / "json" / "operation_schemas.json",
         ).run()
 
