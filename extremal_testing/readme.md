@@ -23,8 +23,7 @@ extremal_testing/
 │   ├── models/                    # Shared dataclasses and workflow models
 │   └── workflow/                  # Metadata/schema/test/confidence agents and orchestrator
 ├── utils/                         # Utility scripts
-│   ├── parse_spec.py              # Parse spec documents into segments
-│   └── postprocess_dependencies.py # Post-process dependencies
+│   └── parse_spec.py              # Parse spec documents into segments
 └── implementation_testers/        # Test execution scripts
     ├── test_implementations.py    # Cross-implementation comparison runner
     └── test_free5gc.py            # Free5GC NRF tester
@@ -40,6 +39,7 @@ The main end-to-end entrypoint is `nrf_agents/workflow/orchestrator.py`. It runs
 - Run `nrf_agents/workflow/metadata_agent.py`
 - Input: `data/specs/segments/section_*.txt`
 - Output: `data/generated/AllOpsMetaData.json`
+- Dependency expansion happens inside the metadata agent before saving
 
 ### 2. Generate Operation Schemas
 - Run `nrf_agents/workflow/schema_agent.py`
