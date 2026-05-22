@@ -147,14 +147,37 @@ class TestCaseAgent:
             with open(file_path, "r", encoding="utf-8") as f:
                 op_data = json.load(f)
 
+            raw_constraints = op_data.get("constraints", [])
+            normalized_constraints: List[Dict[str, Any]] = []
+            if isinstance(raw_constraints, list):
+                for idx, constraint in enumerate(raw_constraints, 1):
+                    if isinstance(constraint, dict):
+                        constraint_text = constraint.get("constraint") or constraint.get("text") or constraint.get("value")
+                        schema_id = str(constraint.get("schema_id", "unknown")).strip() or "unknown"
+                    else:
+                        constraint_text = str(constraint)
+                        schema_id = f"legacy_constraint_{idx}"
+
+                    if not isinstance(constraint_text, str) or not constraint_text.strip():
+                        continue
+
+                    normalized_constraints.append(
+                        {
+                            "schema_id": schema_id,
+                            "constraint": constraint_text.strip(),
+                        }
+                    )
+
             operations.append(
                 OperationInfo(
                     operation=operation_name,
                     path=metadata.get("Paths", ""),
                     method=metadata.get("Method", ""),
                     input_schema=op_data.get("input_schema", {}),
-                    constraints=op_data.get("constraints", []),
+                    constraints=normalized_constraints,
                     depends_on=metadata.get("DependsOn", []),
+                    definitions=op_data.get("definitions", {}),
+                    constraint_index=op_data.get("constraint_index", []),
                 )
             )
         return operations
@@ -196,12 +219,13 @@ class TestCaseAgent:
         self,
         test_case: Dict[str, Any],
         test_id: str,
-        constraint: str,
+        constraint: Dict[str, Any],
     ) -> Dict[str, Any]:
         return {
             "id": test_id,
             "name": test_id,
-            "constraint": constraint,
+            "constraint": str(constraint.get("constraint", "")),
+            "constraint_schema_id": str(constraint.get("schema_id", "unknown")),
             "method": test_case.get("method", ""),
             "path": test_case.get("path", ""),
             "headers": test_case.get("headers", {}),
@@ -211,7 +235,7 @@ class TestCaseAgent:
     def generate_suite_test_pair(
         self,
         operation: OperationInfo,
-        constraint: str,
+        constraint: Dict[str, Any],
         shared_setup: List[Dict[str, Any]],
         shared_cleanup: List[Dict[str, Any]],
         constraint_index: int,
@@ -272,7 +296,8 @@ class TestCaseAgent:
 
         tests: List[Dict[str, Any]] = []
         for idx, constraint in enumerate(operation.constraints, 1):
-            print(f"  → Processing constraint {idx}/{len(operation.constraints)}...", flush=True)
+            constraint_id = str(constraint.get("schema_id", "unknown")) if isinstance(constraint, dict) else "unknown"
+            print(f"  → Processing constraint {idx}/{len(operation.constraints)} from {constraint_id}...", flush=True)
             test_pair = self.generate_suite_test_pair(operation, constraint, shared_setup, shared_cleanup, idx)
             if not test_pair:
                 print(f"  → Failed to parse test pair from agent response for constraint {idx}", flush=True)

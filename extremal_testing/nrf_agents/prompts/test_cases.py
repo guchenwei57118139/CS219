@@ -10,7 +10,7 @@ from extremal_testing.nrf_agents.models.common import OperationInfo, TestFormat
 
 def build_test_case_prompt(
     operation: OperationInfo,
-    constraint: str,
+    constraint: Dict[str, Any],
     shared_setup: List[Dict[str, Any]],
     shared_cleanup: List[Dict[str, Any]],
     test_format: TestFormat,
@@ -21,6 +21,8 @@ def build_test_case_prompt(
     test_format_json = json.dumps(test_format.test_case_structure, indent=2)
     setup_json = json.dumps(shared_setup, indent=2)
     cleanup_json = json.dumps(shared_cleanup, indent=2)
+    constraint_schema_id = str(constraint.get("schema_id", "unknown"))
+    constraint_text = str(constraint.get("constraint", ""))
 
     return f"""Generate exactly two test cases for the operation below: one positive and one negative.
 
@@ -28,6 +30,7 @@ Operation: {operation.operation}
 Path: {operation.path}
 Method: {operation.method}
 Constraint index: {constraint_index}
+Constraint schema id: {constraint_schema_id}
 
 Shared setup executed before every test in this suite:
 {setup_json}
@@ -38,8 +41,11 @@ Shared cleanup executed after every test in this suite:
 Input Schema:
 {json.dumps(operation.input_schema, indent=2)}
 
+Schema Definitions:
+{json.dumps(operation.definitions, indent=2)}
+
 Constraint to violate:
-{constraint}
+{constraint_text}
 
 Suite format:
 {suite_format_json}

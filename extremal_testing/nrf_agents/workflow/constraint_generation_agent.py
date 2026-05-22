@@ -7,7 +7,7 @@ import json
 import re
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import yaml
 
@@ -19,8 +19,81 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from extremal_testing.nrf_agents.models.common import OperationMetadata, OperationSchema
-from extremal_testing.nrf_agents.prompts.schema import SYSTEM_PROMPT_SCHEMA_EXTRACTION, build_operation_schema_prompt
+from extremal_testing.nrf_agents.prompts.schema import (
+    SYSTEM_PROMPT_CONSTRAINT_EXTRACTION,
+    build_operation_schema_prompt,
+)
 from extremal_testing.nrf_agents.workflow.sdk import run_text_agent
+
+CONSTRAINT_SCHEMA_KEYS = {
+    "$ref",
+    "type",
+    "format",
+    "nullable",
+    "required",
+    "properties",
+    "patternProperties",
+    "dependentSchemas",
+    "items",
+    "additionalProperties",
+    "enum",
+    "const",
+    "pattern",
+    "minimum",
+    "maximum",
+    "exclusiveMinimum",
+    "exclusiveMaximum",
+    "minLength",
+    "maxLength",
+    "minItems",
+    "maxItems",
+    "minProperties",
+    "maxProperties",
+    "oneOf",
+    "anyOf",
+    "allOf",
+    "not",
+    "contains",
+    "deprecated",
+    "description",
+}
+
+PARAMETER_KEYS = {
+    "name",
+    "in",
+    "required",
+    "description",
+    "deprecated",
+    "allowEmptyValue",
+    "style",
+    "explode",
+    "allowReserved",
+}
+
+INDEX_RULE_KEYS = {
+    "type",
+    "format",
+    "nullable",
+    "enum",
+    "const",
+    "pattern",
+    "minimum",
+    "maximum",
+    "exclusiveMinimum",
+    "exclusiveMaximum",
+    "minLength",
+    "maxLength",
+    "minItems",
+    "maxItems",
+    "minProperties",
+    "maxProperties",
+    "required",
+    "oneOf",
+    "anyOf",
+    "allOf",
+    "not",
+    "deprecated",
+}
 
 
 class ConstraintGenerationAgent:
@@ -39,7 +112,7 @@ class ConstraintGenerationAgent:
         self.output_dir = output_dir
         self.spec_doc: Dict[str, Dict] = {}
         self.common_data_doc: Dict[str, Dict] = {}
-        self._ref_cache: Dict[str, Dict] = {}
+        self._ref_definition_keys: Dict[str, str] = {}
         self._path_index: Dict[str, Dict[str, Dict]] = {}
 
     @staticmethod
@@ -76,6 +149,41 @@ class ConstraintGenerationAgent:
     def _decode_json_pointer_token(token: str) -> str:
         return token.replace("~1", "/").replace("~0", "~")
 
+    @staticmethod
+    def _trim_description(value: object, limit: int = 220) -> object:
+        if not isinstance(value, str):
+            return value
+        cleaned = " ".join(value.split())
+        if len(cleaned) <= limit:
+            return cleaned
+        return cleaned[: limit - 3].rstrip() + "..."
+
+    def _canonical_ref(self, ref: str) -> str:
+        if ref.startswith("#"):
+            return f"{self.spec_file.name}{ref}"
+        return ref
+
+    def _definition_key_for_ref(self, ref: str) -> str:
+        canonical_ref = self._canonical_ref(ref)
+        existing_key = self._ref_definition_keys.get(canonical_ref)
+        if existing_key:
+            return existing_key
+
+        file_part, pointer = canonical_ref.split("#", 1) if "#" in canonical_ref else (canonical_ref, "")
+        file_stem = Path(file_part).stem or self.spec_file.stem
+        pointer_name = pointer.rstrip("/").split("/")[-1] if pointer else file_stem
+        pointer_name = self._decode_json_pointer_token(pointer_name)
+        base_key = f"{file_stem}.{pointer_name}"
+        key = base_key
+        suffix = 2
+        used_keys = set(self._ref_definition_keys.values())
+        while key in used_keys:
+            key = f"{base_key}.{suffix}"
+            suffix += 1
+
+        self._ref_definition_keys[canonical_ref] = key
+        return key
+
     def _get_doc_for_ref(self, ref: str) -> Optional[Dict]:
         if ref.startswith("#"):
             return self.spec_doc
@@ -107,7 +215,9 @@ class ConstraintGenerationAgent:
 
         for part in parts:
             if isinstance(target, dict):
-                target = target.get(part)
+                if part not in target:
+                    raise KeyError(f"Cannot resolve pointer segment {part!r} in {pointer!r}")
+                target = target[part]
             elif isinstance(target, list):
                 index = int(part)
                 target = target[index]
@@ -118,49 +228,16 @@ class ConstraintGenerationAgent:
             return {"value": target}
         return target
 
-    def _resolve_ref(self, ref: str, stack: Optional[List[str]] = None) -> Dict:
-        stack = stack or []
-        if ref in self._ref_cache:
-            return copy.deepcopy(self._ref_cache[ref])
-        if ref in stack:
-            return {"$ref": ref}
-
+    def _raw_ref_target(self, ref: str) -> Optional[Dict[str, Any]]:
         doc = self._get_doc_for_ref(ref)
         if doc is None:
-            return {"$ref": ref}
+            return None
         _, pointer = ref.split("#", 1) if "#" in ref else (ref, "")
-        resolved = copy.deepcopy(self._resolve_pointer(doc, pointer))
-        resolved = self._resolve_schema_node(resolved, stack + [ref])
-        self._ref_cache[ref] = copy.deepcopy(resolved)
-        return resolved
-
-    def _resolve_schema_node(self, node: object, stack: Optional[List[str]] = None) -> object:
-        stack = stack or []
-        if isinstance(node, list):
-            return [self._resolve_schema_node(item, stack) for item in node]
-        if not isinstance(node, dict):
-            return node
-
-        if "$ref" in node:
-            resolved = self._resolve_ref(str(node["$ref"]), stack)
-            merged = copy.deepcopy(resolved)
-            for key, value in node.items():
-                if key == "$ref":
-                    continue
-                merged[key] = self._resolve_schema_node(value, stack)
-            return merged
-
-        resolved_dict: Dict[str, object] = {}
-        for key, value in node.items():
-            if key in {"properties", "patternProperties", "dependentSchemas"} and isinstance(value, dict):
-                resolved_dict[key] = {prop_key: self._resolve_schema_node(prop_value, stack) for prop_key, prop_value in value.items()}
-            elif key in {"items", "additionalProperties", "not", "contains"}:
-                resolved_dict[key] = self._resolve_schema_node(value, stack)
-            elif key in {"allOf", "anyOf", "oneOf"} and isinstance(value, list):
-                resolved_dict[key] = [self._resolve_schema_node(item, stack) for item in value]
-            else:
-                resolved_dict[key] = self._resolve_schema_node(value, stack)
-        return resolved_dict
+        try:
+            target = self._resolve_pointer(doc, pointer)
+        except (KeyError, IndexError, ValueError):
+            return None
+        return copy.deepcopy(target)
 
     def _find_operation_spec(self, operation: OperationMetadata) -> Optional[Dict]:
         target_path = self._normalize_path_template(operation.path)
@@ -175,56 +252,162 @@ class ConstraintGenerationAgent:
             return None
         return operation_spec
 
-    def _resolve_parameter(self, parameter: Dict[str, object]) -> Dict[str, object]:
+    def _add_definition(
+        self,
+        ref: str,
+        definitions: Dict[str, Any],
+        stack: Optional[List[str]] = None,
+    ) -> str:
+        stack = stack or []
+        definition_key = self._definition_key_for_ref(ref)
+        if definition_key in definitions:
+            return definition_key
+        if ref in stack or self._canonical_ref(ref) in stack:
+            definitions[definition_key] = {"$ref": f"#/definitions/{definition_key}"}
+            return definition_key
+
+        target = self._raw_ref_target(ref)
+        if target is None:
+            definitions[definition_key] = {"$ref": ref}
+            return definition_key
+
+        definitions[definition_key] = {}
+        definitions[definition_key] = self._compact_schema_node(
+            target,
+            definitions,
+            stack + [ref, self._canonical_ref(ref)],
+            expand_ref=False,
+        )
+        return definition_key
+
+    def _compact_ref_node(
+        self,
+        node: Dict[str, Any],
+        definitions: Dict[str, Any],
+        stack: Optional[List[str]],
+        expand_ref: bool,
+    ) -> Dict[str, Any]:
+        ref = str(node["$ref"])
+        sibling_items = {key: value for key, value in node.items() if key != "$ref"}
+
+        if expand_ref:
+            target = self._raw_ref_target(ref)
+            if target is None:
+                compacted: Dict[str, Any] = {"$ref": ref}
+            else:
+                compacted = self._compact_schema_node(
+                    target,
+                    definitions,
+                    (stack or []) + [ref, self._canonical_ref(ref)],
+                    expand_ref=False,
+                )
+        else:
+            definition_key = self._add_definition(ref, definitions, stack)
+            compacted = {"$ref": f"#/definitions/{definition_key}"}
+
+        for key, value in sibling_items.items():
+            if key not in CONSTRAINT_SCHEMA_KEYS:
+                continue
+            compacted[key] = self._compact_schema_node(value, definitions, stack, expand_ref=False)
+        return compacted
+
+    def _compact_schema_node(
+        self,
+        node: object,
+        definitions: Dict[str, Any],
+        stack: Optional[List[str]] = None,
+        *,
+        expand_ref: bool = False,
+    ) -> object:
+        if isinstance(node, list):
+            return [self._compact_schema_node(item, definitions, stack, expand_ref=False) for item in node]
+        if not isinstance(node, dict):
+            return node
+
+        if "$ref" in node:
+            return self._compact_ref_node(node, definitions, stack, expand_ref)
+
+        compacted: Dict[str, Any] = {}
+        for key, value in node.items():
+            if key not in CONSTRAINT_SCHEMA_KEYS:
+                continue
+            if key in {"properties", "patternProperties", "dependentSchemas"} and isinstance(value, dict):
+                compacted[key] = {
+                    prop_key: self._compact_schema_node(prop_value, definitions, stack, expand_ref=False)
+                    for prop_key, prop_value in value.items()
+                }
+            elif key in {"items", "additionalProperties", "not"}:
+                compacted[key] = self._compact_schema_node(value, definitions, stack, expand_ref=False)
+            elif key in {"allOf", "anyOf", "oneOf"} and isinstance(value, list):
+                compacted[key] = [
+                    self._compact_schema_node(item, definitions, stack, expand_ref=False)
+                    for item in value
+                ]
+            elif key == "description":
+                compacted[key] = self._trim_description(value)
+            else:
+                compacted[key] = copy.deepcopy(value)
+        return compacted
+
+    def _compact_parameter(self, parameter: Dict[str, object], definitions: Dict[str, Any]) -> Dict[str, object]:
         if "$ref" in parameter:
-            parameter = self._resolve_ref(str(parameter["$ref"]))
+            target = self._raw_ref_target(str(parameter["$ref"]))
+            if target is None:
+                return {"$ref": str(parameter["$ref"])}
+            parameter = target
 
         resolved: Dict[str, object] = {}
-        for key in ("name", "in", "required", "description", "deprecated", "allowEmptyValue", "style", "explode", "allowReserved"):
+        for key in PARAMETER_KEYS:
             if key in parameter:
-                resolved[key] = parameter[key]
+                value = parameter[key]
+                resolved[key] = self._trim_description(value) if key == "description" else value
 
         if "schema" in parameter:
-            resolved["schema"] = self._resolve_schema_node(parameter["schema"])
+            resolved["schema"] = self._compact_schema_node(parameter["schema"], definitions, expand_ref=True)
         if "content" in parameter and isinstance(parameter["content"], dict):
             resolved["content"] = {
-                content_type: self._resolve_schema_node(content_obj)
+                content_type: self._compact_schema_node(content_obj, definitions, expand_ref=True)
                 for content_type, content_obj in parameter["content"].items()
             }
         return resolved
 
-    def _resolve_request_body(self, request_body: Dict[str, object]) -> Dict[str, object]:
+    def _compact_request_body(self, request_body: Dict[str, object], definitions: Dict[str, Any]) -> Dict[str, object]:
         if "$ref" in request_body:
-            request_body = self._resolve_ref(str(request_body["$ref"]))
+            target = self._raw_ref_target(str(request_body["$ref"]))
+            if target is None:
+                return {"$ref": str(request_body["$ref"])}
+            request_body = target
 
         resolved: Dict[str, object] = {}
         if "required" in request_body:
             resolved["required"] = request_body["required"]
         if "description" in request_body:
-            resolved["description"] = request_body["description"]
+            resolved["description"] = self._trim_description(request_body["description"])
         if "content" in request_body and isinstance(request_body["content"], dict):
             resolved["content"] = {}
             for content_type, content_obj in request_body["content"].items():
                 if isinstance(content_obj, dict):
                     resolved_content: Dict[str, object] = {}
                     if "schema" in content_obj:
-                        resolved_content["schema"] = self._resolve_schema_node(content_obj["schema"])
-                    for key in ("example", "examples", "encoding"):
-                        if key in content_obj:
-                            resolved_content[key] = self._resolve_schema_node(content_obj[key])
+                        resolved_content["schema"] = self._compact_schema_node(
+                            content_obj["schema"],
+                            definitions,
+                            expand_ref=True,
+                        )
                     resolved["content"][content_type] = resolved_content
         return resolved
 
-    def build_input_schema(self, operation: OperationMetadata) -> Dict[str, object]:
+    def build_input_schema_graph(self, operation: OperationMetadata) -> Dict[str, Dict[str, object]]:
         operation_spec = self._find_operation_spec(operation)
         if operation_spec is None:
-            return {}
+            return {"input_schema": {}, "definitions": {}}
         resolved: Dict[str, object] = {}
+        definitions: Dict[str, object] = {}
 
         parameters = operation_spec.get("parameters", [])
         if isinstance(parameters, list):
             resolved_parameters = [
-                self._resolve_parameter(parameter)
+                self._compact_parameter(parameter, definitions)
                 for parameter in parameters
                 if isinstance(parameter, dict)
             ]
@@ -232,9 +415,198 @@ class ConstraintGenerationAgent:
 
         request_body = operation_spec.get("requestBody")
         if isinstance(request_body, dict):
-            resolved["request_body"] = self._resolve_request_body(request_body)
+            resolved["request_body"] = self._compact_request_body(request_body, definitions)
 
-        return resolved
+        return {"input_schema": resolved, "definitions": definitions}
+
+    def build_input_schema(self, operation: OperationMetadata) -> Dict[str, object]:
+        return self.build_input_schema_graph(operation)["input_schema"]
+
+    @staticmethod
+    def _schema_id_for_parameter(parameter: Dict[str, Any], index: int) -> str:
+        location = str(parameter.get("in") or "parameter").strip() or "parameter"
+        name = str(parameter.get("name") or f"parameter_{index}").strip() or f"parameter_{index}"
+        return f"{location}.{name}"
+
+    @staticmethod
+    def _schema_id_for_request_property(path_parts: List[str]) -> str:
+        if not path_parts:
+            return "request_body"
+        return "request_body." + ".".join(path_parts)
+
+    def _definition_for_local_ref(self, ref: str, definitions: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        prefix = "#/definitions/"
+        if not ref.startswith(prefix):
+            return None
+        definition = definitions.get(ref[len(prefix):])
+        return definition if isinstance(definition, dict) else None
+
+    def _merged_schema_for_index(
+        self,
+        schema: Dict[str, Any],
+        definitions: Dict[str, Any],
+        seen_refs: Optional[set[str]] = None,
+    ) -> Dict[str, Any]:
+        seen_refs = seen_refs or set()
+        ref = schema.get("$ref")
+        if not isinstance(ref, str):
+            return schema
+        if ref in seen_refs:
+            return schema
+
+        definition = self._definition_for_local_ref(ref, definitions)
+        if definition is None:
+            return schema
+
+        merged = copy.deepcopy(self._merged_schema_for_index(definition, definitions, seen_refs | {ref}))
+        for key, value in schema.items():
+            if key != "$ref":
+                merged[key] = value
+        return merged
+
+    def _extract_rule_facts(self, schema: Dict[str, Any]) -> Dict[str, Any]:
+        rules: Dict[str, Any] = {}
+        for key in INDEX_RULE_KEYS:
+            if key in schema:
+                rules[key] = schema[key]
+        return rules
+
+    def _append_index_entry(
+        self,
+        constraint_index: List[Dict[str, Any]],
+        schema_id: str,
+        location: str,
+        schema: Dict[str, Any],
+        definitions: Dict[str, Any],
+        *,
+        required_by_parent: bool = False,
+        source_ref: Optional[str] = None,
+    ) -> None:
+        merged_schema = self._merged_schema_for_index(schema, definitions)
+        rules = self._extract_rule_facts(merged_schema)
+        if required_by_parent:
+            rules["required_by_parent"] = True
+        if not rules:
+            return
+
+        entry: Dict[str, Any] = {
+            "schema_id": schema_id,
+            "location": location,
+            "rules": rules,
+        }
+        if source_ref or isinstance(schema.get("$ref"), str):
+            entry["source"] = source_ref or schema["$ref"]
+        constraint_index.append(entry)
+
+    def _index_schema_node(
+        self,
+        schema: object,
+        definitions: Dict[str, Any],
+        constraint_index: List[Dict[str, Any]],
+        path_parts: List[str],
+        *,
+        required_names: Optional[set[str]] = None,
+        seen_refs: Optional[set[str]] = None,
+    ) -> None:
+        if not isinstance(schema, dict):
+            return
+
+        seen_refs = seen_refs or set()
+        merged_schema = self._merged_schema_for_index(schema, definitions, seen_refs)
+        schema_id = self._schema_id_for_request_property(path_parts)
+        required_by_parent = bool(path_parts and required_names and path_parts[-1].removesuffix("[]") in required_names)
+        self._append_index_entry(
+            constraint_index,
+            schema_id,
+            "request_body",
+            schema,
+            definitions,
+            required_by_parent=required_by_parent,
+        )
+
+        child_required = {
+            str(item)
+            for item in merged_schema.get("required", [])
+            if isinstance(item, (str, int))
+        }
+        properties = merged_schema.get("properties", {})
+        if isinstance(properties, dict):
+            for property_name, property_schema in properties.items():
+                self._index_schema_node(
+                    property_schema,
+                    definitions,
+                    constraint_index,
+                    path_parts + [str(property_name)],
+                    required_names=child_required,
+                    seen_refs=seen_refs,
+                )
+
+        items = merged_schema.get("items")
+        if isinstance(items, dict):
+            self._index_schema_node(
+                items,
+                definitions,
+                constraint_index,
+                path_parts[:-1] + [f"{path_parts[-1]}[]"] if path_parts else ["items[]"],
+                required_names=None,
+                seen_refs=seen_refs,
+            )
+
+        additional_properties = merged_schema.get("additionalProperties")
+        if isinstance(additional_properties, dict):
+            self._index_schema_node(
+                additional_properties,
+                definitions,
+                constraint_index,
+                path_parts + ["<additionalProperty>"],
+                required_names=None,
+                seen_refs=seen_refs,
+            )
+
+    def build_constraint_index(self, input_schema: Dict[str, Any], definitions: Dict[str, Any]) -> List[Dict[str, Any]]:
+        constraint_index: List[Dict[str, Any]] = []
+
+        parameters = input_schema.get("parameters", [])
+        if isinstance(parameters, list):
+            for index, parameter in enumerate(parameters, 1):
+                if not isinstance(parameter, dict):
+                    continue
+                parameter_schema = parameter.get("schema", {})
+                schema = parameter_schema if isinstance(parameter_schema, dict) else {}
+                if parameter.get("required") is True:
+                    schema = {**schema, "required": True}
+                schema_id = self._schema_id_for_parameter(parameter, index)
+                self._append_index_entry(
+                    constraint_index,
+                    schema_id,
+                    str(parameter.get("in") or "parameter"),
+                    schema,
+                    definitions,
+                )
+
+        request_body = input_schema.get("request_body")
+        if isinstance(request_body, dict):
+            body_schema: Dict[str, Any] = {}
+            if request_body.get("required") is True:
+                body_schema["required"] = True
+            self._append_index_entry(
+                constraint_index,
+                "request_body",
+                "request_body",
+                body_schema,
+                definitions,
+            )
+
+            content = request_body.get("content", {})
+            if isinstance(content, dict):
+                for content_obj in content.values():
+                    if not isinstance(content_obj, dict):
+                        continue
+                    schema = content_obj.get("schema")
+                    if isinstance(schema, dict):
+                        self._index_schema_node(schema, definitions, constraint_index, [])
+
+        return constraint_index
 
     def build_operation_context(self, operation: OperationMetadata) -> Optional[Dict[str, object]]:
         operation_spec = self._find_operation_spec(operation)
@@ -249,6 +621,60 @@ class ConstraintGenerationAgent:
             "parameters": operation_spec.get("parameters", []),
             "requestBody": operation_spec.get("requestBody"),
         }
+
+    @staticmethod
+    def _normalize_constraint_text(constraint: Any) -> Optional[str]:
+        if not isinstance(constraint, str):
+            constraint = str(constraint) if constraint is not None else ""
+        cleaned = " ".join(constraint.split()).strip()
+        if not cleaned:
+            return None
+
+        if "MUST" not in cleaned.upper():
+            return None
+
+        cleaned = re.sub(r"\bmust\b", "MUST", cleaned, flags=re.IGNORECASE)
+        return cleaned
+
+    def _normalize_constraint_records(self, raw_constraints: Any) -> List[Dict[str, Any]]:
+        normalized_records: List[Dict[str, Any]] = []
+        if not isinstance(raw_constraints, list):
+            return normalized_records
+
+        for constraint in raw_constraints:
+            if isinstance(constraint, dict):
+                constraint_text = constraint.get("constraint") or constraint.get("text") or constraint.get("value")
+                schema_id = str(constraint.get("schema_id", "operation_input")).strip() or "operation_input"
+            else:
+                constraint_text = constraint
+                schema_id = "operation_input"
+
+            normalized_text = self._normalize_constraint_text(constraint_text)
+            if not normalized_text:
+                continue
+
+            normalized_records.append(
+                {
+                    "schema_id": schema_id,
+                    "constraint": normalized_text,
+                }
+            )
+
+        return normalized_records
+
+    @staticmethod
+    def _dedupe_constraint_records(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        deduped: List[Dict[str, Any]] = []
+        seen: set[str] = set()
+        for record in records:
+            normalized_constraint = " ".join(str(record.get("constraint", "")).split()).strip().lower()
+            if not normalized_constraint:
+                continue
+            if normalized_constraint in seen:
+                continue
+            seen.add(normalized_constraint)
+            deduped.append(record)
+        return deduped
 
     def load_operations_metadata(self) -> List[OperationMetadata]:
         with open(self.metadata_file, "r", encoding="utf-8") as f:
@@ -292,7 +718,11 @@ class ConstraintGenerationAgent:
         print(f"[*] Processing operation: {operation.operation} ({operation.method} {operation.path})...", flush=True)
 
         try:
-            input_schema = self.build_input_schema(operation)
+            schema_graph = self.build_input_schema_graph(operation)
+            input_schema = schema_graph["input_schema"]
+            definitions = schema_graph["definitions"]
+            constraint_index = self.build_constraint_index(input_schema, definitions)
+            schema_graph["constraint_index"] = constraint_index
             operation_context = self.build_operation_context(operation)
         except Exception as exc:
             print(f"  → Error resolving YAML schema for {operation.operation}: {exc}", flush=True)
@@ -302,12 +732,21 @@ class ConstraintGenerationAgent:
             print(f"  → No matching YAML operation found for {operation.operation}; skipping", flush=True)
             return None
 
-        prompt = build_operation_schema_prompt(operation, operation_context, input_schema)
+        if not input_schema:
+            print(f"  → No input schema found for {operation.operation}; skipping", flush=True)
+            return None
+
+        print(
+            f"  → Extracting constraints from {len(constraint_index)} indexed schema rule(s) "
+            f"and {len(definitions)} definition(s)...",
+            flush=True,
+        )
+        prompt = build_operation_schema_prompt(operation, operation_context, schema_graph)
 
         try:
             response_text = run_text_agent(
                 agent_name="NRF Constraint Generation Agent",
-                instructions=SYSTEM_PROMPT_SCHEMA_EXTRACTION,
+                instructions=SYSTEM_PROMPT_CONSTRAINT_EXTRACTION,
                 prompt=prompt,
                 workflow_name="NRF Constraint Generation",
             )
@@ -319,22 +758,23 @@ class ConstraintGenerationAgent:
         if not parsed_response:
             return None
 
-        constraints = parsed_response.get("constraints", [])
-        if not isinstance(constraints, list):
-            constraints = [str(constraints)] if constraints else []
-
-        print(
-            f"  → Extracted {len(input_schema.get('parameters', []))} parameter(s), "
-            f"{1 if 'request_body' in input_schema else 0} request body section(s), "
-            f"and {len(constraints)} constraint(s)",
-            flush=True,
+        constraints = self._dedupe_constraint_records(
+            self._normalize_constraint_records(parsed_response.get("constraints", []))
         )
+
+        if not constraints:
+            print(f"  → No valid constraints extracted for {operation.operation}", flush=True)
+            return None
+
+        print(f"  → Consolidated to {len(constraints)} unique constraint(s)", flush=True)
 
         return OperationSchema(
             operation=operation.operation,
             path=operation.path,
             method=operation.method,
             input_schema=input_schema,
+            definitions=definitions,
+            constraint_index=constraint_index,
             constraints=constraints,
             depends_on=operation.depends_on or [],
         )
@@ -360,6 +800,10 @@ class ConstraintGenerationAgent:
         return results
 
     def save_results(self, schemas: List[OperationSchema]) -> None:
+        if not schemas:
+            print("  → No schemas extracted; leaving existing constraint files unchanged", flush=True)
+            return
+
         self.output_dir.mkdir(parents=True, exist_ok=True)
         for existing_file in self.output_dir.glob("*.json"):
             existing_file.unlink()
@@ -367,6 +811,8 @@ class ConstraintGenerationAgent:
             output_file = self.output_dir / f"{schema.operation}.json"
             payload = {
                 "input_schema": schema.input_schema,
+                "definitions": schema.definitions,
+                "constraint_index": schema.constraint_index,
                 "constraints": schema.constraints,
             }
             with open(output_file, "w", encoding="utf-8") as f:
