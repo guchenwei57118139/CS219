@@ -24,16 +24,16 @@ class NRFWorkflowPaths:
     root_dir: Path
 
     @property
-    def generated_dir(self) -> Path:
-        return self.root_dir / "data" / "generated"
+    def testcases_dir(self) -> Path:
+        return self.root_dir / "json" / "testcases"
 
     @property
     def test_results_dir(self) -> Path:
-        return self.root_dir / "data" / "test_results"
+        return self.root_dir / "json" / "test_results"
 
     @property
     def confidence_scores_dir(self) -> Path:
-        return self.root_dir / "data" / "confidence_scores"
+        return self.root_dir / "json" / "confidence_scores"
 
 
 class NRFExtremalTestingAgent:
@@ -45,22 +45,22 @@ class NRFExtremalTestingAgent:
 
     def run_metadata_extraction(self) -> None:
         OperationMetadataAgent(
-            spec_segment_directory=self.root_dir / "data" / "specs" / "segments",
-            output_file=self.root_dir / "data" / "generated" / "AllOpsMetaData.json",
+            spec_segment_directory=self.root_dir / "specs" / "segments",
+            output_file=self.root_dir / "json" / "AllOpsMetaData.json",
         ).run()
 
     def run_schema_extraction(self) -> None:
         OperationSchemaAgent(
-            metadata_file=self.root_dir / "data" / "generated" / "AllOpsMetaData.json",
-            spec_file=self.root_dir / "data" / "specs" / "original" / "nrf_management_api.txt",
-            output_file=self.root_dir / "data" / "generated" / "operation_schemas.json",
+            metadata_file=self.root_dir / "json" / "AllOpsMetaData.json",
+            spec_file=self.root_dir / "specs" / "original" / "nrf_management_api.txt",
+            output_file=self.root_dir / "json" / "operation_schemas.json",
         ).run()
 
     def run_test_generation(self) -> None:
         TestCaseAgent(
-            operation_schemas_file=self.root_dir / "data" / "generated" / "operation_schemas.json",
-            test_format_file=self.root_dir / "data" / "config" / "test_format.json",
-            output_dir=self.root_dir / "data" / "generated",
+            operation_schemas_file=self.root_dir / "json" / "operation_schemas.json",
+            test_format_file=self.root_dir / "json" / "config" / "test_format.json",
+            output_dir=self.root_dir / "json" / "testcases",
         ).run()
 
     def run_implementation_testing(self) -> list[Path]:
@@ -78,7 +78,7 @@ class NRFExtremalTestingAgent:
     def run_confidence_scoring(self, result_files: list[Path]) -> None:
         ConfidenceScoreAgent(
             test_results_dir=self.paths.test_results_dir,
-            generated_dir=self.paths.generated_dir,
+            testcases_dir=self.paths.testcases_dir,
             output_dir=self.paths.confidence_scores_dir,
         ).run(result_files=result_files)
 

@@ -15,8 +15,8 @@ from extremal_testing.implementation_testers.test_oai import OAINRFTester
 from extremal_testing.implementation_testers.test_open5gs import Open5GSNRFTester
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-GENERATED_DIR = ROOT_DIR / "data" / "generated"
-TEST_RESULTS_DIR = ROOT_DIR / "data" / "test_results"
+TESTCASES_DIR = ROOT_DIR / "json" / "testcases"
+TEST_RESULTS_DIR = ROOT_DIR / "json" / "test_results"
 
 IMPLEMENTATION_ORDER = ["free5gc", "oai", "open5gs"]
 TESTER_CLASSES = {
@@ -36,7 +36,7 @@ class ImplementationComparisonRunner:
         }
 
     def discover_suite_files(self) -> List[Path]:
-        suite_files = sorted(GENERATED_DIR.glob("*_tests.json"))
+        suite_files = sorted(TESTCASES_DIR.glob("*_tests.json"))
         return [
             path
             for path in suite_files

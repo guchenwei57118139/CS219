@@ -21,8 +21,8 @@ from nrf_agents.prompts.metadata import (
 )
 from nrf_agents.workflow.sdk import run_text_agent
 
-OUTPUT_FORMAT_PATH = ROOT_DIR / "data" / "generated" / "AllOpsMetaData.json"
-SPEC_SEGMENT_DIR = ROOT_DIR / "data" / "specs" / "segments"
+OUTPUT_FORMAT_PATH = ROOT_DIR / "json" / "AllOpsMetaData.json"
+SPEC_SEGMENT_DIR = ROOT_DIR / "specs" / "segments"
 
 
 def parse_json_from_llm_response(llm_response_text: str) -> Optional[List]:

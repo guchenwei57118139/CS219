@@ -23,9 +23,9 @@ from nrf_agents.workflow.sdk import run_text_agent
 
 DEFAULT_BATCH_SIZE = 5
 
-TEST_RESULTS_DIR = ROOT_DIR / "data" / "test_results"
-GENERATED_DIR = ROOT_DIR / "data" / "generated"
-CONFIDENCE_SCORES_DIR = ROOT_DIR / "data" / "confidence_scores"
+TEST_RESULTS_DIR = ROOT_DIR / "json" / "test_results"
+TESTCASES_DIR = ROOT_DIR / "json" / "testcases"
+CONFIDENCE_SCORES_DIR = ROOT_DIR / "json" / "confidence_scores"
 
 
 def _strip_code_fences(text: str) -> str:
@@ -105,13 +105,13 @@ class ConfidenceScoreAgent:
     def __init__(
         self,
         test_results_dir: Path = TEST_RESULTS_DIR,
-        generated_dir: Path = GENERATED_DIR,
+        testcases_dir: Path = TESTCASES_DIR,
         output_dir: Path = CONFIDENCE_SCORES_DIR,
         batch_size: int = DEFAULT_BATCH_SIZE,
         protocol: str = DEFAULT_PROTOCOL,
     ) -> None:
         self.test_results_dir = test_results_dir
-        self.generated_dir = generated_dir
+        self.testcases_dir = testcases_dir
         self.output_dir = output_dir
         self.batch_size = batch_size
         self.protocol = protocol
@@ -137,7 +137,7 @@ class ConfidenceScoreAgent:
         return result_files
 
     def load_test_suite(self, operation: str) -> Dict[str, Any]:
-        suite_file = self.generated_dir / f"{operation}_tests.json"
+        suite_file = self.testcases_dir / f"{operation}_tests.json"
         if not suite_file.exists():
             raise FileNotFoundError(f"Matching test suite not found for {operation}: {suite_file}")
         suite = _load_json_file(suite_file)
@@ -255,7 +255,7 @@ class ConfidenceScoreAgent:
     def process_result_file(self, result_file: Path) -> Optional[Path]:
         result_payload = self.load_test_results(result_file)
         operation = str(result_payload.get("operation") or result_file.stem)
-        suite_file = self.generated_dir / f"{operation}_tests.json"
+        suite_file = self.testcases_dir / f"{operation}_tests.json"
         anomalies = self.build_anomalies(operation, result_file)
         if not anomalies:
             return self.write_operation_scores(operation, result_file, suite_file, [])
@@ -299,9 +299,9 @@ def build_arg_parser() -> argparse.ArgumentParser:
         help="Directory containing per-operation comparison result JSON files.",
     )
     parser.add_argument(
-        "--generated-dir",
+        "--testcases-dir",
         type=Path,
-        default=GENERATED_DIR,
+        default=TESTCASES_DIR,
         help="Directory containing the original *_tests.json suites.",
     )
     parser.add_argument(
@@ -324,7 +324,7 @@ def main() -> None:
     args = parser.parse_args()
     generator = ConfidenceScoreAgent(
         test_results_dir=args.test_results_dir,
-        generated_dir=args.generated_dir,
+        testcases_dir=args.testcases_dir,
         output_dir=args.output_dir,
         batch_size=args.batch_size,
     )

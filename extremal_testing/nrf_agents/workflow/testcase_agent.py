@@ -92,9 +92,9 @@ class TestCaseAgent:
 
     def __init__(
         self,
-        operation_schemas_file: Path = ROOT_DIR / "data" / "generated" / "operation_schemas.json",
-        test_format_file: Path = ROOT_DIR / "data" / "config" / "test_format.json",
-        output_dir: Path = ROOT_DIR / "data" / "generated",
+        operation_schemas_file: Path = ROOT_DIR / "json" / "operation_schemas.json",
+        test_format_file: Path = ROOT_DIR / "json" / "config" / "test_format.json",
+        output_dir: Path = ROOT_DIR / "json" / "testcases",
     ):
         self.operation_schemas_file = operation_schemas_file
         self.test_format_file = test_format_file

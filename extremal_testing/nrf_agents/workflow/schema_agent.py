@@ -23,9 +23,9 @@ class OperationSchemaAgent:
 
     def __init__(
         self,
-        metadata_file: Path = ROOT_DIR / "data" / "generated" / "AllOpsMetaData.json",
-        spec_file: Path = ROOT_DIR / "data" / "specs" / "original" / "nrf_management_api.txt",
-        output_file: Path = ROOT_DIR / "data" / "generated" / "operation_schemas.json",
+        metadata_file: Path = ROOT_DIR / "json" / "AllOpsMetaData.json",
+        spec_file: Path = ROOT_DIR / "specs" / "original" / "nrf_management_api.txt",
+        output_file: Path = ROOT_DIR / "json" / "operation_schemas.json",
     ):
         self.metadata_file = metadata_file
         self.spec_file = spec_file

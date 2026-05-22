@@ -4,16 +4,16 @@
 
 ```
 extremal_testing/
-├── data/                          # All data files organized by lifecycle
-│   ├── specs/                     # Source specification documents
-│   │   ├── original/              # Original spec documents (1.docx, nrf_management_api.txt)
-│   │   └── segments/              # Parsed spec segments (section_*.txt)
+├── specs/                         # Source specification documents
+│   ├── original/                  # Original spec documents (1.docx, nrf_management_api.txt)
+│   └── segments/                  # Parsed spec segments (section_*.txt)
+├── json/                          # Generated JSON artifacts and configuration
 │   ├── config/                    # Configuration files
 │   │   └── test_format.json       # Test case format template
-│   ├── generated/                 # Generated data files
-│   │   ├── AllOpsMetaData.json    # Operations metadata
-│   │   ├── operation_schemas.json # Operation schemas and constraints
-│   │   └── *_tests.json           # Generated test cases
+│   ├── AllOpsMetaData.json        # Operations metadata
+│   ├── operation_schemas.json     # Operation schemas and constraints
+│   ├── testcases/                 # Generated test cases
+│   │   └── *_tests.json           # One suite file per operation
 │   ├── test_results/              # Per-operation implementation comparison results
 │   │   └── *.json                 # One comparison file per operation
 │   └── confidence_scores/         # LLM confidence judgments
@@ -22,11 +22,10 @@ extremal_testing/
 │   ├── prompts/                   # Prompt builders and system prompts
 │   ├── models/                    # Shared dataclasses and workflow models
 │   └── workflow/                  # Metadata/schema/test/confidence agents and orchestrator
-├── utils/                         # Utility scripts
-│   └── parse_spec.py              # Parse spec documents into segments
 └── implementation_testers/        # Test execution scripts
     ├── test_implementations.py    # Cross-implementation comparison runner
     └── test_free5gc.py            # Free5GC NRF tester
+    
 ```
 
 ## Workflow
@@ -37,19 +36,19 @@ The main end-to-end entrypoint is `nrf_agents/workflow/orchestrator.py`. It runs
 
 ### 1. Generate Operations Metadata
 - Run `nrf_agents/workflow/metadata_agent.py`
-- Input: `data/specs/segments/section_*.txt`
-- Output: `data/generated/AllOpsMetaData.json`
+- Input: `specs/segments/section_*.txt`
+- Output: `json/AllOpsMetaData.json`
 - Dependency expansion happens inside the metadata agent before saving
 
 ### 2. Generate Operation Schemas
 - Run `nrf_agents/workflow/schema_agent.py`
-- Input: `data/generated/AllOpsMetaData.json`, `data/specs/original/nrf_management_api.txt`
-- Output: `data/generated/operation_schemas.json`
+- Input: `json/AllOpsMetaData.json`, `specs/original/nrf_management_api.txt`
+- Output: `json/operation_schemas.json`
 
 ### 3. Generate Test Cases
 - Run `nrf_agents/workflow/testcase_agent.py`
-- Input: `data/generated/operation_schemas.json`, `data/config/test_format.json`
-- Output: `data/generated/{Operation}_tests.json`
+- Input: `json/operation_schemas.json`, `json/config/test_format.json`
+- Output: `json/testcases/{Operation}_tests.json`
 - Each suite uses `setup`, `tests`, and `cleanup` arrays
 - Each step uses `method`, `path`, `headers`, and optional `body`
 - Each test case adds `name` and `constraint`
@@ -57,19 +56,19 @@ The main end-to-end entrypoint is `nrf_agents/workflow/orchestrator.py`. It runs
 ### 4. Run Tests
 - The orchestrator runs `implementation_testers/test_implementations.py` logic directly over all generated suites
 - The comparison runner executes each test case against `free5gc`, `oai`, and `open5gs`
-- Output: `data/test_results/{Operation}.json`
+- Output: `json/test_results/{Operation}.json`
 
 ### 5. Generate Confidence Scores
 - Run `nrf_agents/workflow/confidence_agent.py`
-- Input: `data/test_results/{Operation}.json` and `data/generated/{Operation}_tests.json`
+- Input: `json/test_results/{Operation}.json` and `json/testcases/{Operation}_tests.json`
 - Only test cases with differing returned status codes are sent to the LLM
 - Anomalies are batched in groups of 5 per LLM call
 - Files are written one per operation
-- Output: `data/confidence_scores/{Operation}.json`
+- Output: `json/confidence_scores/{Operation}.json`
 
 ## Configuration
 
-- `data/config/test_format.json`: Defines the structure for generated test cases
+- `json/config/test_format.json`: Defines the structure for generated test cases
 - OpenAI API key: Configure `OPENAI_API_KEY` in the environment or `.env`
 
 ## TODO
