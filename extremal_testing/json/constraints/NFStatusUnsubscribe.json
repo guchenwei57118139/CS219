@@ -1,0 +1,31 @@
+{
+  "input_schema": {
+    "parameters": [
+      {
+        "description": "Unique ID of the subscription to remove",
+        "required": true,
+        "in": "path",
+        "name": "subscriptionID",
+        "schema": {
+          "type": "string",
+          "pattern": "^([0-9]{5,6}-(x3Lf57A:nid=[A-Fa-f0-9]{11}:)?)?[^-]+$"
+        }
+      }
+    ]
+  },
+  "definitions": {},
+  "constraints": [
+    {
+      "schema_id": "path.subscriptionID",
+      "constraint": "path.subscriptionID MUST be a string."
+    },
+    {
+      "schema_id": "path.subscriptionID",
+      "constraint": "path.subscriptionID MUST match the pattern ^([0-9]{5,6}-(x3Lf57A:nid=[A-Fa-f0-9]{11}:)?)?[^-]+$."
+    },
+    {
+      "schema_id": "path.subscriptionID",
+      "constraint": "path.subscriptionID MUST be provided."
+    }
+  ]
+}

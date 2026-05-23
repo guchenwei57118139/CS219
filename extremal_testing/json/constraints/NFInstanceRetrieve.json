@@ -1,0 +1,50 @@
+{
+  "input_schema": {
+    "parameters": [
+      {
+        "description": "Unique ID of the NF Instance",
+        "required": true,
+        "in": "path",
+        "name": "nfInstanceID",
+        "schema": {
+          "type": "string",
+          "format": "uuid",
+          "description": "String uniquely identifying a NF instance. The format of the NF Instance ID shall be a Universally Unique Identifier (UUID) version 4, as described in IETF RFC 4122."
+        }
+      },
+      {
+        "description": "Features supported by the NF Service Consumer",
+        "in": "query",
+        "name": "requester-features",
+        "schema": {
+          "type": "string",
+          "pattern": "^[A-Fa-f0-9]*$",
+          "description": "A string used to indicate the features supported by an API that is used as defined in clause 6.6 in 3GPP TS 29.500. The string shall contain a bitmask indicating supported features in hexadecimal representation Each c..."
+        }
+      }
+    ]
+  },
+  "definitions": {},
+  "constraints": [
+    {
+      "schema_id": "path.nfInstanceID",
+      "constraint": "path.nfInstanceID MUST be a string."
+    },
+    {
+      "schema_id": "path.nfInstanceID",
+      "constraint": "path.nfInstanceID MUST be in UUID format."
+    },
+    {
+      "schema_id": "path.nfInstanceID",
+      "constraint": "path.nfInstanceID MUST be a UUID version 4 as described in IETF RFC 4122."
+    },
+    {
+      "schema_id": "query.requester-features",
+      "constraint": "query.requester-features MUST be a string."
+    },
+    {
+      "schema_id": "query.requester-features",
+      "constraint": "query.requester-features MUST match the pattern ^[A-Fa-f0-9]*$."
+    }
+  ]
+}

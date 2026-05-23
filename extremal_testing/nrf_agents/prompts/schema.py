@@ -10,9 +10,6 @@ from extremal_testing.nrf_agents.models.common import OperationMetadata
 
 _SCHEMA_VALUE_KEYS = {
     "$ref",
-    "schema_id",
-    "location",
-    "source",
     "type",
     "format",
     "nullable",
@@ -38,7 +35,6 @@ _SCHEMA_VALUE_KEYS = {
 
 _SCHEMA_WRAPPER_KEYS = {
     "definitions",
-    "constraint_index",
     "parameters",
     "request_body",
     "requestBody",
@@ -86,9 +82,9 @@ def _compact_schema_for_prompt(node: Any) -> Any:
 
     compacted: Dict[str, Any] = {}
     for key, value in node.items():
-        if key in {"properties", "patternProperties", "dependentSchemas", "definitions"} and isinstance(value, dict):
+        if key in {"properties", "patternProperties", "dependentSchemas", "definitions", "content"} and isinstance(value, dict):
             compacted[key] = {prop_key: _compact_schema_for_prompt(prop_value) for prop_key, prop_value in value.items()}
-        elif key in {"items", "additionalProperties", "not", "contains", "schema", "content", "request_body", "requestBody", "parameters", "input_schema", "definitions", "constraint_index", "rules"}:
+        elif key in {"items", "additionalProperties", "not", "contains", "schema", "request_body", "requestBody", "parameters", "input_schema"}:
             compacted[key] = _compact_schema_for_prompt(value)
         elif key in {"allOf", "anyOf", "oneOf"} and isinstance(value, list):
             compacted[key] = [_compact_schema_for_prompt(item) for item in value]
@@ -102,11 +98,10 @@ You are an expert in OpenAPI specifications and API constraint extraction.
 
 You will receive:
 - one OpenAPI operation definition
-- one compact operation input schema graph
-- one deterministic constraint_index listing constraint-bearing schema paths
+- one compact operation input schema graph with input_schema and definitions
 
 Task:
-Extract all validity constraints that apply to the operation inputs using constraint_index as the primary source.
+Extract all validity constraints that apply to the operation inputs by traversing the schema graph.
 
 Constraints must be:
 - short
@@ -128,9 +123,11 @@ Return your response as a valid JSON object with the following structure:
 Important:
 - Every constraint MUST contain an explicit MUST statement
 - Every returned constraint object MUST contain exactly two keys: schema_id and constraint
-- Use schema_id values from constraint_index
-- Use constraint_index as the primary source of truth
-- Use the exact field names and request locations from the schema graph when possible
+- Inspect parameters, request-body requiredness, request-body schemas, direct request-body properties, nested object properties, and array items
+- Follow $ref entries into definitions before deciding whether a field has constraints
+- Use path-like schema_id values such as path.nfInstanceID, header.Content-Encoding, request_body.nfType, request_body.ipv4Addresses, or request_body.ipv4Addresses[]
+- Prefer field-specific request-body constraints over generic operation constraints
+- Do not stop after parameters or request-body presence
 - Do not include response-only behavior or unrelated operation details
 - Split combined rules into separate sentences when possible
 - Return only valid JSON, no markdown code blocks or additional text
@@ -162,10 +159,11 @@ Compact Schema Graph:
 Rules:
 1. Return only constraints that apply to operation inputs.
 2. Every constraint MUST be a standalone MUST statement.
-3. Use constraint_index as the primary source; do not stop at top-level parameters.
-4. Write one atomic constraint per meaningful indexed rule.
+3. Traverse input_schema and follow $ref entries into definitions.
+4. Inspect request_body.content.*.schema.properties and nested array/object schemas.
 5. Each constraint object MUST contain exactly schema_id and constraint.
-6. Return a valid JSON object with a single "constraints" key.
+6. Extract constraints from required, type, format, enum, pattern, minimum, maximum, minLength, maxLength, minItems, maxItems, oneOf, anyOf, allOf, not, and deprecated.
+7. Return a valid JSON object with a single "constraints" key.
 """
 
 

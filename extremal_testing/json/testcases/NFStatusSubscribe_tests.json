@@ -1,0 +1,1573 @@
+{
+  "operation": "NFStatusSubscribe",
+  "path": "/subscriptions",
+  "method": "POST",
+  "setup": [
+    {
+      "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    {
+      "path": "/nnrf-nfm/v1/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback"
+      }
+    }
+  ],
+  "cleanup": [
+    {
+      "path": "/nnrf-nfm/v1/subscriptions/{subscriptionId}",
+      "method": "DELETE",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+      "method": "DELETE",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    }
+  ],
+  "tests": [
+    {
+      "id": "tc_1_pos",
+      "name": "Valid Content-Encoding Header",
+      "constraint": "header.Content-Encoding MUST be a string.",
+      "constraint_schema_id": "header.Content-Encoding",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json",
+        "Content-Encoding": "gzip"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback"
+      }
+    },
+    {
+      "id": "tc_1_neg",
+      "name": "Invalid Content-Encoding Header",
+      "constraint": "header.Content-Encoding MUST be a string.",
+      "constraint_schema_id": "header.Content-Encoding",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json",
+        "Content-Encoding": 123
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback"
+      }
+    },
+    {
+      "id": "tc_2_pos",
+      "name": "Valid Accept-Encoding Header",
+      "constraint": "header.Accept-Encoding MUST be a string.",
+      "constraint_schema_id": "header.Accept-Encoding",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json",
+        "Accept-Encoding": "gzip"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback"
+      }
+    },
+    {
+      "id": "tc_2_neg",
+      "name": "Invalid Accept-Encoding Header",
+      "constraint": "header.Accept-Encoding MUST be a string.",
+      "constraint_schema_id": "header.Accept-Encoding",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json",
+        "Accept-Encoding": 123
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback"
+      }
+    },
+    {
+      "id": "tc_3_pos",
+      "name": "Valid Request Body",
+      "constraint": "request_body MUST be provided.",
+      "constraint_schema_id": "request_body",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback"
+      }
+    },
+    {
+      "id": "tc_3_neg",
+      "name": "Missing Request Body",
+      "constraint": "request_body MUST be provided.",
+      "constraint_schema_id": "request_body",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": null
+    },
+    {
+      "id": "tc_4_pos",
+      "name": "Valid nfStatusNotificationUri",
+      "constraint": "request_body.nfStatusNotificationUri MUST be a string.",
+      "constraint_schema_id": "request_body.nfStatusNotificationUri",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback"
+      }
+    },
+    {
+      "id": "tc_4_neg",
+      "name": "Invalid nfStatusNotificationUri",
+      "constraint": "request_body.nfStatusNotificationUri MUST be a string.",
+      "constraint_schema_id": "request_body.nfStatusNotificationUri",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": 123
+      }
+    },
+    {
+      "id": "tc_5_pos",
+      "name": "Present nfStatusNotificationUri",
+      "constraint": "request_body.nfStatusNotificationUri MUST be present.",
+      "constraint_schema_id": "request_body.nfStatusNotificationUri",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback"
+      }
+    },
+    {
+      "id": "tc_5_neg",
+      "name": "Missing nfStatusNotificationUri",
+      "constraint": "request_body.nfStatusNotificationUri MUST be present.",
+      "constraint_schema_id": "request_body.nfStatusNotificationUri",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {}
+    },
+    {
+      "id": "tc_6_pos",
+      "name": "Valid reqNfInstanceId",
+      "constraint": "request_body.reqNfInstanceId MUST be a string.",
+      "constraint_schema_id": "request_body.reqNfInstanceId",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNfInstanceId": "550e8400-e29b-41d4-a716-446655440000"
+      }
+    },
+    {
+      "id": "tc_6_neg",
+      "name": "Invalid reqNfInstanceId",
+      "constraint": "request_body.reqNfInstanceId MUST be a string.",
+      "constraint_schema_id": "request_body.reqNfInstanceId",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNfInstanceId": 123
+      }
+    },
+    {
+      "id": "tc_7_pos",
+      "name": "Valid UUID reqNfInstanceId",
+      "constraint": "request_body.reqNfInstanceId MUST be a UUID version 4.",
+      "constraint_schema_id": "request_body.reqNfInstanceId",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNfInstanceId": "550e8400-e29b-41d4-a716-446655440000"
+      }
+    },
+    {
+      "id": "tc_7_neg",
+      "name": "Invalid UUID reqNfInstanceId",
+      "constraint": "request_body.reqNfInstanceId MUST be a UUID version 4.",
+      "constraint_schema_id": "request_body.reqNfInstanceId",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNfInstanceId": "not-a-uuid"
+      }
+    },
+    {
+      "id": "tc_8_pos",
+      "name": "Valid sharedDataIds Array",
+      "constraint": "request_body.sharedDataIds MUST be an array.",
+      "constraint_schema_id": "request_body.sharedDataIds",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "sharedDataIds": [
+          "data1"
+        ]
+      }
+    },
+    {
+      "id": "tc_8_neg",
+      "name": "Invalid sharedDataIds Type",
+      "constraint": "request_body.sharedDataIds MUST be an array.",
+      "constraint_schema_id": "request_body.sharedDataIds",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "sharedDataIds": "not-an-array"
+      }
+    },
+    {
+      "id": "tc_9_pos",
+      "name": "Non-Empty sharedDataIds Array",
+      "constraint": "request_body.sharedDataIds MUST contain at least 1 item.",
+      "constraint_schema_id": "request_body.sharedDataIds",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "sharedDataIds": [
+          "data1"
+        ]
+      }
+    },
+    {
+      "id": "tc_9_neg",
+      "name": "Empty sharedDataIds Array",
+      "constraint": "request_body.sharedDataIds MUST contain at least 1 item.",
+      "constraint_schema_id": "request_body.sharedDataIds",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "sharedDataIds": []
+      }
+    },
+    {
+      "id": "tc_10_pos",
+      "name": "Valid sharedDataIds Item",
+      "constraint": "request_body.sharedDataIds[] MUST be a string.",
+      "constraint_schema_id": "request_body.sharedDataIds[]",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "sharedDataIds": [
+          "data1"
+        ]
+      }
+    },
+    {
+      "id": "tc_10_neg",
+      "name": "Invalid sharedDataIds Item",
+      "constraint": "request_body.sharedDataIds[] MUST be a string.",
+      "constraint_schema_id": "request_body.sharedDataIds[]",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "sharedDataIds": [
+          123
+        ]
+      }
+    },
+    {
+      "id": "tc_11_pos",
+      "name": "Valid SubscriptionId as String",
+      "constraint": "request_body.subscriptionId MUST be a string.",
+      "constraint_schema_id": "request_body.subscriptionId",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "subscriptionId": "12345-x3Lf57A:nid=abcdef12345:valid",
+        "nfStatusNotificationUri": "https://example.client/callback"
+      }
+    },
+    {
+      "id": "tc_11_neg",
+      "name": "Invalid SubscriptionId as Non-String",
+      "constraint": "request_body.subscriptionId MUST be a string.",
+      "constraint_schema_id": "request_body.subscriptionId",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "subscriptionId": 12345,
+        "nfStatusNotificationUri": "https://example.client/callback"
+      }
+    },
+    {
+      "id": "tc_12_pos",
+      "name": "Valid SubscriptionId Pattern",
+      "constraint": "request_body.subscriptionId MUST match the pattern ^([0-9]{5,6}-(x3Lf57A:nid=[A-Fa-f0-9]{11}:)?)?[^-]+$.",
+      "constraint_schema_id": "request_body.subscriptionId",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "subscriptionId": "12345-x3Lf57A:nid=abcdef12345:valid",
+        "nfStatusNotificationUri": "https://example.client/callback"
+      }
+    },
+    {
+      "id": "tc_12_neg",
+      "name": "Invalid SubscriptionId Pattern",
+      "constraint": "request_body.subscriptionId MUST match the pattern ^([0-9]{5,6}-(x3Lf57A:nid=[A-Fa-f0-9]{11}:)?)?[^-]+$.",
+      "constraint_schema_id": "request_body.subscriptionId",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "subscriptionId": "12345-invalid-pattern-",
+        "nfStatusNotificationUri": "https://example.client/callback"
+      }
+    },
+    {
+      "id": "tc_13_pos",
+      "name": "Valid ValidityTime as String",
+      "constraint": "request_body.validityTime MUST be a string.",
+      "constraint_schema_id": "request_body.validityTime",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "validityTime": "2023-10-01T12:00:00Z",
+        "nfStatusNotificationUri": "https://example.client/callback"
+      }
+    },
+    {
+      "id": "tc_13_neg",
+      "name": "Invalid ValidityTime as Non-String",
+      "constraint": "request_body.validityTime MUST be a string.",
+      "constraint_schema_id": "request_body.validityTime",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "validityTime": 1234567890,
+        "nfStatusNotificationUri": "https://example.client/callback"
+      }
+    },
+    {
+      "id": "tc_14_pos",
+      "name": "Valid ValidityTime Format",
+      "constraint": "request_body.validityTime MUST be in date-time format.",
+      "constraint_schema_id": "request_body.validityTime",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "validityTime": "2023-10-01T12:00:00Z",
+        "nfStatusNotificationUri": "https://example.client/callback"
+      }
+    },
+    {
+      "id": "tc_14_neg",
+      "name": "Invalid ValidityTime Format",
+      "constraint": "request_body.validityTime MUST be in date-time format.",
+      "constraint_schema_id": "request_body.validityTime",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "validityTime": "2023-10-01",
+        "nfStatusNotificationUri": "https://example.client/callback"
+      }
+    },
+    {
+      "id": "tc_15_pos",
+      "name": "Valid ReqNotifEvents as Array",
+      "constraint": "request_body.reqNotifEvents MUST be an array.",
+      "constraint_schema_id": "request_body.reqNotifEvents",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "reqNotifEvents": [
+          "NF_REGISTERED"
+        ],
+        "nfStatusNotificationUri": "https://example.client/callback"
+      }
+    },
+    {
+      "id": "tc_15_neg",
+      "name": "Invalid ReqNotifEvents as Non-Array",
+      "constraint": "request_body.reqNotifEvents MUST be an array.",
+      "constraint_schema_id": "request_body.reqNotifEvents",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "reqNotifEvents": "NF_REGISTERED",
+        "nfStatusNotificationUri": "https://example.client/callback"
+      }
+    },
+    {
+      "id": "tc_16_pos",
+      "name": "Valid ReqNotifEvents with Items",
+      "constraint": "request_body.reqNotifEvents MUST contain at least 1 item.",
+      "constraint_schema_id": "request_body.reqNotifEvents",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "reqNotifEvents": [
+          "NF_REGISTERED"
+        ],
+        "nfStatusNotificationUri": "https://example.client/callback"
+      }
+    },
+    {
+      "id": "tc_16_neg",
+      "name": "Invalid ReqNotifEvents with No Items",
+      "constraint": "request_body.reqNotifEvents MUST contain at least 1 item.",
+      "constraint_schema_id": "request_body.reqNotifEvents",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "reqNotifEvents": [],
+        "nfStatusNotificationUri": "https://example.client/callback"
+      }
+    },
+    {
+      "id": "tc_17_pos",
+      "name": "Valid PlmnId as Object",
+      "constraint": "request_body.plmnId MUST be an object.",
+      "constraint_schema_id": "request_body.plmnId",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "plmnId": {
+          "mcc": "001",
+          "mnc": "01"
+        },
+        "nfStatusNotificationUri": "https://example.client/callback"
+      }
+    },
+    {
+      "id": "tc_17_neg",
+      "name": "Invalid PlmnId as Non-Object",
+      "constraint": "request_body.plmnId MUST be an object.",
+      "constraint_schema_id": "request_body.plmnId",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "plmnId": "001-01",
+        "nfStatusNotificationUri": "https://example.client/callback"
+      }
+    },
+    {
+      "id": "tc_18_pos",
+      "name": "Valid Nid as String",
+      "constraint": "request_body.nid MUST be a string.",
+      "constraint_schema_id": "request_body.nid",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nid": "abcdef12345",
+        "nfStatusNotificationUri": "https://example.client/callback"
+      }
+    },
+    {
+      "id": "tc_18_neg",
+      "name": "Invalid Nid as Non-String",
+      "constraint": "request_body.nid MUST be a string.",
+      "constraint_schema_id": "request_body.nid",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nid": 12345678901,
+        "nfStatusNotificationUri": "https://example.client/callback"
+      }
+    },
+    {
+      "id": "tc_19_pos",
+      "name": "Valid Nid Pattern",
+      "constraint": "request_body.nid MUST match the pattern ^[A-Fa-f0-9]{11}$.",
+      "constraint_schema_id": "request_body.nid",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nid": "abcdef12345",
+        "nfStatusNotificationUri": "https://example.client/callback"
+      }
+    },
+    {
+      "id": "tc_19_neg",
+      "name": "Invalid Nid Pattern",
+      "constraint": "request_body.nid MUST match the pattern ^[A-Fa-f0-9]{11}$.",
+      "constraint_schema_id": "request_body.nid",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nid": "abcdef1234",
+        "nfStatusNotificationUri": "https://example.client/callback"
+      }
+    },
+    {
+      "id": "tc_20_pos",
+      "name": "Valid ReqNfType as String",
+      "constraint": "request_body.reqNfType MUST be a string.",
+      "constraint_schema_id": "request_body.reqNfType",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "reqNfType": "NRF",
+        "nfStatusNotificationUri": "https://example.client/callback"
+      }
+    },
+    {
+      "id": "tc_20_neg",
+      "name": "Invalid ReqNfType as Non-String",
+      "constraint": "request_body.reqNfType MUST be a string.",
+      "constraint_schema_id": "request_body.reqNfType",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "reqNfType": 123,
+        "nfStatusNotificationUri": "https://example.client/callback"
+      }
+    },
+    {
+      "id": "tc_21_pos",
+      "name": "Valid NF Type",
+      "constraint": "request_body.reqNfType MUST be one of the predefined NF types.",
+      "constraint_schema_id": "request_body.reqNfType",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNfType": "NRF"
+      }
+    },
+    {
+      "id": "tc_21_neg",
+      "name": "Invalid NF Type",
+      "constraint": "request_body.reqNfType MUST be one of the predefined NF types.",
+      "constraint_schema_id": "request_body.reqNfType",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNfType": "INVALID_TYPE"
+      }
+    },
+    {
+      "id": "tc_22_pos",
+      "name": "Valid FQDN String",
+      "constraint": "request_body.reqNfFqdn MUST be a string.",
+      "constraint_schema_id": "request_body.reqNfFqdn",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNfFqdn": "valid.example.com"
+      }
+    },
+    {
+      "id": "tc_22_neg",
+      "name": "Invalid FQDN Type",
+      "constraint": "request_body.reqNfFqdn MUST be a string.",
+      "constraint_schema_id": "request_body.reqNfFqdn",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNfFqdn": 12345
+      }
+    },
+    {
+      "id": "tc_23_pos",
+      "name": "Valid FQDN Pattern",
+      "constraint": "request_body.reqNfFqdn MUST match the pattern ^([0-9A-Za-z]([-0-9A-Za-z]{0,61}[0-9A-Za-z])?\\.)+[A-Za-z]{2,63}\\.?$.",
+      "constraint_schema_id": "request_body.reqNfFqdn",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNfFqdn": "valid.example.com"
+      }
+    },
+    {
+      "id": "tc_23_neg",
+      "name": "Invalid FQDN Pattern",
+      "constraint": "request_body.reqNfFqdn MUST match the pattern ^([0-9A-Za-z]([-0-9A-Za-z]{0,61}[0-9A-Za-z])?\\.)+[A-Za-z]{2,63}\\.?$.",
+      "constraint_schema_id": "request_body.reqNfFqdn",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNfFqdn": "invalid_fqdn"
+      }
+    },
+    {
+      "id": "tc_24_pos",
+      "name": "Valid FQDN Length",
+      "constraint": "request_body.reqNfFqdn MUST be between 4 and 253 characters long.",
+      "constraint_schema_id": "request_body.reqNfFqdn",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNfFqdn": "valid.example.com"
+      }
+    },
+    {
+      "id": "tc_24_neg",
+      "name": "Invalid FQDN Length",
+      "constraint": "request_body.reqNfFqdn MUST be between 4 and 253 characters long.",
+      "constraint_schema_id": "request_body.reqNfFqdn",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqNfFqdn": "a.b"
+      }
+    },
+    {
+      "id": "tc_25_pos",
+      "name": "Valid SNSSAIs Array",
+      "constraint": "request_body.reqSnssais MUST be an array.",
+      "constraint_schema_id": "request_body.reqSnssais",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqSnssais": [
+          {
+            "sst": 1,
+            "sd": "010203"
+          }
+        ]
+      }
+    },
+    {
+      "id": "tc_25_neg",
+      "name": "Invalid SNSSAIs Type",
+      "constraint": "request_body.reqSnssais MUST be an array.",
+      "constraint_schema_id": "request_body.reqSnssais",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqSnssais": "not-an-array"
+      }
+    },
+    {
+      "id": "tc_26_pos",
+      "name": "Valid SNSSAIs Minimum Items",
+      "constraint": "request_body.reqSnssais MUST contain at least 1 item.",
+      "constraint_schema_id": "request_body.reqSnssais",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqSnssais": [
+          {
+            "sst": 1,
+            "sd": "010203"
+          }
+        ]
+      }
+    },
+    {
+      "id": "tc_26_neg",
+      "name": "Invalid SNSSAIs Empty Array",
+      "constraint": "request_body.reqSnssais MUST contain at least 1 item.",
+      "constraint_schema_id": "request_body.reqSnssais",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqSnssais": []
+      }
+    },
+    {
+      "id": "tc_27_pos",
+      "name": "Valid Per PLMN SNSSAIs Array",
+      "constraint": "request_body.reqPerPlmnSnssais MUST be an array.",
+      "constraint_schema_id": "request_body.reqPerPlmnSnssais",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqPerPlmnSnssais": [
+          {
+            "plmnId": {
+              "mcc": "001",
+              "mnc": "01"
+            },
+            "sNssaiList": [
+              {
+                "sst": 1,
+                "sd": "010203"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tc_27_neg",
+      "name": "Invalid Per PLMN SNSSAIs Type",
+      "constraint": "request_body.reqPerPlmnSnssais MUST be an array.",
+      "constraint_schema_id": "request_body.reqPerPlmnSnssais",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqPerPlmnSnssais": "not-an-array"
+      }
+    },
+    {
+      "id": "tc_28_pos",
+      "name": "Valid Per PLMN SNSSAIs Minimum Items",
+      "constraint": "request_body.reqPerPlmnSnssais MUST contain at least 1 item.",
+      "constraint_schema_id": "request_body.reqPerPlmnSnssais",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqPerPlmnSnssais": [
+          {
+            "plmnId": {
+              "mcc": "001",
+              "mnc": "01"
+            },
+            "sNssaiList": [
+              {
+                "sst": 1,
+                "sd": "010203"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tc_28_neg",
+      "name": "Invalid Per PLMN SNSSAIs Empty Array",
+      "constraint": "request_body.reqPerPlmnSnssais MUST contain at least 1 item.",
+      "constraint_schema_id": "request_body.reqPerPlmnSnssais",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqPerPlmnSnssais": []
+      }
+    },
+    {
+      "id": "tc_29_pos",
+      "name": "Valid PLMN List Array",
+      "constraint": "request_body.reqPlmnList MUST be an array.",
+      "constraint_schema_id": "request_body.reqPlmnList",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqPlmnList": [
+          {
+            "mcc": "001",
+            "mnc": "01"
+          }
+        ]
+      }
+    },
+    {
+      "id": "tc_29_neg",
+      "name": "Invalid PLMN List Type",
+      "constraint": "request_body.reqPlmnList MUST be an array.",
+      "constraint_schema_id": "request_body.reqPlmnList",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqPlmnList": "not-an-array"
+      }
+    },
+    {
+      "id": "tc_30_pos",
+      "name": "Valid PLMN List Minimum Items",
+      "constraint": "request_body.reqPlmnList MUST contain at least 1 item.",
+      "constraint_schema_id": "request_body.reqPlmnList",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqPlmnList": [
+          {
+            "mcc": "001",
+            "mnc": "01"
+          }
+        ]
+      }
+    },
+    {
+      "id": "tc_30_neg",
+      "name": "Invalid PLMN List Empty Array",
+      "constraint": "request_body.reqPlmnList MUST contain at least 1 item.",
+      "constraint_schema_id": "request_body.reqPlmnList",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqPlmnList": []
+      }
+    },
+    {
+      "id": "tc_31_pos",
+      "name": "Valid reqSnpnList Array",
+      "constraint": "request_body.reqSnpnList MUST be an array.",
+      "constraint_schema_id": "request_body.reqSnpnList",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqSnpnList": [
+          {
+            "mcc": "310",
+            "mnc": "260",
+            "nid": "12345"
+          }
+        ]
+      }
+    },
+    {
+      "id": "tc_31_neg",
+      "name": "Invalid reqSnpnList Type",
+      "constraint": "request_body.reqSnpnList MUST be an array.",
+      "constraint_schema_id": "request_body.reqSnpnList",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqSnpnList": "not-an-array"
+      }
+    },
+    {
+      "id": "tc_32_pos",
+      "name": "reqSnpnList with One Item",
+      "constraint": "request_body.reqSnpnList MUST contain at least 1 item.",
+      "constraint_schema_id": "request_body.reqSnpnList",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqSnpnList": [
+          {
+            "mcc": "310",
+            "mnc": "260",
+            "nid": "12345"
+          }
+        ]
+      }
+    },
+    {
+      "id": "tc_32_neg",
+      "name": "Empty reqSnpnList",
+      "constraint": "request_body.reqSnpnList MUST contain at least 1 item.",
+      "constraint_schema_id": "request_body.reqSnpnList",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "reqSnpnList": []
+      }
+    },
+    {
+      "id": "tc_33_pos",
+      "name": "Valid servingScope Array",
+      "constraint": "request_body.servingScope MUST be an array.",
+      "constraint_schema_id": "request_body.servingScope",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "servingScope": [
+          "scope1"
+        ]
+      }
+    },
+    {
+      "id": "tc_33_neg",
+      "name": "Invalid servingScope Type",
+      "constraint": "request_body.servingScope MUST be an array.",
+      "constraint_schema_id": "request_body.servingScope",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "servingScope": "not-an-array"
+      }
+    },
+    {
+      "id": "tc_34_pos",
+      "name": "servingScope with One Item",
+      "constraint": "request_body.servingScope MUST contain at least 1 item.",
+      "constraint_schema_id": "request_body.servingScope",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "servingScope": [
+          "scope1"
+        ]
+      }
+    },
+    {
+      "id": "tc_34_neg",
+      "name": "Empty servingScope",
+      "constraint": "request_body.servingScope MUST contain at least 1 item.",
+      "constraint_schema_id": "request_body.servingScope",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "servingScope": []
+      }
+    },
+    {
+      "id": "tc_35_pos",
+      "name": "Valid servingScope Item Type",
+      "constraint": "request_body.servingScope[] MUST be a string.",
+      "constraint_schema_id": "request_body.servingScope[]",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "servingScope": [
+          "scope1"
+        ]
+      }
+    },
+    {
+      "id": "tc_35_neg",
+      "name": "Invalid servingScope Item Type",
+      "constraint": "request_body.servingScope[] MUST be a string.",
+      "constraint_schema_id": "request_body.servingScope[]",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "servingScope": [
+          123
+        ]
+      }
+    },
+    {
+      "id": "tc_36_pos",
+      "name": "Valid requesterFeatures String",
+      "constraint": "request_body.requesterFeatures MUST be a string.",
+      "constraint_schema_id": "request_body.requesterFeatures",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "requesterFeatures": "1A2B"
+      }
+    },
+    {
+      "id": "tc_36_neg",
+      "name": "Invalid requesterFeatures Type",
+      "constraint": "request_body.requesterFeatures MUST be a string.",
+      "constraint_schema_id": "request_body.requesterFeatures",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "requesterFeatures": 1234
+      }
+    },
+    {
+      "id": "tc_37_pos",
+      "name": "Valid requesterFeatures Pattern",
+      "constraint": "request_body.requesterFeatures MUST match the pattern ^[A-Fa-f0-9]*$.",
+      "constraint_schema_id": "request_body.requesterFeatures",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "requesterFeatures": "1A2B"
+      }
+    },
+    {
+      "id": "tc_37_neg",
+      "name": "Invalid requesterFeatures Pattern",
+      "constraint": "request_body.requesterFeatures MUST match the pattern ^[A-Fa-f0-9]*$.",
+      "constraint_schema_id": "request_body.requesterFeatures",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "requesterFeatures": "1A2G"
+      }
+    },
+    {
+      "id": "tc_38_pos",
+      "name": "Valid nrfSupportedFeatures String",
+      "constraint": "request_body.nrfSupportedFeatures MUST be a string.",
+      "constraint_schema_id": "request_body.nrfSupportedFeatures",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "nrfSupportedFeatures": "1A2B"
+      }
+    },
+    {
+      "id": "tc_38_neg",
+      "name": "Invalid nrfSupportedFeatures Type",
+      "constraint": "request_body.nrfSupportedFeatures MUST be a string.",
+      "constraint_schema_id": "request_body.nrfSupportedFeatures",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "nrfSupportedFeatures": 1234
+      }
+    },
+    {
+      "id": "tc_39_pos",
+      "name": "Valid nrfSupportedFeatures Pattern",
+      "constraint": "request_body.nrfSupportedFeatures MUST match the pattern ^[A-Fa-f0-9]*$.",
+      "constraint_schema_id": "request_body.nrfSupportedFeatures",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "nrfSupportedFeatures": "1A2B"
+      }
+    },
+    {
+      "id": "tc_39_neg",
+      "name": "Invalid nrfSupportedFeatures Pattern",
+      "constraint": "request_body.nrfSupportedFeatures MUST match the pattern ^[A-Fa-f0-9]*$.",
+      "constraint_schema_id": "request_body.nrfSupportedFeatures",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "nrfSupportedFeatures": "1A2G"
+      }
+    },
+    {
+      "id": "tc_40_pos",
+      "name": "Valid hnrfUri String",
+      "constraint": "request_body.hnrfUri MUST be a string.",
+      "constraint_schema_id": "request_body.hnrfUri",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "hnrfUri": "https://example.hnrf/callback"
+      }
+    },
+    {
+      "id": "tc_40_neg",
+      "name": "Invalid hnrfUri Type",
+      "constraint": "request_body.hnrfUri MUST be a string.",
+      "constraint_schema_id": "request_body.hnrfUri",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "hnrfUri": 1234
+      }
+    },
+    {
+      "id": "tc_41_pos",
+      "name": "Valid Onboarding Capability",
+      "constraint": "request_body.onboardingCapability MUST be a boolean.",
+      "constraint_schema_id": "request_body.onboardingCapability",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "onboardingCapability": true
+      }
+    },
+    {
+      "id": "tc_41_neg",
+      "name": "Invalid Onboarding Capability",
+      "constraint": "request_body.onboardingCapability MUST be a boolean.",
+      "constraint_schema_id": "request_body.onboardingCapability",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "onboardingCapability": "true"
+      }
+    },
+    {
+      "id": "tc_42_pos",
+      "name": "Valid Target HNI",
+      "constraint": "request_body.targetHni MUST be a string.",
+      "constraint_schema_id": "request_body.targetHni",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "targetHni": "example.com"
+      }
+    },
+    {
+      "id": "tc_42_neg",
+      "name": "Invalid Target HNI Type",
+      "constraint": "request_body.targetHni MUST be a string.",
+      "constraint_schema_id": "request_body.targetHni",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "targetHni": 12345
+      }
+    },
+    {
+      "id": "tc_43_pos",
+      "name": "Valid Target HNI Pattern",
+      "constraint": "request_body.targetHni MUST match the pattern ^([0-9A-Za-z]([-0-9A-Za-z]{0,61}[0-9A-Za-z])?\\.)+[A-Za-z]{2,63}\\.?$.",
+      "constraint_schema_id": "request_body.targetHni",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "targetHni": "valid.example.com"
+      }
+    },
+    {
+      "id": "tc_43_neg",
+      "name": "Invalid Target HNI Pattern",
+      "constraint": "request_body.targetHni MUST match the pattern ^([0-9A-Za-z]([-0-9A-Za-z]{0,61}[0-9A-Za-z])?\\.)+[A-Za-z]{2,63}\\.?$.",
+      "constraint_schema_id": "request_body.targetHni",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "targetHni": "invalid_domain"
+      }
+    },
+    {
+      "id": "tc_44_pos",
+      "name": "Valid Target HNI Length",
+      "constraint": "request_body.targetHni MUST be between 4 and 253 characters long.",
+      "constraint_schema_id": "request_body.targetHni",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "targetHni": "abcd.com"
+      }
+    },
+    {
+      "id": "tc_44_neg",
+      "name": "Invalid Target HNI Length",
+      "constraint": "request_body.targetHni MUST be between 4 and 253 characters long.",
+      "constraint_schema_id": "request_body.targetHni",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "targetHni": "a.com"
+      }
+    },
+    {
+      "id": "tc_45_pos",
+      "name": "Valid Preferred Locality",
+      "constraint": "request_body.preferredLocality MUST be a string.",
+      "constraint_schema_id": "request_body.preferredLocality",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "preferredLocality": "New York"
+      }
+    },
+    {
+      "id": "tc_45_neg",
+      "name": "Invalid Preferred Locality",
+      "constraint": "request_body.preferredLocality MUST be a string.",
+      "constraint_schema_id": "request_body.preferredLocality",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "preferredLocality": 123
+      }
+    },
+    {
+      "id": "tc_46_pos",
+      "name": "Valid Ext Preferred Locality",
+      "constraint": "request_body.extPreferredLocality MUST be an object.",
+      "constraint_schema_id": "request_body.extPreferredLocality",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "extPreferredLocality": {
+          "1": [
+            {
+              "localityType": "CITY",
+              "localityValue": "New York"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tc_46_neg",
+      "name": "Invalid Ext Preferred Locality",
+      "constraint": "request_body.extPreferredLocality MUST be an object.",
+      "constraint_schema_id": "request_body.extPreferredLocality",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "extPreferredLocality": "New York"
+      }
+    },
+    {
+      "id": "tc_47_pos",
+      "name": "Valid Ext Preferred Locality Properties",
+      "constraint": "request_body.extPreferredLocality MUST have at least 1 property.",
+      "constraint_schema_id": "request_body.extPreferredLocality",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "extPreferredLocality": {
+          "1": [
+            {
+              "localityType": "CITY",
+              "localityValue": "New York"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "tc_47_neg",
+      "name": "Invalid Ext Preferred Locality Properties",
+      "constraint": "request_body.extPreferredLocality MUST have at least 1 property.",
+      "constraint_schema_id": "request_body.extPreferredLocality",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "extPreferredLocality": {}
+      }
+    },
+    {
+      "id": "tc_48_pos",
+      "name": "Valid Complete Profile Subscription",
+      "constraint": "request_body.completeProfileSubscription MUST be a boolean.",
+      "constraint_schema_id": "request_body.completeProfileSubscription",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "completeProfileSubscription": false
+      }
+    },
+    {
+      "id": "tc_48_neg",
+      "name": "Invalid Complete Profile Subscription",
+      "constraint": "request_body.completeProfileSubscription MUST be a boolean.",
+      "constraint_schema_id": "request_body.completeProfileSubscription",
+      "method": "POST",
+      "path": "/subscriptions",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback",
+        "completeProfileSubscription": "false"
+      }
+    }
+  ]
+}

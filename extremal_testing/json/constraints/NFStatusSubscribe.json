@@ -1,0 +1,1697 @@
+{
+  "input_schema": {
+    "parameters": [
+      {
+        "description": "Content-Encoding, described in IETF RFC 9110",
+        "in": "header",
+        "name": "Content-Encoding",
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "description": "Accept-Encoding, described in IETF RFC 9110",
+        "in": "header",
+        "name": "Accept-Encoding",
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "request_body": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "description": "Information of a subscription to notifications to NRF events, included in subscription requests and responses",
+            "type": "object",
+            "required": [
+              "nfStatusNotificationUri"
+            ],
+            "properties": {
+              "nfStatusNotificationUri": {
+                "type": "string"
+              },
+              "reqNfInstanceId": {
+                "$ref": "#/definitions/TS29571_CommonData.NfInstanceId"
+              },
+              "sharedDataIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              },
+              "subscrCond": {
+                "$ref": "#/definitions/TS29510_Nnrf_NFManagement.SubscrCond"
+              },
+              "subscriptionId": {
+                "type": "string",
+                "pattern": "^([0-9]{5,6}-(x3Lf57A:nid=[A-Fa-f0-9]{11}:)?)?[^-]+$"
+              },
+              "validityTime": {
+                "$ref": "#/definitions/TS29571_CommonData.DateTime"
+              },
+              "reqNotifEvents": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/TS29510_Nnrf_NFManagement.NotificationEventType"
+                },
+                "minItems": 1
+              },
+              "plmnId": {
+                "$ref": "#/definitions/TS29571_CommonData.PlmnId"
+              },
+              "nid": {
+                "$ref": "#/definitions/TS29571_CommonData.Nid"
+              },
+              "notifCondition": {
+                "$ref": "#/definitions/TS29510_Nnrf_NFManagement.NotifCondition"
+              },
+              "reqNfType": {
+                "$ref": "#/definitions/TS29510_Nnrf_NFManagement.NFType"
+              },
+              "reqNfFqdn": {
+                "$ref": "#/definitions/TS29571_CommonData.Fqdn"
+              },
+              "reqSnssais": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/TS29571_CommonData.ExtSnssai"
+                },
+                "minItems": 1
+              },
+              "reqPerPlmnSnssais": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/TS29510_Nnrf_NFManagement.PlmnSnssai"
+                },
+                "minItems": 1
+              },
+              "reqPlmnList": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/TS29571_CommonData.PlmnId"
+                },
+                "minItems": 1
+              },
+              "reqSnpnList": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/TS29571_CommonData.PlmnIdNid"
+                },
+                "minItems": 1
+              },
+              "servingScope": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              },
+              "requesterFeatures": {
+                "allOf": [
+                  {
+                    "$ref": "#/definitions/TS29571_CommonData.SupportedFeatures"
+                  }
+                ]
+              },
+              "nrfSupportedFeatures": {
+                "allOf": [
+                  {
+                    "$ref": "#/definitions/TS29571_CommonData.SupportedFeatures"
+                  }
+                ]
+              },
+              "hnrfUri": {
+                "$ref": "#/definitions/TS29571_CommonData.Uri"
+              },
+              "onboardingCapability": {
+                "type": "boolean"
+              },
+              "targetHni": {
+                "$ref": "#/definitions/TS29571_CommonData.Fqdn"
+              },
+              "preferredLocality": {
+                "type": "string"
+              },
+              "extPreferredLocality": {
+                "description": "A map (list of key-value pairs) where the key of the map represents the relative priority, for the requester, of each locality description among the list of locality descriptions in this query parameter, encoded as \"1...",
+                "type": "object",
+                "additionalProperties": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/TS29510_Nnrf_NFManagement.LocalityDescription"
+                  },
+                  "minItems": 1
+                },
+                "minProperties": 1
+              },
+              "completeProfileSubscription": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "TS29571_CommonData.NfInstanceId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "String uniquely identifying a NF instance. The format of the NF Instance ID shall be a Universally Unique Identifier (UUID) version 4, as described in IETF RFC 4122."
+    },
+    "TS29510_Nnrf_NFManagement.SubscrCond": {
+      "description": "Condition to determine the set of NFs to monitor under a certain subscription in NRF",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.NfInstanceIdCond"
+        },
+        {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.NfInstanceIdListCond"
+        },
+        {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.NfTypeCond"
+        },
+        {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.ServiceNameCond"
+        },
+        {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.ServiceNameListCond"
+        },
+        {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.AmfCond"
+        },
+        {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.GuamiListCond"
+        },
+        {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.NetworkSliceCond"
+        },
+        {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.NfGroupCond"
+        },
+        {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.NfGroupListCond"
+        },
+        {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.NfSetCond"
+        },
+        {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.NfServiceSetCond"
+        },
+        {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.UpfCond"
+        },
+        {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.ScpDomainCond"
+        },
+        {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.NwdafCond"
+        },
+        {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.NefCond"
+        },
+        {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.DccfCond"
+        }
+      ]
+    },
+    "TS29510_Nnrf_NFManagement.NfInstanceIdCond": {
+      "description": "Subscription to a given NF Instance Id",
+      "type": "object",
+      "required": [
+        "nfInstanceId"
+      ],
+      "properties": {
+        "nfInstanceId": {
+          "$ref": "#/definitions/TS29571_CommonData.NfInstanceId"
+        }
+      }
+    },
+    "TS29510_Nnrf_NFManagement.NfInstanceIdListCond": {
+      "description": "Subscription to a list of NF Instances",
+      "type": "object",
+      "required": [
+        "nfInstanceIdList"
+      ],
+      "properties": {
+        "nfInstanceIdList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TS29571_CommonData.NfInstanceId"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "TS29510_Nnrf_NFManagement.NfTypeCond": {
+      "description": "Subscription to a set of NFs based on their NF Type",
+      "type": "object",
+      "required": [
+        "nfType"
+      ],
+      "allOf": [
+        {
+          "not": {
+            "required": [
+              "nfGroupId"
+            ]
+          }
+        },
+        {
+          "not": {
+            "required": [
+              "conditionType",
+              "nfGroupIdList"
+            ]
+          }
+        }
+      ],
+      "properties": {
+        "nfType": {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.NFType"
+        }
+      }
+    },
+    "TS29510_Nnrf_NFManagement.NFType": {
+      "description": "NF types known to NRF",
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "NRF",
+            "UDM",
+            "AMF",
+            "SMF",
+            "AUSF",
+            "NEF",
+            "PCF",
+            "SMSF",
+            "NSSF",
+            "UDR",
+            "LMF",
+            "GMLC",
+            "5G_EIR",
+            "SEPP",
+            "UPF",
+            "N3IWF",
+            "AF",
+            "UDSF",
+            "BSF",
+            "CHF",
+            "NWDAF",
+            "PCSCF",
+            "CBCF",
+            "HSS",
+            "UCMF",
+            "SOR_AF",
+            "SPAF",
+            "MME",
+            "SCSAS",
+            "SCEF",
+            "SCP",
+            "NSSAAF",
+            "ICSCF",
+            "SCSCF",
+            "DRA",
+            "IMS_AS",
+            "AANF",
+            "5G_DDNMF",
+            "NSACF",
+            "MFAF",
+            "EASDF",
+            "DCCF",
+            "MB_SMF",
+            "TSCTSF",
+            "ADRF",
+            "GBA_BSF",
+            "CEF",
+            "MB_UPF",
+            "NSWOF",
+            "PKMF",
+            "MNPF",
+            "SMS_GMSC",
+            "SMS_IWMSC",
+            "MBSF",
+            "MBSTF",
+            "PANF",
+            "IP_SM_GW",
+            "SMS_ROUTER",
+            "DCSF",
+            "MRF",
+            "MRFP",
+            "MF",
+            "SLPKMF",
+            "RH",
+            "EIF",
+            "AIOTF",
+            "ADM"
+          ]
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "TS29510_Nnrf_NFManagement.ServiceNameCond": {
+      "description": "Subscription to a set of NFs based on their support for a given Service Name",
+      "type": "object",
+      "required": [
+        "serviceName"
+      ],
+      "properties": {
+        "serviceName": {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.ServiceName"
+        }
+      }
+    },
+    "TS29510_Nnrf_NFManagement.ServiceName": {
+      "description": "Service names known to NRF",
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "nnrf-nfm",
+            "nnrf-disc",
+            "nnrf-oauth2",
+            "nudm-sdm",
+            "nudm-uecm",
+            "nudm-ueau",
+            "nudm-ee",
+            "nudm-pp",
+            "nudm-niddau",
+            "nudm-mt",
+            "nudm-ssau",
+            "nudm-rsds",
+            "nudm-ueid",
+            "namf-comm",
+            "namf-evts",
+            "namf-mt",
+            "namf-loc",
+            "namf-mbs-comm",
+            "namf-mbs-bc",
+            "namf-aiot",
+            "nsmf-pdusession",
+            "nsmf-event-exposure",
+            "nsmf-nidd",
+            "nausf-auth",
+            "nausf-sorprotection",
+            "nausf-upuprotection",
+            "nnef-pfdmanagement",
+            "nnef-smcontext",
+            "nnef-smservice",
+            "nnef-eventexposure",
+            "nnef-eas-deployment",
+            "nnef-dnai-mapping",
+            "nnef-traffic-influence-data",
+            "nnef-ecs-addr-cfg-info",
+            "nnef-ueid",
+            "3gpp-cp-parameter-provisioning",
+            "3gpp-device-triggering",
+            "3gpp-bdt",
+            "3gpp-traffic-influence",
+            "3gpp-chargeable-party",
+            "3gpp-as-session-with-qos",
+            "3gpp-msisdn-less-mo-sms",
+            "3gpp-service-parameter",
+            "3gpp-monitoring-event",
+            "3gpp-nidd-configuration-trigger",
+            "3gpp-nidd",
+            "3gpp-analyticsexposure",
+            "3gpp-racs-parameter-provisioning",
+            "3gpp-ecr-control",
+            "3gpp-applying-bdt-policy",
+            "3gpp-mo-lcs-notify",
+            "3gpp-time-sync",
+            "3gpp-am-influence",
+            "3gpp-am-policyauthorization",
+            "3gpp-akma",
+            "3gpp-eas-deployment",
+            "3gpp-iptvconfiguration",
+            "3gpp-mbs-tmgi",
+            "3gpp-mbs-session",
+            "3gpp-authentication",
+            "3gpp-asti",
+            "3gpp-pdtq-policy-negotiation",
+            "3gpp-musa",
+            "3gpp-5glan-pp",
+            "3gpp-lpi-pp",
+            "3gpp-acs-pp",
+            "3gpp-ecs-address-provision",
+            "3gpp-data-reporting",
+            "3gpp-data-reporting-provisioning",
+            "3gpp-ueid",
+            "3gpp-mb-us",
+            "3gpp-mb-ud-ingest",
+            "3gpp-event-exposure",
+            "3gpp-mbs-group-msg",
+            "3gpp-dnai-mapping",
+            "3gpp-grp-pp",
+            "3gpp-slice-pp",
+            "3gpp-ue-address",
+            "3gpp-ecs-address",
+            "3gpp-rslppi-pp",
+            "3gpp-group-message-delivery-mb2",
+            "3gpp-group-message-delivery-xmb",
+            "3gpp-network-status-reporting",
+            "3gpp-pfd-management",
+            "3gpp-network-parameter-configuration",
+            "3gpp-addr-pp",
+            "3gpp-uav-fa",
+            "3gpp-caginfo-pp",
+            "3gpp-retrieve-uav-flight",
+            "3gpp-ims-sm",
+            "3gpp-ims-ee",
+            "3gpp-ims-pp",
+            "3gpp-vfl-training",
+            "3gpp-vfl-inference",
+            "3gpp-vfl-nf-discovery",
+            "3gpp-aiot",
+            "npcf-am-policy-control",
+            "npcf-smpolicycontrol",
+            "npcf-policyauthorization",
+            "npcf-bdtpolicycontrol",
+            "npcf-eventexposure",
+            "npcf-ue-policy-control",
+            "npcf-am-policyauthorization",
+            "npcf-pdtq-policy-control",
+            "npcf-mbspolicycontrol",
+            "npcf-mbspolicyauth",
+            "nsmsf-sms",
+            "nnssf-nsselection",
+            "nnssf-nssaiavailability",
+            "nudr-dr",
+            "nudr-group-id-map",
+            "nlmf-loc",
+            "nlmf-broadcast",
+            "nlmf-dataexposure",
+            "n5g-eir-eic",
+            "nbsf-management",
+            "nchf-spendinglimitcontrol",
+            "nchf-convergedcharging",
+            "nchf-offlineonlycharging",
+            "nnwdaf-eventssubscription",
+            "nnwdaf-analyticsinfo",
+            "nnwdaf-datamanagement",
+            "nnwdaf-mlmodelprovision",
+            "nnwdaf-mlmodeltraining",
+            "nnwdaf-mlmodelmonitor",
+            "nnwdaf-roamingdata",
+            "nnwdaf-roaminganalytics",
+            "nnwdaf-vfltraining",
+            "nnwdaf-vflinference",
+            "ngmlc-loc",
+            "nucmf-provisioning",
+            "nucmf-uecapabilitymanagement",
+            "nhss-sdm",
+            "nhss-uecm",
+            "nhss-ueau",
+            "nhss-ee",
+            "nhss-pp",
+            "nhss-ims-sdm",
+            "nhss-ims-uecm",
+            "nhss-ims-ueau",
+            "nhss-gba-sdm",
+            "nhss-gba-ueau",
+            "nsepp-telescopic",
+            "nsoraf-sor",
+            "nspaf-secured-packet",
+            "nudsf-dr",
+            "nudsf-timer",
+            "nnssaaf-nssaa",
+            "nnssaaf-aiw",
+            "naanf-akma",
+            "n5gddnmf-discovery",
+            "nmfaf-3dadatamanagement",
+            "nmfaf-3cadatamanagement",
+            "nmfaf-contextmanagement",
+            "neasdf-dnscontext",
+            "neasdf-baselinednspattern",
+            "ndccf-datamanagement",
+            "ndccf-contextmanagement",
+            "nnsacf-nsac",
+            "nnsacf-slice-ee",
+            "nmbsmf-tmgi",
+            "nmbsmf-mbssession",
+            "nadrf-datamanagement",
+            "nadrf-mlmodelmanagement",
+            "nbsp-gba",
+            "ntsctsf-time-sync",
+            "ntsctsf-qos-tscai",
+            "ntsctsf-asti",
+            "npkmf-keyreq",
+            "npkmf-userid",
+            "npkmf-discovery",
+            "nmnpf-npstatus",
+            "niwmsc-smservice",
+            "nmbsf-mbs-us",
+            "nmbsf-mbs-ud-ingest",
+            "nmbstf-distsession",
+            "npanf-prosekey",
+            "npanf-userid",
+            "nupf-ee",
+            "nupf-gueip",
+            "naf-prose",
+            "naf-eventexposure",
+            "naf-vfltraining",
+            "naf-vflinference",
+            "naf-training",
+            "naf-inference",
+            "nmf-mrm",
+            "nimsas-sec",
+            "nimsas-mc",
+            "nimsas-ism",
+            "nimsas-ee",
+            "nscp-ee",
+            "neif-eventexposure",
+            "naiotf-aiot",
+            "nadm-dmquery",
+            "nadm-dmupdate"
+          ]
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "TS29510_Nnrf_NFManagement.ServiceNameListCond": {
+      "description": "Subscription to a set of NFs based on their support for a Service Name in the Servic Name list",
+      "type": "object",
+      "required": [
+        "conditionType",
+        "serviceNameList"
+      ],
+      "properties": {
+        "conditionType": {
+          "type": "string",
+          "enum": [
+            "SERVICE_NAME_LIST_COND"
+          ]
+        },
+        "serviceNameList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TS29510_Nnrf_NFManagement.ServiceName"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "TS29510_Nnrf_NFManagement.AmfCond": {
+      "description": "Subscription to a set of AMFs, based on AMF Set Id and/or AMF Region Id",
+      "type": "object",
+      "anyOf": [
+        {
+          "required": [
+            "amfSetId"
+          ]
+        },
+        {
+          "required": [
+            "amfRegionId"
+          ]
+        }
+      ],
+      "properties": {
+        "amfSetId": {
+          "$ref": "#/definitions/TS29571_CommonData.AmfSetId"
+        },
+        "amfRegionId": {
+          "$ref": "#/definitions/TS29571_CommonData.AmfRegionId"
+        }
+      }
+    },
+    "TS29571_CommonData.AmfSetId": {
+      "type": "string",
+      "pattern": "^[0-3][A-Fa-f0-9]{2}$",
+      "description": "String identifying the AMF Set ID (10 bits) as specified in clause 2.10.1 of 3GPP TS 23.003. It is encoded as a string of 3 hexadecimal characters where the first character is limited to values 0 to 3 (i.e. 10 bits)."
+    },
+    "TS29571_CommonData.AmfRegionId": {
+      "type": "string",
+      "pattern": "^[A-Fa-f0-9]{2}$",
+      "description": "String identifying the AMF Set ID (10 bits) as specified in clause 2.10.1 of 3GPP TS 23.003. It is encoded as a string of 3 hexadecimal characters where the first character is limited to values 0 to 3 (i.e. 10 bits)"
+    },
+    "TS29510_Nnrf_NFManagement.GuamiListCond": {
+      "description": "Subscription to a set of AMFs, based on their GUAMIs",
+      "type": "object",
+      "required": [
+        "guamiList"
+      ],
+      "properties": {
+        "guamiList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TS29571_CommonData.Guami"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "TS29571_CommonData.Guami": {
+      "type": "object",
+      "properties": {
+        "plmnId": {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.PlmnIdNid"
+        },
+        "amfId": {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.AmfId"
+        }
+      },
+      "required": [
+        "plmnId",
+        "amfId"
+      ],
+      "description": "Globally Unique AMF Identifier constructed out of PLMN, Network and AMF identity."
+    },
+    "TS29510_Nnrf_NFManagement.PlmnIdNid": {
+      "$ref": "#/components/schemas/PlmnIdNid"
+    },
+    "TS29510_Nnrf_NFManagement.AmfId": {
+      "$ref": "#/components/schemas/AmfId"
+    },
+    "TS29510_Nnrf_NFManagement.NetworkSliceCond": {
+      "description": "Subscription to a set of NFs, based on the slices (S-NSSAI and NSI) they support",
+      "type": "object",
+      "required": [
+        "snssaiList"
+      ],
+      "properties": {
+        "snssaiList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TS29571_CommonData.Snssai"
+          },
+          "minItems": 1
+        },
+        "nsiList": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "TS29571_CommonData.Snssai": {
+      "type": "object",
+      "properties": {
+        "sst": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255,
+          "description": "Unsigned integer, within the range 0 to 255, representing the Slice/Service Type. It indicates the expected Network Slice behaviour in terms of features and services. Values 0 to 127 correspond to the standardized SST..."
+        },
+        "sd": {
+          "type": "string",
+          "pattern": "^[A-Fa-f0-9]{6}$",
+          "description": "3-octet string, representing the Slice Differentiator, in hexadecimal representation. Each character in the string shall take a value of \"0\" to \"9\", \"a\" to \"f\" or \"A\" to \"F\" and shall represent 4 bits. The most signif..."
+        }
+      },
+      "description": "When Snssai needs to be converted to string (e.g. when used in maps as key), the string shall be composed of one to three digits \"sst\" optionally followed by \"-\" and 6 hexadecimal digits \"sd\".",
+      "required": [
+        "sst"
+      ]
+    },
+    "TS29510_Nnrf_NFManagement.NfGroupCond": {
+      "description": "Subscription to a set of NFs based on their Group Id",
+      "type": "object",
+      "required": [
+        "nfType",
+        "nfGroupId"
+      ],
+      "properties": {
+        "nfType": {
+          "type": "string",
+          "enum": [
+            "UDM",
+            "AUSF",
+            "UDR",
+            "PCF",
+            "CHF",
+            "HSS",
+            "BSF",
+            "UDSF"
+          ]
+        },
+        "nfGroupId": {
+          "$ref": "#/definitions/TS29571_CommonData.NfGroupId"
+        }
+      }
+    },
+    "TS29571_CommonData.NfGroupId": {
+      "type": "string",
+      "description": "Identifier of a group of NFs."
+    },
+    "TS29510_Nnrf_NFManagement.NfGroupListCond": {
+      "description": "Subscription to a set of NFs based on their Group Ids",
+      "type": "object",
+      "required": [
+        "conditionType",
+        "nfType",
+        "nfGroupIdList"
+      ],
+      "properties": {
+        "conditionType": {
+          "type": "string",
+          "enum": [
+            "NF_GROUP_LIST_COND"
+          ]
+        },
+        "nfType": {
+          "type": "string",
+          "enum": [
+            "UDM",
+            "AUSF",
+            "UDR",
+            "PCF",
+            "CHF",
+            "HSS",
+            "BSF",
+            "UDSF"
+          ]
+        },
+        "nfGroupIdList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TS29571_CommonData.NfGroupId"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "TS29510_Nnrf_NFManagement.NfSetCond": {
+      "description": "Subscription to a set of NFs based on their Set Id",
+      "type": "object",
+      "required": [
+        "nfSetId"
+      ],
+      "properties": {
+        "nfSetId": {
+          "$ref": "#/definitions/TS29571_CommonData.NfSetId"
+        }
+      }
+    },
+    "TS29571_CommonData.NfSetId": {
+      "type": "string",
+      "description": "NF Set Identifier (see clause 28.12 of 3GPP TS 23.003), formatted as the following string \"set<Set ID>.<nftype>set.5gc.mnc<MNC>.mcc<MCC>\", or \"set<SetID>.<NFType>set.5gc.nid<NID>.mnc<MNC>.mcc<MCC>\" with <MCC> encoded..."
+    },
+    "TS29510_Nnrf_NFManagement.NfServiceSetCond": {
+      "description": "Subscription to a set of NFs based on their Service Set Id",
+      "type": "object",
+      "required": [
+        "nfServiceSetId"
+      ],
+      "properties": {
+        "nfServiceSetId": {
+          "$ref": "#/definitions/TS29571_CommonData.NfServiceSetId"
+        },
+        "nfSetId": {
+          "$ref": "#/definitions/TS29571_CommonData.NfSetId"
+        }
+      }
+    },
+    "TS29571_CommonData.NfServiceSetId": {
+      "type": "string",
+      "description": "NF Service Set Identifier (see clause 28.12 of 3GPP TS 23.003) formatted as the following string \"set<Set ID>.sn<Service Name>.nfi<NF Instance ID>.5gc.mnc<MNC>.mcc<MCC>\", or \"set<SetID>.sn<ServiceName>.nfi<NFInstanceI..."
+    },
+    "TS29510_Nnrf_NFManagement.UpfCond": {
+      "description": "Subscription to a set of NF Instances (UPFs), able to serve a certain service area (i.e. SMF serving area or TAI list)",
+      "type": "object",
+      "required": [
+        "conditionType"
+      ],
+      "properties": {
+        "conditionType": {
+          "type": "string",
+          "enum": [
+            "UPF_COND"
+          ]
+        },
+        "smfServingArea": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "taiList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TS29571_CommonData.Tai"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "TS29571_CommonData.Tai": {
+      "description": "Contains the tracking area identity as described in 3GPP 23.003",
+      "type": "object",
+      "properties": {
+        "plmnId": {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.PlmnId"
+        },
+        "tac": {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.Tac"
+        },
+        "nid": {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.Nid"
+        }
+      },
+      "required": [
+        "plmnId",
+        "tac"
+      ]
+    },
+    "TS29510_Nnrf_NFManagement.PlmnId": {
+      "$ref": "#/components/schemas/PlmnId"
+    },
+    "TS29510_Nnrf_NFManagement.Tac": {
+      "$ref": "#/components/schemas/Tac"
+    },
+    "TS29510_Nnrf_NFManagement.Nid": {
+      "$ref": "#/components/schemas/Nid"
+    },
+    "TS29510_Nnrf_NFManagement.ScpDomainCond": {
+      "description": "Subscription to a set of NF or SCP or SEPP instances belonging to certain SCP domains",
+      "type": "object",
+      "required": [
+        "scpDomains"
+      ],
+      "properties": {
+        "scpDomains": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "nfTypeList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TS29510_Nnrf_NFManagement.NFType"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "TS29510_Nnrf_NFManagement.NwdafCond": {
+      "description": "Subscription to a set of NF Instances (NWDAFs), identified by Analytics ID(s), S-NSSAI(s) or NWDAF Serving Area information, i.e. list of TAIs for which the NWDAF can provide analytics.",
+      "type": "object",
+      "required": [
+        "conditionType"
+      ],
+      "properties": {
+        "conditionType": {
+          "type": "string",
+          "enum": [
+            "NWDAF_COND"
+          ]
+        },
+        "analyticsIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "snssaiList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TS29571_CommonData.Snssai"
+          },
+          "minItems": 1
+        },
+        "taiList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TS29571_CommonData.Tai"
+          },
+          "minItems": 1
+        },
+        "taiRangeList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TS29510_Nnrf_NFManagement.TaiRange"
+          },
+          "minItems": 1
+        },
+        "servingNfTypeList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TS29510_Nnrf_NFManagement.NFType"
+          },
+          "minItems": 1
+        },
+        "servingNfSetIdList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TS29571_CommonData.NfSetId"
+          },
+          "minItems": 1
+        },
+        "mlAnalyticsList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TS29510_Nnrf_NFManagement.MlAnalyticsInfo"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "TS29510_Nnrf_NFManagement.TaiRange": {
+      "description": "Range of TAIs (Tracking Area Identities)",
+      "type": "object",
+      "required": [
+        "plmnId",
+        "tacRangeList"
+      ],
+      "properties": {
+        "plmnId": {
+          "$ref": "#/definitions/TS29571_CommonData.PlmnId"
+        },
+        "tacRangeList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TS29510_Nnrf_NFManagement.TacRange"
+          },
+          "minItems": 1
+        },
+        "nid": {
+          "$ref": "#/definitions/TS29571_CommonData.Nid"
+        }
+      }
+    },
+    "TS29571_CommonData.PlmnId": {
+      "type": "object",
+      "properties": {
+        "mcc": {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.Mcc"
+        },
+        "mnc": {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.Mnc"
+        }
+      },
+      "description": "When PlmnId needs to be converted to string (e.g. when used in maps as key), the string shall be composed of three digits \"mcc\" followed by \"-\" and two or three digits \"mnc\".",
+      "required": [
+        "mcc",
+        "mnc"
+      ]
+    },
+    "TS29510_Nnrf_NFManagement.Mcc": {
+      "$ref": "#/components/schemas/Mcc"
+    },
+    "TS29510_Nnrf_NFManagement.Mnc": {
+      "$ref": "#/components/schemas/Mnc"
+    },
+    "TS29510_Nnrf_NFManagement.TacRange": {
+      "description": "Range of TACs (Tracking Area Codes)",
+      "type": "object",
+      "oneOf": [
+        {
+          "required": [
+            "start",
+            "end"
+          ]
+        },
+        {
+          "required": [
+            "pattern"
+          ]
+        }
+      ],
+      "properties": {
+        "start": {
+          "type": "string",
+          "pattern": "^([A-Fa-f0-9]{4}|[A-Fa-f0-9]{6})$"
+        },
+        "end": {
+          "type": "string",
+          "pattern": "^([A-Fa-f0-9]{4}|[A-Fa-f0-9]{6})$"
+        },
+        "pattern": {
+          "type": "string"
+        }
+      }
+    },
+    "TS29571_CommonData.Nid": {
+      "type": "string",
+      "pattern": "^[A-Fa-f0-9]{11}$",
+      "description": "This represents the Network Identifier, which together with a PLMN ID is used to identify an SNPN (see 3GPP TS 23.003 and 3GPP TS 23.501 clause 5.30.2.1)."
+    },
+    "TS29510_Nnrf_NFManagement.MlAnalyticsInfo": {
+      "description": "ML Analytics Filter information supported by the Nnwdaf_MLModelProvision service",
+      "type": "object",
+      "properties": {
+        "mlAnalyticsIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TS29520_Nnwdaf_EventsSubscription.NwdafEvent"
+          },
+          "minItems": 1
+        },
+        "snssaiList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TS29571_CommonData.Snssai"
+          },
+          "minItems": 1
+        },
+        "trackingAreaList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TS29571_CommonData.Tai"
+          },
+          "minItems": 1
+        },
+        "mlModelInterInfo": {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.MlModelInterInfo"
+        },
+        "flCapabilityType": {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.FlCapabilityType"
+        },
+        "flTimeInterval": {
+          "$ref": "#/definitions/TS29122_CommonData.TimeWindow"
+        },
+        "nfTypeList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TS29510_Nnrf_NFManagement.NFType"
+          },
+          "minItems": 1
+        },
+        "nfSetIdList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TS29571_CommonData.NfSetId"
+          },
+          "minItems": 1
+        },
+        "vflCapabilityType": {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.VflCapabilityType"
+        },
+        "vflClientAggrCap": {
+          "type": "boolean"
+        },
+        "vflTimeInterval": {
+          "$ref": "#/definitions/TS29122_CommonData.TimeWindow"
+        },
+        "vflInterInfo": {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.MlModelInterInfo"
+        },
+        "featureId": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "TS29520_Nnwdaf_EventsSubscription.NwdafEvent": {
+      "$ref": "TS29520_Nnwdaf_EventsSubscription.yaml#/components/schemas/NwdafEvent"
+    },
+    "TS29510_Nnrf_NFManagement.MlModelInterInfo": {
+      "description": "ML Model Interoperability Information",
+      "type": "object",
+      "properties": {
+        "vendorList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TS29510_Nnrf_NFManagement.VendorId"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "TS29510_Nnrf_NFManagement.VendorId": {
+      "description": "Vendor ID of the NF Service instance (Private Enterprise Number assigned by IANA)",
+      "type": "string",
+      "pattern": "^[0-9]{6}$"
+    },
+    "TS29510_Nnrf_NFManagement.FlCapabilityType": {
+      "description": "Type of Federated Learning Capability.",
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "FL_SERVER",
+            "FL_CLIENT",
+            "FL_SERVER_AND_CLIENT"
+          ]
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "TS29122_CommonData.TimeWindow": {
+      "$ref": "TS29122_CommonData.yaml#/components/schemas/TimeWindow"
+    },
+    "TS29510_Nnrf_NFManagement.VflCapabilityType": {
+      "description": "Type of Vertical Federated Learning Capability",
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "VFL_SERVER",
+            "VFL_CLIENT",
+            "VFL_SERVER_AND_CLIENT"
+          ]
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "TS29510_Nnrf_NFManagement.NefCond": {
+      "description": "Subscription to a set of NF Instances (NEFs), identified by Event ID(s) provided by AF, S-NSSAI(s), AF Instance ID, Application Identifier, External Identifier, External Group Identifier, or domain name.",
+      "type": "object",
+      "required": [
+        "conditionType"
+      ],
+      "properties": {
+        "conditionType": {
+          "type": "string",
+          "enum": [
+            "NEF_COND"
+          ]
+        },
+        "afEvents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TS29517_Naf_EventExposure.AfEvent"
+          },
+          "minItems": 1
+        },
+        "snssaiList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TS29571_CommonData.Snssai"
+          },
+          "minItems": 1
+        },
+        "pfdData": {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.PfdData"
+        },
+        "gpsiRanges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TS29510_Nnrf_NFManagement.IdentityRange"
+          },
+          "minItems": 1
+        },
+        "externalGroupIdentifiersRanges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TS29510_Nnrf_NFManagement.IdentityRange"
+          },
+          "minItems": 1
+        },
+        "servedFqdnList": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "TS29517_Naf_EventExposure.AfEvent": {
+      "$ref": "TS29517_Naf_EventExposure.yaml#/components/schemas/AfEvent"
+    },
+    "TS29510_Nnrf_NFManagement.PfdData": {
+      "description": "List of Application IDs and/or AF IDs managed by a given NEF Instance",
+      "type": "object",
+      "properties": {
+        "appIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "afIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "TS29510_Nnrf_NFManagement.IdentityRange": {
+      "description": "A range of GPSIs (subscriber identities), either based on a numeric range, or based on regular-expression matching",
+      "type": "object",
+      "oneOf": [
+        {
+          "required": [
+            "start",
+            "end"
+          ]
+        },
+        {
+          "required": [
+            "pattern"
+          ]
+        }
+      ],
+      "properties": {
+        "start": {
+          "type": "string",
+          "pattern": "^[0-9]+$"
+        },
+        "end": {
+          "type": "string",
+          "pattern": "^[0-9]+$"
+        },
+        "pattern": {
+          "type": "string"
+        }
+      }
+    },
+    "TS29510_Nnrf_NFManagement.DccfCond": {
+      "description": "Subscription to a set of NF Instances (DCCFs), identified by NF types, NF Set Id(s) or DCCF Serving Area information, i.e. list of TAIs served by the DCCF",
+      "type": "object",
+      "required": [
+        "conditionType"
+      ],
+      "properties": {
+        "conditionType": {
+          "type": "string",
+          "enum": [
+            "DCCF_COND"
+          ]
+        },
+        "taiList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TS29571_CommonData.Tai"
+          },
+          "minItems": 1
+        },
+        "taiRangeList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TS29510_Nnrf_NFManagement.TaiRange"
+          },
+          "minItems": 1
+        },
+        "servingNfTypeList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TS29510_Nnrf_NFManagement.NFType"
+          },
+          "minItems": 1
+        },
+        "servingNfSetIdList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TS29571_CommonData.NfSetId"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "TS29571_CommonData.DateTime": {
+      "format": "date-time",
+      "type": "string",
+      "description": "string with format 'date-time' as defined in OpenAPI."
+    },
+    "TS29510_Nnrf_NFManagement.NotificationEventType": {
+      "description": "Types of events sent in notifications from NRF to subscribed NF Instances",
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "NF_REGISTERED",
+            "NF_DEREGISTERED",
+            "NF_PROFILE_CHANGED",
+            "SHARED_DATA_CHANGED"
+          ]
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "TS29510_Nnrf_NFManagement.NotifCondition": {
+      "description": "Condition (list of attributes in the NF Profile) to determine whether a notification must be sent by NRF",
+      "type": "object",
+      "not": {
+        "required": [
+          "monitoredAttributes",
+          "unmonitoredAttributes"
+        ]
+      },
+      "properties": {
+        "monitoredAttributes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "unmonitoredAttributes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "TS29571_CommonData.Fqdn": {
+      "description": "Fully Qualified Domain Name",
+      "type": "string",
+      "pattern": "^([0-9A-Za-z]([-0-9A-Za-z]{0,61}[0-9A-Za-z])?\\.)+[A-Za-z]{2,63}\\.?$",
+      "minLength": 4,
+      "maxLength": 253
+    },
+    "TS29571_CommonData.ExtSnssai": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.Snssai"
+        },
+        {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.SnssaiExtension"
+        }
+      ],
+      "description": "The sdRanges and wildcardSd attributes shall be exclusive from each other. If one of these attributes is present, the sd attribute shall also be present and it shall contain one Slice Differentiator value within the r..."
+    },
+    "TS29510_Nnrf_NFManagement.Snssai": {
+      "$ref": "#/components/schemas/Snssai"
+    },
+    "TS29510_Nnrf_NFManagement.SnssaiExtension": {
+      "$ref": "#/components/schemas/SnssaiExtension"
+    },
+    "TS29510_Nnrf_NFManagement.PlmnSnssai": {
+      "description": "List of network slices (S-NSSAIs) for a given PLMN ID",
+      "type": "object",
+      "required": [
+        "plmnId",
+        "sNssaiList"
+      ],
+      "properties": {
+        "plmnId": {
+          "$ref": "#/definitions/TS29571_CommonData.PlmnId"
+        },
+        "sNssaiList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TS29571_CommonData.ExtSnssai"
+          },
+          "minItems": 1
+        },
+        "nid": {
+          "$ref": "#/definitions/TS29571_CommonData.Nid"
+        }
+      }
+    },
+    "TS29571_CommonData.PlmnIdNid": {
+      "description": "Contains the serving core network operator PLMN ID and, for an SNPN, the NID that together with the PLMN ID identifies the SNPN.",
+      "type": "object",
+      "required": [
+        "mcc",
+        "mnc"
+      ],
+      "properties": {
+        "mcc": {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.Mcc"
+        },
+        "mnc": {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.Mnc"
+        },
+        "nid": {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.Nid"
+        }
+      }
+    },
+    "TS29571_CommonData.SupportedFeatures": {
+      "type": "string",
+      "pattern": "^[A-Fa-f0-9]*$",
+      "description": "A string used to indicate the features supported by an API that is used as defined in clause 6.6 in 3GPP TS 29.500. The string shall contain a bitmask indicating supported features in hexadecimal representation Each c..."
+    },
+    "TS29571_CommonData.Uri": {
+      "type": "string",
+      "description": "String providing an URI formatted according to RFC 3986."
+    },
+    "TS29510_Nnrf_NFManagement.LocalityDescription": {
+      "description": "Locality description",
+      "type": "object",
+      "properties": {
+        "localityType": {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.LocalityType"
+        },
+        "localityValue": {
+          "type": "string"
+        },
+        "addlLocDescrItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TS29510_Nnrf_NFManagement.LocalityDescriptionItem"
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "localityType",
+        "localityValue"
+      ]
+    },
+    "TS29510_Nnrf_NFManagement.LocalityType": {
+      "description": "Type of locality description. An operator may define custom locality type values other than those listed in this enumeration.",
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "DATA_CENTER",
+            "CITY",
+            "COUNTY",
+            "DISTRICT",
+            "STATE",
+            "CANTON",
+            "REGION",
+            "PROVINCE",
+            "PREFECTURE",
+            "COUNTRY"
+          ]
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "TS29510_Nnrf_NFManagement.LocalityDescriptionItem": {
+      "description": "Locality description item",
+      "type": "object",
+      "properties": {
+        "localityType": {
+          "$ref": "#/definitions/TS29510_Nnrf_NFManagement.LocalityType"
+        },
+        "localityValue": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "localityType",
+        "localityValue"
+      ]
+    }
+  },
+  "constraints": [
+    {
+      "schema_id": "header.Content-Encoding",
+      "constraint": "header.Content-Encoding MUST be a string."
+    },
+    {
+      "schema_id": "header.Accept-Encoding",
+      "constraint": "header.Accept-Encoding MUST be a string."
+    },
+    {
+      "schema_id": "request_body",
+      "constraint": "request_body MUST be provided."
+    },
+    {
+      "schema_id": "request_body.nfStatusNotificationUri",
+      "constraint": "request_body.nfStatusNotificationUri MUST be a string."
+    },
+    {
+      "schema_id": "request_body.nfStatusNotificationUri",
+      "constraint": "request_body.nfStatusNotificationUri MUST be present."
+    },
+    {
+      "schema_id": "request_body.reqNfInstanceId",
+      "constraint": "request_body.reqNfInstanceId MUST be a string."
+    },
+    {
+      "schema_id": "request_body.reqNfInstanceId",
+      "constraint": "request_body.reqNfInstanceId MUST be a UUID version 4."
+    },
+    {
+      "schema_id": "request_body.sharedDataIds",
+      "constraint": "request_body.sharedDataIds MUST be an array."
+    },
+    {
+      "schema_id": "request_body.sharedDataIds",
+      "constraint": "request_body.sharedDataIds MUST contain at least 1 item."
+    },
+    {
+      "schema_id": "request_body.sharedDataIds[]",
+      "constraint": "request_body.sharedDataIds[] MUST be a string."
+    },
+    {
+      "schema_id": "request_body.subscriptionId",
+      "constraint": "request_body.subscriptionId MUST be a string."
+    },
+    {
+      "schema_id": "request_body.subscriptionId",
+      "constraint": "request_body.subscriptionId MUST match the pattern ^([0-9]{5,6}-(x3Lf57A:nid=[A-Fa-f0-9]{11}:)?)?[^-]+$."
+    },
+    {
+      "schema_id": "request_body.validityTime",
+      "constraint": "request_body.validityTime MUST be a string."
+    },
+    {
+      "schema_id": "request_body.validityTime",
+      "constraint": "request_body.validityTime MUST be in date-time format."
+    },
+    {
+      "schema_id": "request_body.reqNotifEvents",
+      "constraint": "request_body.reqNotifEvents MUST be an array."
+    },
+    {
+      "schema_id": "request_body.reqNotifEvents",
+      "constraint": "request_body.reqNotifEvents MUST contain at least 1 item."
+    },
+    {
+      "schema_id": "request_body.plmnId",
+      "constraint": "request_body.plmnId MUST be an object."
+    },
+    {
+      "schema_id": "request_body.nid",
+      "constraint": "request_body.nid MUST be a string."
+    },
+    {
+      "schema_id": "request_body.nid",
+      "constraint": "request_body.nid MUST match the pattern ^[A-Fa-f0-9]{11}$."
+    },
+    {
+      "schema_id": "request_body.reqNfType",
+      "constraint": "request_body.reqNfType MUST be a string."
+    },
+    {
+      "schema_id": "request_body.reqNfType",
+      "constraint": "request_body.reqNfType MUST be one of the predefined NF types."
+    },
+    {
+      "schema_id": "request_body.reqNfFqdn",
+      "constraint": "request_body.reqNfFqdn MUST be a string."
+    },
+    {
+      "schema_id": "request_body.reqNfFqdn",
+      "constraint": "request_body.reqNfFqdn MUST match the pattern ^([0-9A-Za-z]([-0-9A-Za-z]{0,61}[0-9A-Za-z])?\\.)+[A-Za-z]{2,63}\\.?$."
+    },
+    {
+      "schema_id": "request_body.reqNfFqdn",
+      "constraint": "request_body.reqNfFqdn MUST be between 4 and 253 characters long."
+    },
+    {
+      "schema_id": "request_body.reqSnssais",
+      "constraint": "request_body.reqSnssais MUST be an array."
+    },
+    {
+      "schema_id": "request_body.reqSnssais",
+      "constraint": "request_body.reqSnssais MUST contain at least 1 item."
+    },
+    {
+      "schema_id": "request_body.reqPerPlmnSnssais",
+      "constraint": "request_body.reqPerPlmnSnssais MUST be an array."
+    },
+    {
+      "schema_id": "request_body.reqPerPlmnSnssais",
+      "constraint": "request_body.reqPerPlmnSnssais MUST contain at least 1 item."
+    },
+    {
+      "schema_id": "request_body.reqPlmnList",
+      "constraint": "request_body.reqPlmnList MUST be an array."
+    },
+    {
+      "schema_id": "request_body.reqPlmnList",
+      "constraint": "request_body.reqPlmnList MUST contain at least 1 item."
+    },
+    {
+      "schema_id": "request_body.reqSnpnList",
+      "constraint": "request_body.reqSnpnList MUST be an array."
+    },
+    {
+      "schema_id": "request_body.reqSnpnList",
+      "constraint": "request_body.reqSnpnList MUST contain at least 1 item."
+    },
+    {
+      "schema_id": "request_body.servingScope",
+      "constraint": "request_body.servingScope MUST be an array."
+    },
+    {
+      "schema_id": "request_body.servingScope",
+      "constraint": "request_body.servingScope MUST contain at least 1 item."
+    },
+    {
+      "schema_id": "request_body.servingScope[]",
+      "constraint": "request_body.servingScope[] MUST be a string."
+    },
+    {
+      "schema_id": "request_body.requesterFeatures",
+      "constraint": "request_body.requesterFeatures MUST be a string."
+    },
+    {
+      "schema_id": "request_body.requesterFeatures",
+      "constraint": "request_body.requesterFeatures MUST match the pattern ^[A-Fa-f0-9]*$."
+    },
+    {
+      "schema_id": "request_body.nrfSupportedFeatures",
+      "constraint": "request_body.nrfSupportedFeatures MUST be a string."
+    },
+    {
+      "schema_id": "request_body.nrfSupportedFeatures",
+      "constraint": "request_body.nrfSupportedFeatures MUST match the pattern ^[A-Fa-f0-9]*$."
+    },
+    {
+      "schema_id": "request_body.hnrfUri",
+      "constraint": "request_body.hnrfUri MUST be a string."
+    },
+    {
+      "schema_id": "request_body.onboardingCapability",
+      "constraint": "request_body.onboardingCapability MUST be a boolean."
+    },
+    {
+      "schema_id": "request_body.targetHni",
+      "constraint": "request_body.targetHni MUST be a string."
+    },
+    {
+      "schema_id": "request_body.targetHni",
+      "constraint": "request_body.targetHni MUST match the pattern ^([0-9A-Za-z]([-0-9A-Za-z]{0,61}[0-9A-Za-z])?\\.)+[A-Za-z]{2,63}\\.?$."
+    },
+    {
+      "schema_id": "request_body.targetHni",
+      "constraint": "request_body.targetHni MUST be between 4 and 253 characters long."
+    },
+    {
+      "schema_id": "request_body.preferredLocality",
+      "constraint": "request_body.preferredLocality MUST be a string."
+    },
+    {
+      "schema_id": "request_body.extPreferredLocality",
+      "constraint": "request_body.extPreferredLocality MUST be an object."
+    },
+    {
+      "schema_id": "request_body.extPreferredLocality",
+      "constraint": "request_body.extPreferredLocality MUST have at least 1 property."
+    },
+    {
+      "schema_id": "request_body.completeProfileSubscription",
+      "constraint": "request_body.completeProfileSubscription MUST be a boolean."
+    }
+  ]
+}

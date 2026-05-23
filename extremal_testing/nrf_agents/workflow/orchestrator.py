@@ -12,11 +12,10 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from extremal_testing.implementation_testers.test_implementations import ImplementationComparisonRunner
-from extremal_testing.nrf_agents.workflow.confidence_agent import ConfidenceScoreAgent
-from extremal_testing.nrf_agents.workflow.metadata_agent import OperationMetadataAgent
-from extremal_testing.nrf_agents.workflow.constraint_generation_agent import ConstraintGenerationAgent
-from extremal_testing.nrf_agents.workflow.testcase_agent import TestCaseAgent
+from extremal_testing.implementation_testers.implementation_tester import ImplementationTester
+from extremal_testing.nrf_agents.workflow.bug_report_agent import BugReportAgent
+from extremal_testing.nrf_agents.workflow.constraint_agent import ConstraintAgent
+from extremal_testing.nrf_agents.workflow.test_agent import TestAgent
 
 
 @dataclass
@@ -34,8 +33,8 @@ class NRFWorkflowPaths:
         return self.root_dir / "json" / "test_results"
 
     @property
-    def confidence_scores_dir(self) -> Path:
-        return self.root_dir / "json" / "confidence_scores"
+    def reports_dir(self) -> Path:
+        return self.root_dir / "reports"
 
 
 class NRFExtremalTestingAgent:
@@ -45,21 +44,15 @@ class NRFExtremalTestingAgent:
         self.root_dir = root_dir or PROJECT_DIR
         self.paths = NRFWorkflowPaths(self.root_dir)
 
-    def run_metadata_extraction(self) -> None:
-        OperationMetadataAgent(
-            spec_segment_directory=self.root_dir / "specs" / "segments",
-            output_file=self.root_dir / "json" / "AllOpsMetaData.json",
-        ).run()
-
     def run_constraint_generation(self) -> None:
-        ConstraintGenerationAgent(
+        ConstraintAgent(
             metadata_file=self.root_dir / "json" / "AllOpsMetaData.json",
             spec_file=self.root_dir / "specs" / "original" / "TS29510_Nnrf_NFManagement.yaml",
             output_dir=self.root_dir / "json" / "constraints",
         ).run()
 
     def run_test_generation(self) -> None:
-        TestCaseAgent(
+        TestAgent(
             constraints_dir=self.root_dir / "json" / "constraints",
             metadata_file=self.root_dir / "json" / "AllOpsMetaData.json",
             test_format_file=self.root_dir / "json" / "config" / "test_format.json",
@@ -67,40 +60,37 @@ class NRFExtremalTestingAgent:
         ).run()
 
     def run_implementation_testing(self) -> list[Path]:
-        runner = ImplementationComparisonRunner()
-        suite_files = runner.discover_suite_files()
+        tester = ImplementationTester()
+        suite_files = tester.discover_suite_files()
         if not suite_files:
             print("No generated suites found for implementation testing.", flush=True)
             return []
 
-        written_files = runner.run(suite_files)
+        written_files = tester.run(suite_files)
         for path in written_files:
             print(f"Implementation comparison saved to {path}", flush=True)
         return written_files
 
-    def run_confidence_scoring(self, result_files: list[Path]) -> None:
-        ConfidenceScoreAgent(
+    def run_bug_report_generation(self, result_files: list[Path]) -> None:
+        BugReportAgent(
             test_results_dir=self.paths.test_results_dir,
             testcases_dir=self.paths.testcases_dir,
-            output_dir=self.paths.confidence_scores_dir,
+            reports_dir=self.paths.reports_dir,
         ).run(result_files=result_files)
 
     def run(self) -> None:
         """Run the complete workflow end to end."""
-        print("[1/5] Generating operation metadata...", flush=True)
-        self.run_metadata_extraction()
-
-        print("[2/5] Generating constraints...", flush=True)
+        print("[1/4] Constraint Generation...", flush=True)
         self.run_constraint_generation()
 
-        print("[3/5] Generating test cases...", flush=True)
+        print("[2/4] Test Generation...", flush=True)
         self.run_test_generation()
 
-        print("[4/5] Running implementation tests...", flush=True)
+        print("[3/4] Implementation Testing...", flush=True)
         result_files = self.run_implementation_testing()
 
-        print("[5/5] Generating confidence scores...", flush=True)
-        self.run_confidence_scoring(result_files)
+        print("[4/4] Bug Report Generation...", flush=True)
+        self.run_bug_report_generation(result_files)
 
 
 def main() -> None:

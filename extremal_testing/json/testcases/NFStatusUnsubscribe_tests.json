@@ -1,0 +1,120 @@
+{
+  "operation": "NFStatusUnsubscribe",
+  "path": "/subscriptions/{subscriptionId}",
+  "method": "DELETE",
+  "setup": [
+    {
+      "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    },
+    {
+      "path": "/nnrf-nfm/v1/subscriptions",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfStatusNotificationUri": "https://example.client/callback"
+      }
+    }
+  ],
+  "cleanup": [
+    {
+      "path": "/nnrf-nfm/v1/subscriptions/{subscriptionId}",
+      "method": "DELETE",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+      "method": "DELETE",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    }
+  ],
+  "tests": [
+    {
+      "id": "tc_1_pos",
+      "name": "Valid Subscription ID as String",
+      "constraint": "path.subscriptionID MUST be a string.",
+      "constraint_schema_id": "path.subscriptionID",
+      "method": "DELETE",
+      "path": "/subscriptions/12345-x3Lf57A:nid=abcdef12345:valid",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": null
+    },
+    {
+      "id": "tc_1_neg",
+      "name": "Invalid Subscription ID as Non-String",
+      "constraint": "path.subscriptionID MUST be a string.",
+      "constraint_schema_id": "path.subscriptionID",
+      "method": "DELETE",
+      "path": "/subscriptions/12345",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": null
+    },
+    {
+      "id": "tc_2_pos",
+      "name": "Valid Subscription ID Pattern",
+      "constraint": "path.subscriptionID MUST match the pattern ^([0-9]{5,6}-(x3Lf57A:nid=[A-Fa-f0-9]{11}:)?)?[^-]+$.",
+      "constraint_schema_id": "path.subscriptionID",
+      "method": "DELETE",
+      "path": "/subscriptions/12345-x3Lf57A:nid=abcdef12345:valid",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": null
+    },
+    {
+      "id": "tc_2_neg",
+      "name": "Invalid Subscription ID Pattern",
+      "constraint": "path.subscriptionID MUST match the pattern ^([0-9]{5,6}-(x3Lf57A:nid=[A-Fa-f0-9]{11}:)?)?[^-]+$.",
+      "constraint_schema_id": "path.subscriptionID",
+      "method": "DELETE",
+      "path": "/subscriptions/12345-invalid-pattern",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": null
+    },
+    {
+      "id": "tc_3_pos",
+      "name": "Subscription ID Provided",
+      "constraint": "path.subscriptionID MUST be provided.",
+      "constraint_schema_id": "path.subscriptionID",
+      "method": "DELETE",
+      "path": "/subscriptions/12345-x3Lf57A:nid=abcdef12345:valid",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": null
+    },
+    {
+      "id": "tc_3_neg",
+      "name": "Subscription ID Not Provided",
+      "constraint": "path.subscriptionID MUST be provided.",
+      "constraint_schema_id": "path.subscriptionID",
+      "method": "DELETE",
+      "path": "/subscriptions/",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": null
+    }
+  ]
+}

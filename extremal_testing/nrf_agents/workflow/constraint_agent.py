@@ -70,33 +70,7 @@ PARAMETER_KEYS = {
     "allowReserved",
 }
 
-INDEX_RULE_KEYS = {
-    "type",
-    "format",
-    "nullable",
-    "enum",
-    "const",
-    "pattern",
-    "minimum",
-    "maximum",
-    "exclusiveMinimum",
-    "exclusiveMaximum",
-    "minLength",
-    "maxLength",
-    "minItems",
-    "maxItems",
-    "minProperties",
-    "maxProperties",
-    "required",
-    "oneOf",
-    "anyOf",
-    "allOf",
-    "not",
-    "deprecated",
-}
-
-
-class ConstraintGenerationAgent:
+class ConstraintAgent:
     """Extract resolved input schemas and constraints for operations."""
 
     def __init__(
@@ -422,192 +396,6 @@ class ConstraintGenerationAgent:
     def build_input_schema(self, operation: OperationMetadata) -> Dict[str, object]:
         return self.build_input_schema_graph(operation)["input_schema"]
 
-    @staticmethod
-    def _schema_id_for_parameter(parameter: Dict[str, Any], index: int) -> str:
-        location = str(parameter.get("in") or "parameter").strip() or "parameter"
-        name = str(parameter.get("name") or f"parameter_{index}").strip() or f"parameter_{index}"
-        return f"{location}.{name}"
-
-    @staticmethod
-    def _schema_id_for_request_property(path_parts: List[str]) -> str:
-        if not path_parts:
-            return "request_body"
-        return "request_body." + ".".join(path_parts)
-
-    def _definition_for_local_ref(self, ref: str, definitions: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-        prefix = "#/definitions/"
-        if not ref.startswith(prefix):
-            return None
-        definition = definitions.get(ref[len(prefix):])
-        return definition if isinstance(definition, dict) else None
-
-    def _merged_schema_for_index(
-        self,
-        schema: Dict[str, Any],
-        definitions: Dict[str, Any],
-        seen_refs: Optional[set[str]] = None,
-    ) -> Dict[str, Any]:
-        seen_refs = seen_refs or set()
-        ref = schema.get("$ref")
-        if not isinstance(ref, str):
-            return schema
-        if ref in seen_refs:
-            return schema
-
-        definition = self._definition_for_local_ref(ref, definitions)
-        if definition is None:
-            return schema
-
-        merged = copy.deepcopy(self._merged_schema_for_index(definition, definitions, seen_refs | {ref}))
-        for key, value in schema.items():
-            if key != "$ref":
-                merged[key] = value
-        return merged
-
-    def _extract_rule_facts(self, schema: Dict[str, Any]) -> Dict[str, Any]:
-        rules: Dict[str, Any] = {}
-        for key in INDEX_RULE_KEYS:
-            if key in schema:
-                rules[key] = schema[key]
-        return rules
-
-    def _append_index_entry(
-        self,
-        constraint_index: List[Dict[str, Any]],
-        schema_id: str,
-        location: str,
-        schema: Dict[str, Any],
-        definitions: Dict[str, Any],
-        *,
-        required_by_parent: bool = False,
-        source_ref: Optional[str] = None,
-    ) -> None:
-        merged_schema = self._merged_schema_for_index(schema, definitions)
-        rules = self._extract_rule_facts(merged_schema)
-        if required_by_parent:
-            rules["required_by_parent"] = True
-        if not rules:
-            return
-
-        entry: Dict[str, Any] = {
-            "schema_id": schema_id,
-            "location": location,
-            "rules": rules,
-        }
-        if source_ref or isinstance(schema.get("$ref"), str):
-            entry["source"] = source_ref or schema["$ref"]
-        constraint_index.append(entry)
-
-    def _index_schema_node(
-        self,
-        schema: object,
-        definitions: Dict[str, Any],
-        constraint_index: List[Dict[str, Any]],
-        path_parts: List[str],
-        *,
-        required_names: Optional[set[str]] = None,
-        seen_refs: Optional[set[str]] = None,
-    ) -> None:
-        if not isinstance(schema, dict):
-            return
-
-        seen_refs = seen_refs or set()
-        merged_schema = self._merged_schema_for_index(schema, definitions, seen_refs)
-        schema_id = self._schema_id_for_request_property(path_parts)
-        required_by_parent = bool(path_parts and required_names and path_parts[-1].removesuffix("[]") in required_names)
-        self._append_index_entry(
-            constraint_index,
-            schema_id,
-            "request_body",
-            schema,
-            definitions,
-            required_by_parent=required_by_parent,
-        )
-
-        child_required = {
-            str(item)
-            for item in merged_schema.get("required", [])
-            if isinstance(item, (str, int))
-        }
-        properties = merged_schema.get("properties", {})
-        if isinstance(properties, dict):
-            for property_name, property_schema in properties.items():
-                self._index_schema_node(
-                    property_schema,
-                    definitions,
-                    constraint_index,
-                    path_parts + [str(property_name)],
-                    required_names=child_required,
-                    seen_refs=seen_refs,
-                )
-
-        items = merged_schema.get("items")
-        if isinstance(items, dict):
-            self._index_schema_node(
-                items,
-                definitions,
-                constraint_index,
-                path_parts[:-1] + [f"{path_parts[-1]}[]"] if path_parts else ["items[]"],
-                required_names=None,
-                seen_refs=seen_refs,
-            )
-
-        additional_properties = merged_schema.get("additionalProperties")
-        if isinstance(additional_properties, dict):
-            self._index_schema_node(
-                additional_properties,
-                definitions,
-                constraint_index,
-                path_parts + ["<additionalProperty>"],
-                required_names=None,
-                seen_refs=seen_refs,
-            )
-
-    def build_constraint_index(self, input_schema: Dict[str, Any], definitions: Dict[str, Any]) -> List[Dict[str, Any]]:
-        constraint_index: List[Dict[str, Any]] = []
-
-        parameters = input_schema.get("parameters", [])
-        if isinstance(parameters, list):
-            for index, parameter in enumerate(parameters, 1):
-                if not isinstance(parameter, dict):
-                    continue
-                parameter_schema = parameter.get("schema", {})
-                schema = parameter_schema if isinstance(parameter_schema, dict) else {}
-                if parameter.get("required") is True:
-                    schema = {**schema, "required": True}
-                schema_id = self._schema_id_for_parameter(parameter, index)
-                self._append_index_entry(
-                    constraint_index,
-                    schema_id,
-                    str(parameter.get("in") or "parameter"),
-                    schema,
-                    definitions,
-                )
-
-        request_body = input_schema.get("request_body")
-        if isinstance(request_body, dict):
-            body_schema: Dict[str, Any] = {}
-            if request_body.get("required") is True:
-                body_schema["required"] = True
-            self._append_index_entry(
-                constraint_index,
-                "request_body",
-                "request_body",
-                body_schema,
-                definitions,
-            )
-
-            content = request_body.get("content", {})
-            if isinstance(content, dict):
-                for content_obj in content.values():
-                    if not isinstance(content_obj, dict):
-                        continue
-                    schema = content_obj.get("schema")
-                    if isinstance(schema, dict):
-                        self._index_schema_node(schema, definitions, constraint_index, [])
-
-        return constraint_index
-
     def build_operation_context(self, operation: OperationMetadata) -> Optional[Dict[str, object]]:
         operation_spec = self._find_operation_spec(operation)
         if operation_spec is None:
@@ -721,8 +509,6 @@ class ConstraintGenerationAgent:
             schema_graph = self.build_input_schema_graph(operation)
             input_schema = schema_graph["input_schema"]
             definitions = schema_graph["definitions"]
-            constraint_index = self.build_constraint_index(input_schema, definitions)
-            schema_graph["constraint_index"] = constraint_index
             operation_context = self.build_operation_context(operation)
         except Exception as exc:
             print(f"  → Error resolving YAML schema for {operation.operation}: {exc}", flush=True)
@@ -737,18 +523,18 @@ class ConstraintGenerationAgent:
             return None
 
         print(
-            f"  → Extracting constraints from {len(constraint_index)} indexed schema rule(s) "
-            f"and {len(definitions)} definition(s)...",
+            f"  → Extracting constraints from compact schema graph "
+            f"({len(definitions)} definition(s))...",
             flush=True,
         )
         prompt = build_operation_schema_prompt(operation, operation_context, schema_graph)
 
         try:
             response_text = run_text_agent(
-                agent_name="NRF Constraint Generation Agent",
+                agent_name="Constraint Agent",
                 instructions=SYSTEM_PROMPT_CONSTRAINT_EXTRACTION,
                 prompt=prompt,
-                workflow_name="NRF Constraint Generation",
+                workflow_name="Constraint Generation",
             )
         except Exception as exc:
             print(f"  → Error calling agent: {exc}", flush=True)
@@ -774,7 +560,6 @@ class ConstraintGenerationAgent:
             method=operation.method,
             input_schema=input_schema,
             definitions=definitions,
-            constraint_index=constraint_index,
             constraints=constraints,
             depends_on=operation.depends_on or [],
         )
@@ -812,7 +597,6 @@ class ConstraintGenerationAgent:
             payload = {
                 "input_schema": schema.input_schema,
                 "definitions": schema.definitions,
-                "constraint_index": schema.constraint_index,
                 "constraints": schema.constraints,
             }
             with open(output_file, "w", encoding="utf-8") as f:
@@ -826,7 +610,7 @@ class ConstraintGenerationAgent:
 
 
 def main() -> None:
-    ConstraintGenerationAgent().run()
+    ConstraintAgent().run()
 
 
 if __name__ == "__main__":

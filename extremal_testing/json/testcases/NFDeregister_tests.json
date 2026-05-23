@@ -1,0 +1,103 @@
+{
+  "operation": "NFDeregister",
+  "path": "/nf-instances/{nfInstanceId}",
+  "method": "DELETE",
+  "setup": [
+    {
+      "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+      "method": "PUT",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
+        "nfType": "NRF",
+        "nfStatus": "REGISTERED",
+        "fqdn": "nrf.example.3gppnetwork.org"
+      }
+    }
+  ],
+  "cleanup": [
+    {
+      "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+      "method": "DELETE",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    }
+  ],
+  "tests": [
+    {
+      "id": "tc_1_pos",
+      "name": "Valid NFInstanceId Provided",
+      "constraint": "path.nfInstanceID MUST be provided.",
+      "constraint_schema_id": "path.nfInstanceID",
+      "method": "DELETE",
+      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": null
+    },
+    {
+      "id": "tc_1_neg",
+      "name": "NFInstanceId Not Provided",
+      "constraint": "path.nfInstanceID MUST be provided.",
+      "constraint_schema_id": "path.nfInstanceID",
+      "method": "DELETE",
+      "path": "/nf-instances/",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": null
+    },
+    {
+      "id": "tc_2_pos",
+      "name": "NFInstanceId is a String",
+      "constraint": "path.nfInstanceID MUST be a string.",
+      "constraint_schema_id": "path.nfInstanceID",
+      "method": "DELETE",
+      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": null
+    },
+    {
+      "id": "tc_2_neg",
+      "name": "NFInstanceId is Not a String",
+      "constraint": "path.nfInstanceID MUST be a string.",
+      "constraint_schema_id": "path.nfInstanceID",
+      "method": "DELETE",
+      "path": "/nf-instances/123456789",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": null
+    },
+    {
+      "id": "tc_3_pos",
+      "name": "NFInstanceId in UUID Format",
+      "constraint": "path.nfInstanceID MUST be in UUID format.",
+      "constraint_schema_id": "path.nfInstanceID",
+      "method": "DELETE",
+      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": null
+    },
+    {
+      "id": "tc_3_neg",
+      "name": "NFInstanceId Not in UUID Format",
+      "constraint": "path.nfInstanceID MUST be in UUID format.",
+      "constraint_schema_id": "path.nfInstanceID",
+      "method": "DELETE",
+      "path": "/nf-instances/not-a-uuid",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": null
+    }
+  ]
+}

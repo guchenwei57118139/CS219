@@ -26,7 +26,7 @@ TESTER_CLASSES = {
 }
 
 
-class ImplementationComparisonRunner:
+class ImplementationTester:
     """Execute each test case for each implementation and write one JSON result per operation."""
 
     def __init__(self) -> None:
@@ -154,7 +154,7 @@ class ImplementationComparisonRunner:
 
 def _resolve_input_paths(args: Sequence[str]) -> List[Path]:
     if not args:
-        return ImplementationComparisonRunner().discover_suite_files()
+        return ImplementationTester().discover_suite_files()
 
     resolved: List[Path] = []
     for raw_arg in args:
@@ -180,8 +180,8 @@ def main() -> None:
     if not suite_files:
         print("No clean-format test suites found.")
         return
-    runner = ImplementationComparisonRunner()
-    written_files = runner.run(suite_files)
+    tester = ImplementationTester()
+    written_files = tester.run(suite_files)
     for path in written_files:
         print(f"Comparison result saved to {path}")
 

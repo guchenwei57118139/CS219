@@ -26,7 +26,6 @@ class OperationSchema:
     method: str
     input_schema: Dict[str, Any]
     definitions: Dict[str, Any] = field(default_factory=dict)
-    constraint_index: List[Dict[str, Any]] = field(default_factory=list)
     constraints: List[Dict[str, Any]] = field(default_factory=list)
     depends_on: List[str] = field(default_factory=list)
 
@@ -42,7 +41,6 @@ class OperationInfo:
     constraints: List[Dict[str, Any]]
     depends_on: List[str]
     definitions: Dict[str, Any] = field(default_factory=dict)
-    constraint_index: List[Dict[str, Any]] = field(default_factory=list)
 
 
 @dataclass
