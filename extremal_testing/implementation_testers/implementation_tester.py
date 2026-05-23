@@ -78,26 +78,27 @@ class ImplementationTester:
     def run_test_case_for_impl(
         self,
         tester: BaseNRFTester,
+        client: Any,
         shared_setup: List[Dict[str, Any]],
         shared_cleanup: List[Dict[str, Any]],
         test_case: Dict[str, Any],
     ) -> Dict[str, Any]:
-        with tester.create_client() as client:
-            context: Dict[str, Any] = {}
-            headers = tester.build_default_headers()
-            headers.update(tester.build_auth_headers(context))
-
-            setup_summary = tester.execute_steps(client, list(shared_setup), headers, context)
-
-            response = tester.execute_step(client, test_case, headers, context)
-
-            cleanup_context = dict(context)
-            tester.execute_steps(client, list(shared_cleanup), headers, cleanup_context)
+        execution = tester.execute_test_case(client, shared_setup, shared_cleanup, test_case)
+        response = execution["response"]
+        setup_summary = execution["setup"]
+        cleanup_summary = execution["cleanup"]
 
         return {
             "status_code": response.get("status_code"),
             "response_body": response.get("response_body"),
-            "error": response.get("error") or setup_summary.get("error"),
+            "error": tester.result_error(setup_summary, response, cleanup_summary),
+        }
+
+    def unavailable_result(self, error: str) -> Dict[str, Any]:
+        return {
+            "status_code": None,
+            "response_body": None,
+            "error": error,
         }
 
     def run_suite(self, test_cases_file: Path) -> Dict[str, Any]:
@@ -107,24 +108,31 @@ class ImplementationTester:
         shared_cleanup = suite.get("cleanup", [])
         tests = suite.get("tests", [])
 
-        result_tests: List[Dict[str, Any]] = []
-        for index, test_case in enumerate(tests):
-            implementation_results: Dict[str, Any] = {}
-            for implementation_name in IMPLEMENTATION_ORDER:
-                implementation_results[implementation_name] = self.run_test_case_for_impl(
-                    self.testers[implementation_name],
-                    shared_setup,
-                    shared_cleanup,
-                    test_case,
-                )
+        result_tests: List[Dict[str, Any]] = [
+            {
+                "test_case_index": index,
+                "test_name": test_case.get("name", f"Test case {index + 1}"),
+                "implementations": {},
+            }
+            for index, test_case in enumerate(tests)
+        ]
 
-            result_tests.append(
-                {
-                    "test_case_index": index,
-                    "test_name": test_case.get("name", f"Test case {index + 1}"),
-                    "implementations": implementation_results,
-                }
-            )
+        for implementation_name in IMPLEMENTATION_ORDER:
+            tester = self.testers[implementation_name]
+            with tester.create_client() as client:
+                readiness_error = tester.probe_service(client)
+                for index, test_case in enumerate(tests):
+                    if readiness_error:
+                        implementation_result = self.unavailable_result(readiness_error)
+                    else:
+                        implementation_result = self.run_test_case_for_impl(
+                            tester,
+                            client,
+                            shared_setup,
+                            shared_cleanup,
+                            test_case,
+                        )
+                    result_tests[index]["implementations"][implementation_name] = implementation_result
 
         return {
             "operation": operation,

@@ -42,6 +42,14 @@ class BaseNRFTester(ABC):
         """Hook for optional auth header injection. Default is no auth."""
         return {}
 
+    def probe_service(self, client: Any) -> Optional[str]:
+        """Return an error string when the target service is unreachable."""
+        try:
+            client.request("GET", self.base_url, timeout=self.request_timeout)
+        except Exception as exc:
+            return f"Readiness probe failed for {self.base_url}: {exc.__class__.__name__}: {exc}"
+        return None
+
     def build_results_file(self, operation_name: str) -> Path:
         results_dir = Path(__file__).resolve().parent.parent / "data" / "test_results"
         results_dir.mkdir(parents=True, exist_ok=True)
@@ -103,21 +111,84 @@ class BaseNRFTester(ABC):
         steps: List[Dict[str, Any]],
         headers: Dict[str, str],
         context: Dict[str, Any],
+        stop_on_failure: bool = True,
     ) -> Dict[str, Any]:
         step_results: List[Dict[str, Any]] = []
         for step in steps:
             result = self.execute_step(client, step, headers, context)
             step_results.append(result)
-            if result.get("status_code") is None:
+            if stop_on_failure and self.step_failed(result):
                 break
         return self.summarize_step_results(step_results)
 
+    def step_failed(self, result: Dict[str, Any]) -> bool:
+        status_code = result.get("status_code")
+        return status_code is None or (isinstance(status_code, int) and status_code >= 400)
+
     def summarize_step_results(self, step_results: List[Dict[str, Any]]) -> Dict[str, Any]:
+        error = next((item.get("error") for item in step_results if item.get("error")), None)
+        if error is None:
+            failed_result = next((item for item in step_results if self.step_failed(item)), None)
+            if failed_result is not None:
+                error = f"Step failed with status {failed_result.get('status_code')}: {failed_result.get('status_message') or ''}".rstrip()
         return {
             "step_results": step_results,
             "status_code": step_results[-1].get("status_code") if step_results else None,
             "status_message": step_results[-1].get("status_message") if step_results else None,
-            "error": next((item.get("error") for item in step_results if item.get("error")), None),
+            "error": error,
+        }
+
+    def skipped_response(self, reason: str) -> Dict[str, Any]:
+        return {
+            "status_code": None,
+            "status_message": reason,
+            "response_body": None,
+            "response_headers": {},
+            "response_time": None,
+            "error": reason,
+        }
+
+    def unavailable_response(self, error: str) -> Dict[str, Any]:
+        return self.skipped_response(error)
+
+    def result_error(
+        self,
+        setup_summary: Dict[str, Any],
+        response: Dict[str, Any],
+        cleanup_summary: Dict[str, Any],
+    ) -> Optional[str]:
+        return response.get("error") or setup_summary.get("error") or cleanup_summary.get("error")
+
+    def execute_test_case(
+        self,
+        client: Any,
+        shared_setup: List[Dict[str, Any]],
+        shared_cleanup: List[Dict[str, Any]],
+        test_case: Dict[str, Any],
+    ) -> Dict[str, Dict[str, Any]]:
+        context: Dict[str, Any] = {}
+        headers = self.build_default_headers()
+        headers.update(self.build_auth_headers(context))
+
+        setup_summary = self.execute_steps(client, list(shared_setup), headers, context)
+        if setup_summary.get("error"):
+            response = self.skipped_response(f"Setup failed; test request skipped: {setup_summary['error']}")
+        else:
+            response = self.execute_step(client, test_case, headers, context)
+
+        cleanup_context = dict(context)
+        cleanup_summary = self.execute_steps(
+            client,
+            list(shared_cleanup),
+            headers,
+            cleanup_context,
+            stop_on_failure=False,
+        )
+
+        return {
+            "setup": setup_summary,
+            "response": response,
+            "cleanup": cleanup_summary,
         }
 
     def build_result(
@@ -145,7 +216,7 @@ class BaseNRFTester(ABC):
             "cleanup_status_code": cleanup_summary.get("status_code"),
             "cleanup_status_message": cleanup_summary.get("status_message"),
             "cleanup_error": cleanup_summary.get("error"),
-            "error": response.get("error") or setup_summary.get("error"),
+            "error": self.result_error(setup_summary, response, cleanup_summary),
         }
 
     def run_nrf_tests(self, test_cases_file: str) -> str:
@@ -160,23 +231,22 @@ class BaseNRFTester(ABC):
         results_file = self.build_results_file(operation_name)
         results: List[Dict[str, Any]] = []
 
-        for index, test_case in enumerate(tests):
-            with self.create_client() as client:
-                context: Dict[str, Any] = {}
-                headers = self.build_default_headers()
-                headers.update(self.build_auth_headers(context))
+        with self.create_client() as client:
+            readiness_error = self.probe_service(client)
+            for index, test_case in enumerate(tests):
+                if readiness_error:
+                    setup_summary = self.summarize_step_results([])
+                    response = self.unavailable_response(readiness_error)
+                    cleanup_summary = self.summarize_step_results([])
+                else:
+                    execution = self.execute_test_case(client, shared_setup, shared_cleanup, test_case)
+                    setup_summary = execution["setup"]
+                    response = execution["response"]
+                    cleanup_summary = execution["cleanup"]
 
-                setup_steps = list(shared_setup)
-                setup_summary = self.execute_steps(client, setup_steps, headers, context)
-
-                response = self.execute_step(client, test_case, headers, context)
-
-                cleanup_context = dict(context)
-                cleanup_summary = self.execute_steps(client, shared_cleanup, headers, cleanup_context)
-
-            result = self.build_result(index, test_case, setup_summary, response, cleanup_summary)
-            result["operation"] = operation_name
-            results.append(result)
+                result = self.build_result(index, test_case, setup_summary, response, cleanup_summary)
+                result["operation"] = operation_name
+                results.append(result)
 
         with open(results_file, "w", encoding="utf-8") as f:
             json.dump(results, f, indent=2, ensure_ascii=False)
