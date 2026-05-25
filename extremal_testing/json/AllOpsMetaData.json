@@ -18,7 +18,10 @@
     "Operation": "NFInstanceRetrieve",
     "Description": "Retrieves the NF Profile of a given NF Instance.",
     "Paths": "/nf-instances/{nfInstanceId}",
-    "Method": "GET"
+    "Method": "GET",
+    "DependsOn": [
+      "NFRegister"
+    ]
   },
   {
     "Operation": "NFListRetrieve",

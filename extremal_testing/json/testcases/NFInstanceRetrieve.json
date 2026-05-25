@@ -2,16 +2,6 @@
   "operation": "NFInstanceRetrieve",
   "path": "/nf-instances/{nfInstanceId}",
   "method": "GET",
-  "setup": [],
-  "cleanup": [
-    {
-      "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
-      "method": "DELETE",
-      "headers": {
-        "Content-Type": "application/json"
-      }
-    }
-  ],
   "tests": [
     {
       "id": "tc_1_pos",
@@ -19,11 +9,14 @@
       "constraint": "path.nfInstanceID MUST be a string.",
       "constraint_schema_id": "path.nfInstanceID",
       "method": "GET",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "path": "/nf-instances/{nfInstanceId}",
       "headers": {
         "Content-Type": "application/json"
       },
-      "body": null
+      "body": {},
+      "prerequisites": {
+        "registered_nf": true
+      }
     },
     {
       "id": "tc_1_neg",
@@ -31,11 +24,11 @@
       "constraint": "path.nfInstanceID MUST be a string.",
       "constraint_schema_id": "path.nfInstanceID",
       "method": "GET",
-      "path": "/nf-instances/123456",
+      "path": "/nf-instances/123456789",
       "headers": {
         "Content-Type": "application/json"
       },
-      "body": null
+      "body": {}
     },
     {
       "id": "tc_2_pos",
@@ -43,11 +36,14 @@
       "constraint": "path.nfInstanceID MUST be in UUID format.",
       "constraint_schema_id": "path.nfInstanceID",
       "method": "GET",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "path": "/nf-instances/{nfInstanceId}",
       "headers": {
         "Content-Type": "application/json"
       },
-      "body": null
+      "body": {},
+      "prerequisites": {
+        "registered_nf": true
+      }
     },
     {
       "id": "tc_2_neg",
@@ -59,23 +55,26 @@
       "headers": {
         "Content-Type": "application/json"
       },
-      "body": null
+      "body": {}
     },
     {
       "id": "tc_3_pos",
-      "name": "Valid UUIDv4 NFInstanceId",
+      "name": "Valid UUID v4 NFInstanceId",
       "constraint": "path.nfInstanceID MUST be a UUID version 4 as described in IETF RFC 4122.",
       "constraint_schema_id": "path.nfInstanceID",
       "method": "GET",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "path": "/nf-instances/{nfInstanceId}",
       "headers": {
         "Content-Type": "application/json"
       },
-      "body": null
+      "body": {},
+      "prerequisites": {
+        "registered_nf": true
+      }
     },
     {
       "id": "tc_3_neg",
-      "name": "Invalid UUIDv4 NFInstanceId",
+      "name": "Invalid UUID v4 NFInstanceId",
       "constraint": "path.nfInstanceID MUST be a UUID version 4 as described in IETF RFC 4122.",
       "constraint_schema_id": "path.nfInstanceID",
       "method": "GET",
@@ -83,7 +82,7 @@
       "headers": {
         "Content-Type": "application/json"
       },
-      "body": null
+      "body": {}
     },
     {
       "id": "tc_4_pos",
@@ -91,11 +90,14 @@
       "constraint": "query.requester-features MUST be a string.",
       "constraint_schema_id": "query.requester-features",
       "method": "GET",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000?requester-features=1A2B3C",
+      "path": "/nf-instances/{nfInstanceId}?requester-features=1A2B3C",
       "headers": {
         "Content-Type": "application/json"
       },
-      "body": null
+      "body": {},
+      "prerequisites": {
+        "registered_nf": true
+      }
     },
     {
       "id": "tc_4_neg",
@@ -103,11 +105,14 @@
       "constraint": "query.requester-features MUST be a string.",
       "constraint_schema_id": "query.requester-features",
       "method": "GET",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000?requester-features=123456",
+      "path": "/nf-instances/{nfInstanceId}?requester-features=123456",
       "headers": {
         "Content-Type": "application/json"
       },
-      "body": null
+      "body": {},
+      "prerequisites": {
+        "registered_nf": true
+      }
     },
     {
       "id": "tc_5_pos",
@@ -115,11 +120,14 @@
       "constraint": "query.requester-features MUST match the pattern ^[A-Fa-f0-9]*$.",
       "constraint_schema_id": "query.requester-features",
       "method": "GET",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000?requester-features=1A2B3C",
+      "path": "/nf-instances/{nfInstanceId}?requester-features=1A2B3C",
       "headers": {
         "Content-Type": "application/json"
       },
-      "body": null
+      "body": {},
+      "prerequisites": {
+        "registered_nf": true
+      }
     },
     {
       "id": "tc_5_neg",
@@ -127,11 +135,14 @@
       "constraint": "query.requester-features MUST match the pattern ^[A-Fa-f0-9]*$.",
       "constraint_schema_id": "query.requester-features",
       "method": "GET",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000?requester-features=1A2B3G",
+      "path": "/nf-instances/{nfInstanceId}?requester-features=1A2B3G",
       "headers": {
         "Content-Type": "application/json"
       },
-      "body": null
+      "body": {},
+      "prerequisites": {
+        "registered_nf": true
+      }
     }
   ]
 }

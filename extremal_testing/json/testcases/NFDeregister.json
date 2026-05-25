@@ -2,30 +2,6 @@
   "operation": "NFDeregister",
   "path": "/nf-instances/{nfInstanceId}",
   "method": "DELETE",
-  "setup": [
-    {
-      "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    }
-  ],
-  "cleanup": [
-    {
-      "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
-      "method": "DELETE",
-      "headers": {
-        "Content-Type": "application/json"
-      }
-    }
-  ],
   "tests": [
     {
       "id": "tc_1_pos",
@@ -33,11 +9,14 @@
       "constraint": "path.nfInstanceID MUST be provided.",
       "constraint_schema_id": "path.nfInstanceID",
       "method": "DELETE",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "path": "/nf-instances/{nfInstanceId}",
       "headers": {
         "Content-Type": "application/json"
       },
-      "body": null
+      "body": {},
+      "prerequisites": {
+        "registered_nf": true
+      }
     },
     {
       "id": "tc_1_neg",
@@ -49,7 +28,7 @@
       "headers": {
         "Content-Type": "application/json"
       },
-      "body": null
+      "body": {}
     },
     {
       "id": "tc_2_pos",
@@ -57,11 +36,14 @@
       "constraint": "path.nfInstanceID MUST be a string.",
       "constraint_schema_id": "path.nfInstanceID",
       "method": "DELETE",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "path": "/nf-instances/{nfInstanceId}",
       "headers": {
         "Content-Type": "application/json"
       },
-      "body": null
+      "body": {},
+      "prerequisites": {
+        "registered_nf": true
+      }
     },
     {
       "id": "tc_2_neg",
@@ -73,7 +55,7 @@
       "headers": {
         "Content-Type": "application/json"
       },
-      "body": null
+      "body": {}
     },
     {
       "id": "tc_3_pos",
@@ -81,11 +63,14 @@
       "constraint": "path.nfInstanceID MUST be in UUID format.",
       "constraint_schema_id": "path.nfInstanceID",
       "method": "DELETE",
-      "path": "/nf-instances/550e8400-e29b-41d4-a716-446655440000",
+      "path": "/nf-instances/{nfInstanceId}",
       "headers": {
         "Content-Type": "application/json"
       },
-      "body": null
+      "body": {},
+      "prerequisites": {
+        "registered_nf": true
+      }
     },
     {
       "id": "tc_3_neg",
@@ -97,7 +82,7 @@
       "headers": {
         "Content-Type": "application/json"
       },
-      "body": null
+      "body": {}
     }
   ]
 }

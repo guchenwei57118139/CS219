@@ -14,17 +14,17 @@
         "free5gc": {
           "status_code": 204,
           "response_body": null,
-          "error": "Step failed with status 404: Not Found"
+          "error": null
         },
         "oai": {
           "status_code": 204,
           "response_body": null,
-          "error": "Step failed with status 404: Not Found"
+          "error": null
         },
         "open5gs": {
           "status_code": 204,
           "response_body": null,
-          "error": "Step failed with status 404: Not Found"
+          "error": null
         }
       }
     },
@@ -56,17 +56,17 @@
         "free5gc": {
           "status_code": 204,
           "response_body": null,
-          "error": "Step failed with status 404: Not Found"
+          "error": null
         },
         "oai": {
           "status_code": 204,
           "response_body": null,
-          "error": "Step failed with status 404: Not Found"
+          "error": null
         },
         "open5gs": {
           "status_code": 204,
           "response_body": null,
-          "error": "Step failed with status 404: Not Found"
+          "error": null
         }
       }
     },
@@ -82,7 +82,7 @@
         "oai": {
           "status_code": 404,
           "response_body": null,
-          "error": "Step failed with status 404: Not Found"
+          "error": null
         },
         "open5gs": {
           "status_code": 404,
@@ -98,17 +98,17 @@
         "free5gc": {
           "status_code": 204,
           "response_body": null,
-          "error": "Step failed with status 404: Not Found"
+          "error": null
         },
         "oai": {
           "status_code": 204,
           "response_body": null,
-          "error": "Step failed with status 404: Not Found"
+          "error": null
         },
         "open5gs": {
           "status_code": 204,
           "response_body": null,
-          "error": "Step failed with status 404: Not Found"
+          "error": null
         }
       }
     },
@@ -124,7 +124,7 @@
         "oai": {
           "status_code": 404,
           "response_body": null,
-          "error": "Step failed with status 404: Not Found"
+          "error": null
         },
         "open5gs": {
           "status_code": 404,

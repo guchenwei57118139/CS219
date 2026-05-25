@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 import re
 import sys
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -21,45 +20,12 @@ from extremal_testing.nrf_agents.prompts.test_cases import build_test_case_chunk
 from extremal_testing.nrf_agents.workflow.sdk import run_text_agent
 
 CANONICAL_NF_INSTANCE_ID = "550e8400-e29b-41d4-a716-446655440000"
-CANONICAL_SUBSCRIPTION_ID = "{subscriptionId}"
 CONSTRAINT_CHUNK_SIZE = 10
 REQUIRED_TEST_FIELDS = {"name", "constraint", "method", "path", "headers"}
-
-CANONICAL_REGISTER_STEP: Dict[str, Any] = {
-    "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
-    "method": "PUT",
-    "headers": {"Content-Type": "application/json"},
-    "body": {
-        "nfInstanceId": CANONICAL_NF_INSTANCE_ID,
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-    },
-}
-
-CANONICAL_SUBSCRIBE_STEP: Dict[str, Any] = {
-    "path": "/nnrf-nfm/v1/subscriptions",
-    "method": "POST",
-    "headers": {"Content-Type": "application/json"},
-    "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-    },
-}
-
-SUBSCRIPTION_OPERATION_NAMES = {
-    "NFStatusSubscribe",
-    "NFStatusNotify",
-    "NFStatusUnsubscribe",
-}
-
-REGISTER_DEPENDENT_OPERATION_NAMES = {
-    "NFUpdate",
-    "NFDeregister",
-    "NFListRetrieval",
-    "NFProfileRetrieval",
-    "NFStatusSubscribe",
-    "NFStatusNotify",
-    "NFStatusUnsubscribe",
+PLACEHOLDER_SUBSCRIPTION_ID = "{subscriptionId}"
+OPERATION_PREREQUISITE_MAP = {
+    "NFRegister": "registered_nf",
+    "NFStatusSubscribe": "subscription",
 }
 
 
@@ -89,7 +55,7 @@ def _parse_json_object(text: str) -> Optional[Dict[str, Any]]:
 
 
 class TestAgent:
-    """Generate operation suites with one shared setup and cleanup."""
+    """Generate operation suites with per-test prerequisites."""
 
     def __init__(
         self,
@@ -352,38 +318,109 @@ class TestAgent:
             },
         }
 
-    def build_shared_setup(self, operation: OperationInfo) -> List[Dict[str, Any]]:
-        if operation.operation == "NFRegister":
-            return []
+    def operation_prerequisite_types(self, operation: OperationInfo) -> List[str]:
+        prerequisite_types: List[str] = []
+        for dependency in operation.depends_on:
+            prerequisite_type = OPERATION_PREREQUISITE_MAP.get(str(dependency))
+            if prerequisite_type and prerequisite_type not in prerequisite_types:
+                prerequisite_types.append(prerequisite_type)
+        return prerequisite_types
 
-        setup: List[Dict[str, Any]] = []
-        if operation.operation in REGISTER_DEPENDENT_OPERATION_NAMES:
-            setup.append(dict(CANONICAL_REGISTER_STEP))
+    @staticmethod
+    def _is_positive_test_case(test_case: Dict[str, Any]) -> bool:
+        return str(test_case.get("id", "")).endswith("_pos")
 
-        if operation.operation in SUBSCRIPTION_OPERATION_NAMES:
-            setup.append(dict(CANONICAL_SUBSCRIBE_STEP))
+    @staticmethod
+    def _path_is_missing_identifier(path: str) -> bool:
+        return path.endswith("/nf-instances/") or path.endswith("/subscriptions/")
 
-        return setup
+    @staticmethod
+    def _constraint_targets_identifier(constraint_schema_id: str, resource: str) -> bool:
+        return str(constraint_schema_id) == f"path.{resource}"
 
-    def build_shared_cleanup(self, operation: OperationInfo) -> List[Dict[str, Any]]:
-        cleanup: List[Dict[str, Any]] = []
-        if operation.operation in SUBSCRIPTION_OPERATION_NAMES:
-            cleanup.append(
-                {
-                    "path": f"/nnrf-nfm/v1/subscriptions/{CANONICAL_SUBSCRIPTION_ID}",
-                    "method": "DELETE",
-                    "headers": {"Content-Type": "application/json"},
-                }
-            )
+    @staticmethod
+    def _contains_invalid_nf_placeholder_value(payload: Any) -> bool:
+        serialized = json.dumps(payload, sort_keys=True) if payload is not None else ""
+        if re.search(r"/nf-instances/(?!550e8400-e29b-41d4-a716-446655440000|\{nfInstanceId\})[^/?\"}]+", serialized):
+            return True
+        return any(token in serialized for token in ['"not-a-uuid"', '"123456"', '"123456789"', '"550e8400-e29b-11d4-a716-446655440000"'])
 
-        cleanup.append(
-            {
-                "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
-                "method": "DELETE",
-                "headers": {"Content-Type": "application/json"},
-            }
+    @staticmethod
+    def _contains_invalid_subscription_placeholder_value(payload: Any) -> bool:
+        serialized = json.dumps(payload, sort_keys=True) if payload is not None else ""
+        return any(
+            token in serialized
+            for token in ['"12345-invalid-pattern"', '"/subscriptions/"']
         )
-        return cleanup
+
+    def infer_prerequisites(self, operation: OperationInfo, test_case: Dict[str, Any]) -> Dict[str, bool]:
+        prerequisites = {name: False for name in self.operation_prerequisite_types(operation)}
+        path = str(test_case.get("path", ""))
+        body = test_case.get("body")
+        headers = test_case.get("headers")
+        constraint_schema_id = str(test_case.get("constraint_schema_id", ""))
+
+        if "registered_nf" in prerequisites:
+            if self._constraint_targets_identifier(constraint_schema_id, "nfInstanceID"):
+                needs_registered_nf = self._is_positive_test_case(test_case)
+                if self._path_is_missing_identifier(path) or self._contains_invalid_nf_placeholder_value(
+                    {"path": path, "body": body, "headers": headers}
+                ):
+                    needs_registered_nf = False
+            else:
+                needs_registered_nf = True
+            prerequisites["registered_nf"] = needs_registered_nf
+
+        if "subscription" in prerequisites:
+            if self._constraint_targets_identifier(constraint_schema_id, "subscriptionID"):
+                needs_subscription = self._is_positive_test_case(test_case)
+                if self._path_is_missing_identifier(path) or self._contains_invalid_subscription_placeholder_value(
+                    {"path": path, "body": body, "headers": headers}
+                ):
+                    needs_subscription = False
+            else:
+                needs_subscription = True
+            prerequisites["subscription"] = needs_subscription
+            if needs_subscription:
+                prerequisites["registered_nf"] = True
+
+        return {key: value for key, value in prerequisites.items() if value}
+
+    @staticmethod
+    def _replace_canonical_nf_instance_id(value: Any) -> Any:
+        if isinstance(value, str):
+            return value.replace(CANONICAL_NF_INSTANCE_ID, "{nfInstanceId}")
+        if isinstance(value, list):
+            return [TestAgent._replace_canonical_nf_instance_id(item) for item in value]
+        if isinstance(value, dict):
+            return {key: TestAgent._replace_canonical_nf_instance_id(item) for key, item in value.items()}
+        return value
+
+    @staticmethod
+    def _replace_subscription_target(value: Any) -> Any:
+        if isinstance(value, str):
+            return re.sub(r"/subscriptions/[^/?]+", "/subscriptions/{subscriptionId}", value)
+        if isinstance(value, list):
+            return [TestAgent._replace_subscription_target(item) for item in value]
+        if isinstance(value, dict):
+            return {key: TestAgent._replace_subscription_target(item) for key, item in value.items()}
+        return value
+
+    def apply_prerequisite_placeholders(
+        self,
+        test_case: Dict[str, Any],
+        prerequisites: Dict[str, bool],
+    ) -> Dict[str, Any]:
+        normalized = dict(test_case)
+        if prerequisites.get("registered_nf"):
+            normalized["path"] = self._replace_canonical_nf_instance_id(normalized.get("path"))
+            normalized["body"] = self._replace_canonical_nf_instance_id(normalized.get("body"))
+        if prerequisites.get("subscription"):
+            normalized["path"] = self._replace_subscription_target(normalized.get("path"))
+            normalized["body"] = self._replace_subscription_target(normalized.get("body"))
+        if prerequisites:
+            normalized["prerequisites"] = prerequisites
+        return normalized
 
     @staticmethod
     def _has_required_test_fields(test_case: Any) -> bool:
@@ -412,8 +449,6 @@ class TestAgent:
         self,
         operation: OperationInfo,
         constraints: List[Dict[str, Any]],
-        shared_setup: List[Dict[str, Any]],
-        shared_cleanup: List[Dict[str, Any]],
         start_index: int,
     ) -> Optional[List[Dict[str, Any]]]:
         if not self.test_format:
@@ -437,8 +472,6 @@ class TestAgent:
         prompt = build_test_case_chunk_prompt(
             operation,
             constraint_items,
-            shared_setup,
-            shared_cleanup,
             self.test_format,
         )
 
@@ -480,8 +513,11 @@ class TestAgent:
                 continue
 
             constraint_number = constraint_id.removeprefix("constraint_")
-            tests.append(self._standardize_chunk_test_case(positive, f"tc_{constraint_number}_pos", constraint))
-            tests.append(self._standardize_chunk_test_case(negative, f"tc_{constraint_number}_neg", constraint))
+            positive_test = self._standardize_chunk_test_case(positive, f"tc_{constraint_number}_pos", constraint)
+            negative_test = self._standardize_chunk_test_case(negative, f"tc_{constraint_number}_neg", constraint)
+            for generated_test in (positive_test, negative_test):
+                prerequisites = self.infer_prerequisites(operation, generated_test)
+                tests.append(self.apply_prerequisite_placeholders(generated_test, prerequisites))
 
         return tests
 
@@ -490,10 +526,8 @@ class TestAgent:
             print(f"  → No constraints found for {operation.operation}, skipping", flush=True)
             return None
 
-        shared_setup = self.build_shared_setup(operation)
-        shared_cleanup = self.build_shared_cleanup(operation)
-        print(f"  → Shared setup steps: {len(shared_setup)}", flush=True)
-        print(f"  → Shared cleanup steps: {len(shared_cleanup)}", flush=True)
+        prerequisite_types = self.operation_prerequisite_types(operation)
+        print(f"  → Operation prerequisite types: {prerequisite_types or ['none']}", flush=True)
         chunks = self.chunk_constraints(operation.constraints)
         print(
             f"  → Generating up to {len(operation.constraints) * 2} test case(s) "
@@ -512,8 +546,6 @@ class TestAgent:
             chunk_tests = self.generate_suite_test_chunk(
                 operation,
                 constraint_chunk,
-                shared_setup,
-                shared_cleanup,
                 start_index,
             )
             if not chunk_tests:
@@ -531,8 +563,6 @@ class TestAgent:
             "operation": operation.operation,
             "path": operation.path,
             "method": operation.method,
-            "setup": shared_setup,
-            "cleanup": shared_cleanup,
             "tests": tests,
         }
 

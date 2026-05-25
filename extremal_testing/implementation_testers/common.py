@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+import uuid
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
@@ -99,6 +100,76 @@ def validate_clean_suite(suite: Dict[str, Any]) -> None:
             raise ValueError("Test cases must include name, constraint, method, path, and headers")
         if forbidden_fields.intersection(test_case.keys()):
             raise ValueError("Suite contains unsupported test fields")
+        prerequisites = test_case.get("prerequisites", {})
+        if prerequisites is not None and not isinstance(prerequisites, dict):
+            raise ValueError("Test case prerequisites must be an object when provided")
+
+
+def derive_test_resource_id(operation_name: str, test_id: str, resource_kind: str) -> str:
+    """Derive a stable UUID string for a test-scoped resource."""
+    seed = f"{operation_name}:{test_id}:{resource_kind}"
+    return str(uuid.uuid5(uuid.NAMESPACE_URL, seed))
+
+
+def build_prerequisite_steps(
+    operation_name: str,
+    test_case: Dict[str, Any],
+    prerequisites: Optional[Dict[str, Any]],
+) -> tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    """Expand test prerequisites into setup steps and seeded placeholder context."""
+    prereq_config = prerequisites or {}
+    steps: List[Dict[str, Any]] = []
+    context: Dict[str, Any] = {}
+    test_id = str(test_case.get("id") or test_case.get("name") or "unknown_test")
+
+    if prereq_config.get("registered_nf"):
+        nf_instance_id = derive_test_resource_id(operation_name, test_id, "nfInstanceId")
+        context["nfInstanceId"] = nf_instance_id
+        steps.append(
+            {
+                "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+                "method": "PUT",
+                "headers": {"Content-Type": "application/json"},
+                "body": {
+                    "nfInstanceId": "{nfInstanceId}",
+                    "nfType": "NRF",
+                    "nfStatus": "REGISTERED",
+                    "fqdn": "nrf.example.3gppnetwork.org",
+                },
+            }
+        )
+
+    if prereq_config.get("subscription"):
+        if "nfInstanceId" not in context:
+            nf_instance_id = derive_test_resource_id(operation_name, test_id, "nfInstanceId")
+            context["nfInstanceId"] = nf_instance_id
+            steps.append(
+                {
+                    "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
+                    "method": "PUT",
+                    "headers": {"Content-Type": "application/json"},
+                    "body": {
+                        "nfInstanceId": "{nfInstanceId}",
+                        "nfType": "NRF",
+                        "nfStatus": "REGISTERED",
+                        "fqdn": "nrf.example.3gppnetwork.org",
+                    },
+                }
+            )
+        context["subscriptionId"] = derive_test_resource_id(operation_name, test_id, "subscriptionId")
+        steps.append(
+            {
+                "path": "/nnrf-nfm/v1/subscriptions",
+                "method": "POST",
+                "headers": {"Content-Type": "application/json"},
+                "body": {
+                    "nfStatusNotificationUri": "https://example.client/callback",
+                    "reqNfInstanceId": "{nfInstanceId}",
+                },
+            }
+        )
+
+    return steps, context
 
 
 def resolve_placeholders(value: Any, context: Dict[str, Any]) -> Any:
@@ -178,12 +249,17 @@ def build_request_details(
     """Resolve a step into concrete request details."""
     resolved_step = resolve_placeholders(step, context)
     path = str(resolved_step.get("path", ""))
+    method = str(resolved_step.get("method", "GET")).upper()
     headers = normalize_http_headers({**default_headers, **resolved_step.get("headers", {})})
     request_body = resolved_step.get("body")
+    # Some generated suites encode bodyless GET/DELETE requests as {}.
+    # Open5GS rejects those requests, so normalize them to no body here.
+    if method in {"GET", "DELETE"} and request_body == {}:
+        request_body = None
     return {
         "path": path,
         "full_url": build_full_url(path, base_url),
-        "method": str(resolved_step.get("method", "GET")).upper(),
+        "method": method,
         "headers": headers,
         "body": request_body,
     }

@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from extremal_testing.implementation_testers.common import (
+    build_prerequisite_steps,
     build_request_details,
     load_clean_suite,
     operation_name_from_suite_path,
@@ -156,40 +157,30 @@ class BaseNRFTester(ABC):
         self,
         setup_summary: Dict[str, Any],
         response: Dict[str, Any],
-        cleanup_summary: Dict[str, Any],
     ) -> Optional[str]:
-        return response.get("error") or setup_summary.get("error") or cleanup_summary.get("error")
+        return response.get("error") or setup_summary.get("error")
 
     def execute_test_case(
         self,
         client: Any,
-        shared_setup: List[Dict[str, Any]],
-        shared_cleanup: List[Dict[str, Any]],
+        operation_name: str,
         test_case: Dict[str, Any],
     ) -> Dict[str, Dict[str, Any]]:
-        context: Dict[str, Any] = {}
+        prerequisites = test_case.get("prerequisites", {})
+        setup_steps, setup_context = build_prerequisite_steps(operation_name, test_case, prerequisites)
+        context: Dict[str, Any] = dict(setup_context)
         headers = self.build_default_headers()
         headers.update(self.build_auth_headers(context))
 
-        setup_summary = self.execute_steps(client, list(shared_setup), headers, context)
+        setup_summary = self.execute_steps(client, setup_steps, headers, context)
         if setup_summary.get("error"):
             response = self.skipped_response(f"Setup failed; test request skipped: {setup_summary['error']}")
         else:
             response = self.execute_step(client, test_case, headers, context)
 
-        cleanup_context = dict(context)
-        cleanup_summary = self.execute_steps(
-            client,
-            list(shared_cleanup),
-            headers,
-            cleanup_context,
-            stop_on_failure=False,
-        )
-
         return {
             "setup": setup_summary,
             "response": response,
-            "cleanup": cleanup_summary,
         }
 
     def build_result(
@@ -198,7 +189,6 @@ class BaseNRFTester(ABC):
         test_case: Dict[str, Any],
         setup_summary: Dict[str, Any],
         response: Dict[str, Any],
-        cleanup_summary: Dict[str, Any],
     ) -> Dict[str, Any]:
         constraint_text = str(test_case.get("constraint") or "Unknown constraint")
         return {
@@ -214,10 +204,7 @@ class BaseNRFTester(ABC):
             "response_body": response.get("response_body"),
             "response_time": response.get("response_time"),
             "response_headers": response.get("response_headers"),
-            "cleanup_status_code": cleanup_summary.get("status_code"),
-            "cleanup_status_message": cleanup_summary.get("status_message"),
-            "cleanup_error": cleanup_summary.get("error"),
-            "error": self.result_error(setup_summary, response, cleanup_summary),
+            "error": self.result_error(setup_summary, response),
         }
 
     def run_nrf_tests(self, test_cases_file: str) -> str:
@@ -226,8 +213,6 @@ class BaseNRFTester(ABC):
         if not isinstance(tests, list):
             raise ValueError("Test suite must contain a tests array")
 
-        shared_setup = suite.get("setup", [])
-        shared_cleanup = suite.get("cleanup", [])
         operation_name = str(suite.get("operation") or operation_name_from_suite_path(Path(test_cases_file)))
         results_file = self.build_results_file(operation_name)
         results: List[Dict[str, Any]] = []
@@ -238,14 +223,12 @@ class BaseNRFTester(ABC):
                 if readiness_error:
                     setup_summary = self.summarize_step_results([])
                     response = self.unavailable_response(readiness_error)
-                    cleanup_summary = self.summarize_step_results([])
                 else:
-                    execution = self.execute_test_case(client, shared_setup, shared_cleanup, test_case)
+                    execution = self.execute_test_case(client, operation_name, test_case)
                     setup_summary = execution["setup"]
                     response = execution["response"]
-                    cleanup_summary = execution["cleanup"]
 
-                result = self.build_result(index, test_case, setup_summary, response, cleanup_summary)
+                result = self.build_result(index, test_case, setup_summary, response)
                 result["operation"] = operation_name
                 results.append(result)
 

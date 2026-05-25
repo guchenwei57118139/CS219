@@ -2,20 +2,10 @@
   "operation": "NFListRetrieve",
   "path": "/nf-instances",
   "method": "GET",
-  "setup": [],
-  "cleanup": [
-    {
-      "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
-      "method": "DELETE",
-      "headers": {
-        "Content-Type": "application/json"
-      }
-    }
-  ],
   "tests": [
     {
       "id": "tc_1_pos",
-      "name": "Valid NF Type String",
+      "name": "Valid nf-type as string",
       "constraint": "query.nf-type MUST be a string.",
       "constraint_schema_id": "query.nf-type",
       "method": "GET",
@@ -27,7 +17,7 @@
     },
     {
       "id": "tc_1_neg",
-      "name": "Invalid NF Type Non-String",
+      "name": "Invalid nf-type as non-string",
       "constraint": "query.nf-type MUST be a string.",
       "constraint_schema_id": "query.nf-type",
       "method": "GET",
@@ -39,7 +29,7 @@
     },
     {
       "id": "tc_2_pos",
-      "name": "Valid Enumerated NF Type",
+      "name": "Valid nf-type as enumerated value",
       "constraint": "query.nf-type MUST be one of the enumerated NF types if specified.",
       "constraint_schema_id": "query.nf-type",
       "method": "GET",
@@ -51,7 +41,7 @@
     },
     {
       "id": "tc_2_neg",
-      "name": "Invalid Non-Enumerated NF Type",
+      "name": "Invalid nf-type as non-enumerated value",
       "constraint": "query.nf-type MUST be one of the enumerated NF types if specified.",
       "constraint_schema_id": "query.nf-type",
       "method": "GET",
@@ -63,7 +53,7 @@
     },
     {
       "id": "tc_3_pos",
-      "name": "Valid Limit Integer",
+      "name": "Valid limit as integer",
       "constraint": "query.limit MUST be an integer.",
       "constraint_schema_id": "query.limit",
       "method": "GET",
@@ -75,7 +65,7 @@
     },
     {
       "id": "tc_3_neg",
-      "name": "Invalid Limit Non-Integer",
+      "name": "Invalid limit as non-integer",
       "constraint": "query.limit MUST be an integer.",
       "constraint_schema_id": "query.limit",
       "method": "GET",
@@ -87,7 +77,7 @@
     },
     {
       "id": "tc_4_pos",
-      "name": "Valid Limit Greater Than or Equal to 1",
+      "name": "Valid limit greater than or equal to 1",
       "constraint": "query.limit MUST be greater than or equal to 1.",
       "constraint_schema_id": "query.limit",
       "method": "GET",
@@ -99,7 +89,7 @@
     },
     {
       "id": "tc_4_neg",
-      "name": "Invalid Limit Less Than 1",
+      "name": "Invalid limit less than 1",
       "constraint": "query.limit MUST be greater than or equal to 1.",
       "constraint_schema_id": "query.limit",
       "method": "GET",
@@ -111,7 +101,7 @@
     },
     {
       "id": "tc_5_pos",
-      "name": "Valid Page Number Integer",
+      "name": "Valid page-number as integer",
       "constraint": "query.page-number MUST be an integer.",
       "constraint_schema_id": "query.page-number",
       "method": "GET",
@@ -123,7 +113,7 @@
     },
     {
       "id": "tc_5_neg",
-      "name": "Invalid Page Number Non-Integer",
+      "name": "Invalid page-number as non-integer",
       "constraint": "query.page-number MUST be an integer.",
       "constraint_schema_id": "query.page-number",
       "method": "GET",
@@ -135,7 +125,7 @@
     },
     {
       "id": "tc_6_pos",
-      "name": "Valid Page Number Greater Than or Equal to 1",
+      "name": "Valid page-number greater than or equal to 1",
       "constraint": "query.page-number MUST be greater than or equal to 1.",
       "constraint_schema_id": "query.page-number",
       "method": "GET",
@@ -147,7 +137,7 @@
     },
     {
       "id": "tc_6_neg",
-      "name": "Invalid Page Number Less Than 1",
+      "name": "Invalid page-number less than 1",
       "constraint": "query.page-number MUST be greater than or equal to 1.",
       "constraint_schema_id": "query.page-number",
       "method": "GET",
@@ -159,7 +149,7 @@
     },
     {
       "id": "tc_7_pos",
-      "name": "Valid Page Size Integer",
+      "name": "Valid page-size as integer",
       "constraint": "query.page-size MUST be an integer.",
       "constraint_schema_id": "query.page-size",
       "method": "GET",
@@ -171,7 +161,7 @@
     },
     {
       "id": "tc_7_neg",
-      "name": "Invalid Page Size Non-Integer",
+      "name": "Invalid page-size as non-integer",
       "constraint": "query.page-size MUST be an integer.",
       "constraint_schema_id": "query.page-size",
       "method": "GET",
@@ -183,7 +173,7 @@
     },
     {
       "id": "tc_8_pos",
-      "name": "Valid Page Size Greater Than or Equal to 1",
+      "name": "Valid page-size greater than or equal to 1",
       "constraint": "query.page-size MUST be greater than or equal to 1.",
       "constraint_schema_id": "query.page-size",
       "method": "GET",
@@ -195,7 +185,7 @@
     },
     {
       "id": "tc_8_neg",
-      "name": "Invalid Page Size Less Than 1",
+      "name": "Invalid page-size less than 1",
       "constraint": "query.page-size MUST be greater than or equal to 1.",
       "constraint_schema_id": "query.page-size",
       "method": "GET",

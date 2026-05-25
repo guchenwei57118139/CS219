@@ -2,20 +2,10 @@
   "operation": "NFRegister",
   "path": "/nf-instances/{nfInstanceId}",
   "method": "PUT",
-  "setup": [],
-  "cleanup": [
-    {
-      "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
-      "method": "DELETE",
-      "headers": {
-        "Content-Type": "application/json"
-      }
-    }
-  ],
   "tests": [
     {
       "id": "tc_1_pos",
-      "name": "Valid NFInstanceId as String",
+      "name": "Valid nfInstanceId as String",
       "constraint": "path.nfInstanceID MUST be a string.",
       "constraint_schema_id": "path.nfInstanceID",
       "method": "PUT",
@@ -32,11 +22,11 @@
     },
     {
       "id": "tc_1_neg",
-      "name": "Invalid NFInstanceId as Non-String",
+      "name": "Invalid nfInstanceId as Non-String",
       "constraint": "path.nfInstanceID MUST be a string.",
       "constraint_schema_id": "path.nfInstanceID",
       "method": "PUT",
-      "path": "/nf-instances/12345678",
+      "path": "/nf-instances/12345",
       "headers": {
         "Content-Type": "application/json"
       },
@@ -49,7 +39,7 @@
     },
     {
       "id": "tc_2_pos",
-      "name": "Valid NFInstanceId as UUID",
+      "name": "Valid nfInstanceId as UUID",
       "constraint": "path.nfInstanceID MUST be formatted as a UUID.",
       "constraint_schema_id": "path.nfInstanceID",
       "method": "PUT",
@@ -66,7 +56,7 @@
     },
     {
       "id": "tc_2_neg",
-      "name": "Invalid NFInstanceId as Non-UUID",
+      "name": "Invalid nfInstanceId as Non-UUID",
       "constraint": "path.nfInstanceID MUST be formatted as a UUID.",
       "constraint_schema_id": "path.nfInstanceID",
       "method": "PUT",
@@ -155,7 +145,7 @@
     },
     {
       "id": "tc_5_pos",
-      "name": "Valid Request Body NFInstanceId as String",
+      "name": "Valid nfInstanceId in Body as String",
       "constraint": "request_body.nfInstanceId MUST be a string.",
       "constraint_schema_id": "request_body.nfInstanceId",
       "method": "PUT",
@@ -172,7 +162,7 @@
     },
     {
       "id": "tc_5_neg",
-      "name": "Invalid Request Body NFInstanceId as Non-String",
+      "name": "Invalid nfInstanceId in Body as Non-String",
       "constraint": "request_body.nfInstanceId MUST be a string.",
       "constraint_schema_id": "request_body.nfInstanceId",
       "method": "PUT",
@@ -181,7 +171,7 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfInstanceId": 12345678,
+        "nfInstanceId": 12345,
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.com"
@@ -189,7 +179,7 @@
     },
     {
       "id": "tc_6_pos",
-      "name": "Valid Request Body NFInstanceId as UUID",
+      "name": "Valid nfInstanceId in Body as UUID",
       "constraint": "request_body.nfInstanceId MUST be formatted as a UUID.",
       "constraint_schema_id": "request_body.nfInstanceId",
       "method": "PUT",
@@ -206,7 +196,7 @@
     },
     {
       "id": "tc_6_neg",
-      "name": "Invalid Request Body NFInstanceId as Non-UUID",
+      "name": "Invalid nfInstanceId in Body as Non-UUID",
       "constraint": "request_body.nfInstanceId MUST be formatted as a UUID.",
       "constraint_schema_id": "request_body.nfInstanceId",
       "method": "PUT",
@@ -223,7 +213,7 @@
     },
     {
       "id": "tc_7_pos",
-      "name": "Valid NFType as String",
+      "name": "Valid nfType as String",
       "constraint": "request_body.nfType MUST be a string.",
       "constraint_schema_id": "request_body.nfType",
       "method": "PUT",
@@ -240,7 +230,7 @@
     },
     {
       "id": "tc_7_neg",
-      "name": "Invalid NFType as Non-String",
+      "name": "Invalid nfType as Non-String",
       "constraint": "request_body.nfType MUST be a string.",
       "constraint_schema_id": "request_body.nfType",
       "method": "PUT",
@@ -257,7 +247,7 @@
     },
     {
       "id": "tc_8_pos",
-      "name": "Valid NFType as Specified Type",
+      "name": "Valid nfType as Specified Type",
       "constraint": "request_body.nfType MUST be one of the specified NF types.",
       "constraint_schema_id": "request_body.nfType",
       "method": "PUT",
@@ -274,7 +264,7 @@
     },
     {
       "id": "tc_8_neg",
-      "name": "Invalid NFType as Non-Specified Type",
+      "name": "Invalid nfType as Non-Specified Type",
       "constraint": "request_body.nfType MUST be one of the specified NF types.",
       "constraint_schema_id": "request_body.nfType",
       "method": "PUT",
@@ -291,7 +281,7 @@
     },
     {
       "id": "tc_9_pos",
-      "name": "Valid NFStatus as String",
+      "name": "Valid nfStatus as String",
       "constraint": "request_body.nfStatus MUST be a string.",
       "constraint_schema_id": "request_body.nfStatus",
       "method": "PUT",
@@ -308,7 +298,7 @@
     },
     {
       "id": "tc_9_neg",
-      "name": "Invalid NFStatus as Non-String",
+      "name": "Invalid nfStatus as Non-String",
       "constraint": "request_body.nfStatus MUST be a string.",
       "constraint_schema_id": "request_body.nfStatus",
       "method": "PUT",
@@ -325,7 +315,7 @@
     },
     {
       "id": "tc_10_pos",
-      "name": "Valid NFStatus as Specified Status",
+      "name": "Valid nfStatus as Specified Status",
       "constraint": "request_body.nfStatus MUST be one of the specified NF statuses.",
       "constraint_schema_id": "request_body.nfStatus",
       "method": "PUT",
@@ -342,7 +332,7 @@
     },
     {
       "id": "tc_10_neg",
-      "name": "Invalid NFStatus as Non-Specified Status",
+      "name": "Invalid nfStatus as Non-Specified Status",
       "constraint": "request_body.nfStatus MUST be one of the specified NF statuses.",
       "constraint_schema_id": "request_body.nfStatus",
       "method": "PUT",
@@ -400,7 +390,7 @@
     },
     {
       "id": "tc_12_pos",
-      "name": "Valid collocatedNfInstances with Items",
+      "name": "Valid collocatedNfInstances with One Item",
       "constraint": "request_body.collocatedNfInstances MUST contain at least 1 item.",
       "constraint_schema_id": "request_body.collocatedNfInstances",
       "method": "PUT",
@@ -554,7 +544,7 @@
     },
     {
       "id": "tc_16_pos",
-      "name": "Valid plmnList with Items",
+      "name": "Valid plmnList with One Item",
       "constraint": "request_body.plmnList MUST contain at least 1 item.",
       "constraint_schema_id": "request_body.plmnList",
       "method": "PUT",
@@ -612,7 +602,7 @@
           {
             "mcc": "001",
             "mnc": "01",
-            "nid": "123456"
+            "nid": "1234"
           }
         ]
       }
@@ -637,7 +627,7 @@
     },
     {
       "id": "tc_18_pos",
-      "name": "Valid snpnList with Items",
+      "name": "Valid snpnList with One Item",
       "constraint": "request_body.snpnList MUST contain at least 1 item.",
       "constraint_schema_id": "request_body.snpnList",
       "method": "PUT",
@@ -654,7 +644,7 @@
           {
             "mcc": "001",
             "mnc": "01",
-            "nid": "123456"
+            "nid": "1234"
           }
         ]
       }
@@ -720,7 +710,7 @@
     },
     {
       "id": "tc_20_pos",
-      "name": "Valid sNssais with Items",
+      "name": "Valid sNssais with One Item",
       "constraint": "request_body.sNssais MUST contain at least 1 item.",
       "constraint_schema_id": "request_body.sNssais",
       "method": "PUT",
@@ -776,8 +766,8 @@
         "fqdn": "nrf.example.3gppnetwork.org",
         "allowedPlmns": [
           {
-            "mcc": "001",
-            "mnc": "01"
+            "mcc": "310",
+            "mnc": "260"
           }
         ]
       }
@@ -798,8 +788,8 @@
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
         "allowedPlmns": {
-          "mcc": "001",
-          "mnc": "01"
+          "mcc": "310",
+          "mnc": "260"
         }
       }
     },
@@ -820,8 +810,8 @@
         "fqdn": "nrf.example.3gppnetwork.org",
         "allowedPlmns": [
           {
-            "mcc": "001",
-            "mnc": "01"
+            "mcc": "310",
+            "mnc": "260"
           }
         ]
       }
@@ -861,8 +851,8 @@
         "fqdn": "nrf.example.3gppnetwork.org",
         "allowedSnpns": [
           {
-            "mcc": "001",
-            "mnc": "01",
+            "mcc": "310",
+            "mnc": "260",
             "nid": "01"
           }
         ]
@@ -884,8 +874,8 @@
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
         "allowedSnpns": {
-          "mcc": "001",
-          "mnc": "01",
+          "mcc": "310",
+          "mnc": "260",
           "nid": "01"
         }
       }
@@ -907,8 +897,8 @@
         "fqdn": "nrf.example.3gppnetwork.org",
         "allowedSnpns": [
           {
-            "mcc": "001",
-            "mnc": "01",
+            "mcc": "310",
+            "mnc": "260",
             "nid": "01"
           }
         ]
@@ -1024,7 +1014,7 @@
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
         "allowedNfDomains": [
-          "domain1"
+          "example.com"
         ]
       }
     },
@@ -1043,7 +1033,7 @@
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
-        "allowedNfDomains": "domain1"
+        "allowedNfDomains": "example.com"
       }
     },
     {
@@ -1062,7 +1052,7 @@
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
         "allowedNfDomains": [
-          "domain1"
+          "example.com"
         ]
       }
     },
@@ -1101,10 +1091,8 @@
         "fqdn": "nrf.example.3gppnetwork.org",
         "allowedNssais": [
           {
-            "sNssai": {
-              "sst": 1,
-              "sd": "010203"
-            }
+            "sst": 1,
+            "sd": "010203"
           }
         ]
       }
@@ -1125,10 +1113,8 @@
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
         "allowedNssais": {
-          "sNssai": {
-            "sst": 1,
-            "sd": "010203"
-          }
+          "sst": 1,
+          "sd": "010203"
         }
       }
     },
@@ -1149,10 +1135,8 @@
         "fqdn": "nrf.example.3gppnetwork.org",
         "allowedNssais": [
           {
-            "sNssai": {
-              "sst": 1,
-              "sd": "010203"
-            }
+            "sst": 1,
+            "sd": "010203"
           }
         ]
       }
@@ -1191,7 +1175,7 @@
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
         "allowedRuleSet": {
-          "rule1": {
+          "/example": {
             "priority": 1,
             "action": "ALLOW"
           }
@@ -1232,7 +1216,7 @@
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
         "allowedRuleSet": {
-          "rule1": {
+          "/example": {
             "priority": 1,
             "action": "ALLOW"
           }
@@ -1295,7 +1279,7 @@
     },
     {
       "id": "tc_54_pos",
-      "name": "Priority Within Range",
+      "name": "Valid Priority Range",
       "constraint": "request_body.priority MUST be between 0 and 65535.",
       "constraint_schema_id": "request_body.priority",
       "method": "PUT",
@@ -1308,12 +1292,12 @@
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
-        "priority": 500
+        "priority": 100
       }
     },
     {
       "id": "tc_54_neg",
-      "name": "Priority Out of Range",
+      "name": "Invalid Priority Range",
       "constraint": "request_body.priority MUST be between 0 and 65535.",
       "constraint_schema_id": "request_body.priority",
       "method": "PUT",
@@ -1344,7 +1328,7 @@
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
-        "capacity": 100
+        "capacity": 500
       }
     },
     {
@@ -1367,7 +1351,7 @@
     },
     {
       "id": "tc_56_pos",
-      "name": "Capacity Within Range",
+      "name": "Valid Capacity Range",
       "constraint": "request_body.capacity MUST be between 0 and 65535.",
       "constraint_schema_id": "request_body.capacity",
       "method": "PUT",
@@ -1380,12 +1364,12 @@
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
-        "capacity": 500
+        "capacity": 1000
       }
     },
     {
       "id": "tc_56_neg",
-      "name": "Capacity Out of Range",
+      "name": "Invalid Capacity Range",
       "constraint": "request_body.capacity MUST be between 0 and 65535.",
       "constraint_schema_id": "request_body.capacity",
       "method": "PUT",
@@ -1439,7 +1423,7 @@
     },
     {
       "id": "tc_58_pos",
-      "name": "Load Within Range",
+      "name": "Valid Load Range",
       "constraint": "request_body.load MUST be between 0 and 100.",
       "constraint_schema_id": "request_body.load",
       "method": "PUT",
@@ -1457,7 +1441,7 @@
     },
     {
       "id": "tc_58_neg",
-      "name": "Load Out of Range",
+      "name": "Invalid Load Range",
       "constraint": "request_body.load MUST be between 0 and 100.",
       "constraint_schema_id": "request_body.load",
       "method": "PUT",
@@ -1597,7 +1581,7 @@
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
         "extLocality": {
-          "region": "US"
+          "region": "North America"
         }
       }
     },
@@ -1616,7 +1600,7 @@
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
-        "extLocality": "US"
+        "extLocality": "North America"
       }
     },
     {
@@ -1635,7 +1619,7 @@
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
         "extLocality": {
-          "region": "US"
+          "region": "North America"
         }
       }
     },
@@ -1679,28 +1663,7 @@
               "start": "1000",
               "end": "2000"
             }
-          ],
-          "gpsiRanges": [
-            {
-              "start": "3000",
-              "end": "4000"
-            }
-          ],
-          "externalGroupIdentifiersRanges": [
-            {
-              "start": "5000",
-              "end": "6000"
-            }
-          ],
-          "supportedDataSets": [
-            "SUBSCRIPTION"
-          ],
-          "sharedDataIdRanges": [
-            {
-              "pattern": ".*"
-            }
-          ],
-          "anyUeInd": true
+          ]
         }
       }
     },
@@ -1719,7 +1682,7 @@
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
-        "udrInfo": "invalid"
+        "udrInfo": "group1"
       }
     },
     {
@@ -1738,35 +1701,14 @@
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
         "udrInfoList": {
-          "udr1": {
+          "info1": {
             "groupId": "group1",
             "supiRanges": [
               {
                 "start": "1000",
                 "end": "2000"
               }
-            ],
-            "gpsiRanges": [
-              {
-                "start": "3000",
-                "end": "4000"
-              }
-            ],
-            "externalGroupIdentifiersRanges": [
-              {
-                "start": "5000",
-                "end": "6000"
-              }
-            ],
-            "supportedDataSets": [
-              "SUBSCRIPTION"
-            ],
-            "sharedDataIdRanges": [
-              {
-                "pattern": ".*"
-              }
-            ],
-            "anyUeInd": true
+            ]
           }
         }
       }
@@ -1786,7 +1728,7 @@
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
-        "udrInfoList": "invalid"
+        "udrInfoList": "info1"
       }
     },
     {
@@ -1805,35 +1747,14 @@
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
         "udrInfoList": {
-          "udr1": {
+          "info1": {
             "groupId": "group1",
             "supiRanges": [
               {
                 "start": "1000",
                 "end": "2000"
               }
-            ],
-            "gpsiRanges": [
-              {
-                "start": "3000",
-                "end": "4000"
-              }
-            ],
-            "externalGroupIdentifiersRanges": [
-              {
-                "start": "5000",
-                "end": "6000"
-              }
-            ],
-            "supportedDataSets": [
-              "SUBSCRIPTION"
-            ],
-            "sharedDataIdRanges": [
-              {
-                "pattern": ".*"
-              }
-            ],
-            "anyUeInd": true
+            ]
           }
         }
       }
@@ -1878,39 +1799,7 @@
               "start": "1000",
               "end": "2000"
             }
-          ],
-          "gpsiRanges": [
-            {
-              "start": "3000",
-              "end": "4000"
-            }
-          ],
-          "externalGroupIdentifiersRanges": [
-            {
-              "start": "5000",
-              "end": "6000"
-            }
-          ],
-          "routingIndicators": [
-            "1234"
-          ],
-          "internalGroupIdentifiersRanges": [
-            {
-              "start": "A1B2C3D4-123-45-6789",
-              "end": "A1B2C3D4-123-45-6790"
-            }
-          ],
-          "suciInfos": [
-            {
-              "routingInds": [
-                "1234"
-              ],
-              "hNwPubKeyIds": [
-                1
-              ]
-            }
-          ],
-          "anyUeUdmSingleInstance": true
+          ]
         }
       }
     },
@@ -1929,7 +1818,7 @@
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
-        "udmInfo": "invalid"
+        "udmInfo": "group1"
       }
     },
     {
@@ -1948,46 +1837,14 @@
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
         "udmInfoList": {
-          "udm1": {
+          "info1": {
             "groupId": "group1",
             "supiRanges": [
               {
                 "start": "1000",
                 "end": "2000"
               }
-            ],
-            "gpsiRanges": [
-              {
-                "start": "3000",
-                "end": "4000"
-              }
-            ],
-            "externalGroupIdentifiersRanges": [
-              {
-                "start": "5000",
-                "end": "6000"
-              }
-            ],
-            "routingIndicators": [
-              "1234"
-            ],
-            "internalGroupIdentifiersRanges": [
-              {
-                "start": "A1B2C3D4-123-45-6789",
-                "end": "A1B2C3D4-123-45-6790"
-              }
-            ],
-            "suciInfos": [
-              {
-                "routingInds": [
-                  "1234"
-                ],
-                "hNwPubKeyIds": [
-                  1
-                ]
-              }
-            ],
-            "anyUeUdmSingleInstance": true
+            ]
           }
         }
       }
@@ -2007,7 +1864,7 @@
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
-        "udmInfoList": "invalid"
+        "udmInfoList": "info1"
       }
     },
     {
@@ -2026,46 +1883,14 @@
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
         "udmInfoList": {
-          "udm1": {
+          "info1": {
             "groupId": "group1",
             "supiRanges": [
               {
                 "start": "1000",
                 "end": "2000"
               }
-            ],
-            "gpsiRanges": [
-              {
-                "start": "3000",
-                "end": "4000"
-              }
-            ],
-            "externalGroupIdentifiersRanges": [
-              {
-                "start": "5000",
-                "end": "6000"
-              }
-            ],
-            "routingIndicators": [
-              "1234"
-            ],
-            "internalGroupIdentifiersRanges": [
-              {
-                "start": "A1B2C3D4-123-45-6789",
-                "end": "A1B2C3D4-123-45-6790"
-              }
-            ],
-            "suciInfos": [
-              {
-                "routingInds": [
-                  "1234"
-                ],
-                "hNwPubKeyIds": [
-                  1
-                ]
-              }
-            ],
-            "anyUeUdmSingleInstance": true
+            ]
           }
         }
       }
@@ -2110,19 +1935,6 @@
               "start": "1000",
               "end": "2000"
             }
-          ],
-          "routingIndicators": [
-            "1234"
-          ],
-          "suciInfos": [
-            {
-              "routingInds": [
-                "1234"
-              ],
-              "hNwPubKeyIds": [
-                1
-              ]
-            }
           ]
         }
       }
@@ -2142,7 +1954,7 @@
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
-        "ausfInfo": "invalid"
+        "ausfInfo": "group1"
       }
     },
     {
@@ -2175,7 +1987,7 @@
             "suciInfos": [
               {
                 "routingInds": [
-                  "1234"
+                  "5678"
                 ],
                 "hNwPubKeyIds": [
                   1
@@ -2234,7 +2046,7 @@
             "suciInfos": [
               {
                 "routingInds": [
-                  "1234"
+                  "5678"
                 ],
                 "hNwPubKeyIds": [
                   1
@@ -2279,15 +2091,15 @@
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
         "amfInfo": {
-          "amfSetId": "1A2",
-          "amfRegionId": "1A",
+          "amfSetId": "001",
+          "amfRegionId": "01",
           "guamiList": [
             {
               "plmnId": {
                 "mcc": "001",
                 "mnc": "01"
               },
-              "amfId": "1A2B3C"
+              "amfId": "abc"
             }
           ]
         }
@@ -2328,15 +2140,15 @@
         "fqdn": "nrf.example.3gppnetwork.org",
         "amfInfoList": {
           "key1": {
-            "amfSetId": "1A2",
-            "amfRegionId": "1A",
+            "amfSetId": "001",
+            "amfRegionId": "01",
             "guamiList": [
               {
                 "plmnId": {
                   "mcc": "001",
                   "mnc": "01"
                 },
-                "amfId": "1A2B3C"
+                "amfId": "abc"
               }
             ]
           }
@@ -2378,15 +2190,15 @@
         "fqdn": "nrf.example.3gppnetwork.org",
         "amfInfoList": {
           "key1": {
-            "amfSetId": "1A2",
-            "amfRegionId": "1A",
+            "amfSetId": "001",
+            "amfRegionId": "01",
             "guamiList": [
               {
                 "plmnId": {
                   "mcc": "001",
                   "mnc": "01"
                 },
-                "amfId": "1A2B3C"
+                "amfId": "abc"
               }
             ]
           }
@@ -2669,7 +2481,7 @@
     },
     {
       "id": "tc_81_pos",
-      "name": "Valid UPF Info List",
+      "name": "Valid upfInfoList with one property",
       "constraint": "request_body.upfInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.upfInfoList",
       "method": "PUT",
@@ -2698,7 +2510,7 @@
     },
     {
       "id": "tc_81_neg",
-      "name": "Empty UPF Info List",
+      "name": "Invalid upfInfoList with no properties",
       "constraint": "request_body.upfInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.upfInfoList",
       "method": "PUT",
@@ -2716,7 +2528,7 @@
     },
     {
       "id": "tc_82_pos",
-      "name": "Valid PCF Info Object",
+      "name": "Valid pcfInfo as an object",
       "constraint": "request_body.pcfInfo MUST be an object.",
       "constraint_schema_id": "request_body.pcfInfo",
       "method": "PUT",
@@ -2736,7 +2548,7 @@
     },
     {
       "id": "tc_82_neg",
-      "name": "Invalid PCF Info Type",
+      "name": "Invalid pcfInfo as a non-object",
       "constraint": "request_body.pcfInfo MUST be an object.",
       "constraint_schema_id": "request_body.pcfInfo",
       "method": "PUT",
@@ -2754,7 +2566,7 @@
     },
     {
       "id": "tc_83_pos",
-      "name": "Valid PCF Info List Object",
+      "name": "Valid pcfInfoList as an object",
       "constraint": "request_body.pcfInfoList MUST be an object.",
       "constraint_schema_id": "request_body.pcfInfoList",
       "method": "PUT",
@@ -2776,7 +2588,7 @@
     },
     {
       "id": "tc_83_neg",
-      "name": "Invalid PCF Info List Type",
+      "name": "Invalid pcfInfoList as a non-object",
       "constraint": "request_body.pcfInfoList MUST be an object.",
       "constraint_schema_id": "request_body.pcfInfoList",
       "method": "PUT",
@@ -2794,7 +2606,7 @@
     },
     {
       "id": "tc_84_pos",
-      "name": "Valid PCF Info List with Properties",
+      "name": "Valid pcfInfoList with one property",
       "constraint": "request_body.pcfInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.pcfInfoList",
       "method": "PUT",
@@ -2816,7 +2628,7 @@
     },
     {
       "id": "tc_84_neg",
-      "name": "Empty PCF Info List",
+      "name": "Invalid pcfInfoList with no properties",
       "constraint": "request_body.pcfInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.pcfInfoList",
       "method": "PUT",
@@ -2834,7 +2646,7 @@
     },
     {
       "id": "tc_85_pos",
-      "name": "Valid BSF Info Object",
+      "name": "Valid bsfInfo as an object",
       "constraint": "request_body.bsfInfo MUST be an object.",
       "constraint_schema_id": "request_body.bsfInfo",
       "method": "PUT",
@@ -2856,7 +2668,7 @@
     },
     {
       "id": "tc_85_neg",
-      "name": "Invalid BSF Info Type",
+      "name": "Invalid bsfInfo as a non-object",
       "constraint": "request_body.bsfInfo MUST be an object.",
       "constraint_schema_id": "request_body.bsfInfo",
       "method": "PUT",
@@ -2874,7 +2686,7 @@
     },
     {
       "id": "tc_86_pos",
-      "name": "Valid BSF Info List Object",
+      "name": "Valid bsfInfoList as an object",
       "constraint": "request_body.bsfInfoList MUST be an object.",
       "constraint_schema_id": "request_body.bsfInfoList",
       "method": "PUT",
@@ -2898,7 +2710,7 @@
     },
     {
       "id": "tc_86_neg",
-      "name": "Invalid BSF Info List Type",
+      "name": "Invalid bsfInfoList as a non-object",
       "constraint": "request_body.bsfInfoList MUST be an object.",
       "constraint_schema_id": "request_body.bsfInfoList",
       "method": "PUT",
@@ -2916,7 +2728,7 @@
     },
     {
       "id": "tc_87_pos",
-      "name": "Valid BSF Info List with Properties",
+      "name": "Valid bsfInfoList with one property",
       "constraint": "request_body.bsfInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.bsfInfoList",
       "method": "PUT",
@@ -2940,7 +2752,7 @@
     },
     {
       "id": "tc_87_neg",
-      "name": "Empty BSF Info List",
+      "name": "Invalid bsfInfoList with no properties",
       "constraint": "request_body.bsfInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.bsfInfoList",
       "method": "PUT",
@@ -2958,7 +2770,7 @@
     },
     {
       "id": "tc_88_pos",
-      "name": "Valid CHF Info Object",
+      "name": "Valid chfInfo as an object",
       "constraint": "request_body.chfInfo MUST be an object.",
       "constraint_schema_id": "request_body.chfInfo",
       "method": "PUT",
@@ -2974,8 +2786,8 @@
         "chfInfo": {
           "supiRangeList": [
             {
-              "start": "000000000000001",
-              "end": "000000000000100"
+              "start": "1000",
+              "end": "2000"
             }
           ]
         }
@@ -2983,7 +2795,7 @@
     },
     {
       "id": "tc_88_neg",
-      "name": "Invalid CHF Info Type",
+      "name": "Invalid chfInfo as a non-object",
       "constraint": "request_body.chfInfo MUST be an object.",
       "constraint_schema_id": "request_body.chfInfo",
       "method": "PUT",
@@ -3001,7 +2813,7 @@
     },
     {
       "id": "tc_89_pos",
-      "name": "Valid CHF Info List Object",
+      "name": "Valid chfInfoList as an object",
       "constraint": "request_body.chfInfoList MUST be an object.",
       "constraint_schema_id": "request_body.chfInfoList",
       "method": "PUT",
@@ -3018,8 +2830,8 @@
           "chf1": {
             "supiRangeList": [
               {
-                "start": "000000000000001",
-                "end": "000000000000100"
+                "start": "1000",
+                "end": "2000"
               }
             ]
           }
@@ -3028,7 +2840,7 @@
     },
     {
       "id": "tc_89_neg",
-      "name": "Invalid CHF Info List Type",
+      "name": "Invalid chfInfoList as a non-object",
       "constraint": "request_body.chfInfoList MUST be an object.",
       "constraint_schema_id": "request_body.chfInfoList",
       "method": "PUT",
@@ -3046,7 +2858,7 @@
     },
     {
       "id": "tc_90_pos",
-      "name": "Valid CHF Info List with Properties",
+      "name": "Valid chfInfoList with one property",
       "constraint": "request_body.chfInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.chfInfoList",
       "method": "PUT",
@@ -3063,8 +2875,8 @@
           "chf1": {
             "supiRangeList": [
               {
-                "start": "000000000000001",
-                "end": "000000000000100"
+                "start": "1000",
+                "end": "2000"
               }
             ]
           }
@@ -3073,7 +2885,7 @@
     },
     {
       "id": "tc_90_neg",
-      "name": "Empty CHF Info List",
+      "name": "Invalid chfInfoList with no properties",
       "constraint": "request_body.chfInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.chfInfoList",
       "method": "PUT",
@@ -3103,8 +2915,15 @@
         "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "nefInfo": {}
+        "nefInfo": {
+          "nefId": "nef-123",
+          "gpsiRanges": [
+            {
+              "start": "1000",
+              "end": "2000"
+            }
+          ]
+        }
       }
     },
     {
@@ -3121,8 +2940,7 @@
         "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "nefInfo": "invalid"
+        "nefInfo": "invalid-string"
       }
     },
     {
@@ -3139,8 +2957,11 @@
         "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "nrfInfo": {}
+        "nrfInfo": {
+          "servedUdrInfo": {
+            "udr-1": {}
+          }
+        }
       }
     },
     {
@@ -3157,8 +2978,7 @@
         "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "nrfInfo": "invalid"
+        "nrfInfo": "invalid-string"
       }
     },
     {
@@ -3175,8 +2995,15 @@
         "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "udsfInfo": {}
+        "udsfInfo": {
+          "groupId": "group-1",
+          "supiRanges": [
+            {
+              "start": "1000",
+              "end": "2000"
+            }
+          ]
+        }
       }
     },
     {
@@ -3193,8 +3020,7 @@
         "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "udsfInfo": "invalid"
+        "udsfInfo": "invalid-string"
       }
     },
     {
@@ -3211,9 +3037,16 @@
         "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
         "udsfInfoList": {
-          "key": {}
+          "udsf-1": {
+            "groupId": "group-1",
+            "supiRanges": [
+              {
+                "start": "1000",
+                "end": "2000"
+              }
+            ]
+          }
         }
       }
     },
@@ -3231,13 +3064,12 @@
         "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "udsfInfoList": "invalid"
+        "udsfInfoList": "invalid-string"
       }
     },
     {
       "id": "tc_95_pos",
-      "name": "udsfInfoList with One Property",
+      "name": "Valid udsfInfoList with Properties",
       "constraint": "request_body.udsfInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.udsfInfoList",
       "method": "PUT",
@@ -3249,9 +3081,16 @@
         "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
         "udsfInfoList": {
-          "key": {}
+          "udsf-1": {
+            "groupId": "group-1",
+            "supiRanges": [
+              {
+                "start": "1000",
+                "end": "2000"
+              }
+            ]
+          }
         }
       }
     },
@@ -3269,7 +3108,6 @@
         "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
         "udsfInfoList": {}
       }
     },
@@ -3287,8 +3125,20 @@
         "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "nwdafInfo": {}
+        "nwdafInfo": {
+          "eventIds": [
+            "event-1"
+          ],
+          "taiList": [
+            {
+              "plmnId": {
+                "mcc": "001",
+                "mnc": "01"
+              },
+              "tac": "0001"
+            }
+          ]
+        }
       }
     },
     {
@@ -3305,8 +3155,7 @@
         "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "nwdafInfo": "invalid"
+        "nwdafInfo": "invalid-string"
       }
     },
     {
@@ -3323,9 +3172,21 @@
         "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
         "nwdafInfoList": {
-          "key": {}
+          "nwdaf-1": {
+            "eventIds": [
+              "event-1"
+            ],
+            "taiList": [
+              {
+                "plmnId": {
+                  "mcc": "001",
+                  "mnc": "01"
+                },
+                "tac": "0001"
+              }
+            ]
+          }
         }
       }
     },
@@ -3343,13 +3204,12 @@
         "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "nwdafInfoList": "invalid"
+        "nwdafInfoList": "invalid-string"
       }
     },
     {
       "id": "tc_98_pos",
-      "name": "nwdafInfoList with One Property",
+      "name": "Valid nwdafInfoList with Properties",
       "constraint": "request_body.nwdafInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.nwdafInfoList",
       "method": "PUT",
@@ -3361,9 +3221,21 @@
         "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
         "nwdafInfoList": {
-          "key": {}
+          "nwdaf-1": {
+            "eventIds": [
+              "event-1"
+            ],
+            "taiList": [
+              {
+                "plmnId": {
+                  "mcc": "001",
+                  "mnc": "01"
+                },
+                "tac": "0001"
+              }
+            ]
+          }
         }
       }
     },
@@ -3381,7 +3253,6 @@
         "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
         "nwdafInfoList": {}
       }
     },
@@ -3399,9 +3270,15 @@
         "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
         "pcscfInfoList": {
-          "key": {}
+          "pcscf-1": {
+            "accessType": [
+              "3GPP_ACCESS"
+            ],
+            "dnnList": [
+              "internet"
+            ]
+          }
         }
       }
     },
@@ -3419,13 +3296,12 @@
         "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
-        "pcscfInfoList": "invalid"
+        "pcscfInfoList": "invalid-string"
       }
     },
     {
       "id": "tc_100_pos",
-      "name": "pcscfInfoList with One Property",
+      "name": "Valid pcscfInfoList with Properties",
       "constraint": "request_body.pcscfInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.pcscfInfoList",
       "method": "PUT",
@@ -3437,9 +3313,15 @@
         "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
         "pcscfInfoList": {
-          "key": {}
+          "pcscf-1": {
+            "accessType": [
+              "3GPP_ACCESS"
+            ],
+            "dnnList": [
+              "internet"
+            ]
+          }
         }
       }
     },
@@ -3457,7 +3339,6 @@
         "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org",
         "pcscfInfoList": {}
       }
     },
@@ -3481,8 +3362,8 @@
             "groupId": "group1",
             "imsiRanges": [
               {
-                "start": "1000",
-                "end": "2000"
+                "start": "100000000000000",
+                "end": "100000000000999"
               }
             ]
           }
@@ -3527,8 +3408,8 @@
             "groupId": "group1",
             "imsiRanges": [
               {
-                "start": "1000",
-                "end": "2000"
+                "start": "100000000000000",
+                "end": "100000000000999"
               }
             ]
           }
@@ -3537,7 +3418,7 @@
     },
     {
       "id": "tc_102_neg",
-      "name": "Empty hssInfoList Object",
+      "name": "Empty hssInfoList",
       "constraint": "request_body.hssInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.hssInfoList",
       "method": "PUT",
@@ -3879,7 +3760,7 @@
     },
     {
       "id": "tc_110_neg",
-      "name": "Empty nfServiceList Object",
+      "name": "Empty nfServiceList",
       "constraint": "request_body.nfServiceList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.nfServiceList",
       "method": "PUT",
@@ -4105,9 +3986,9 @@
         "fqdn": "nrf.example.3gppnetwork.org",
         "lmfInfo": {
           "servingClientTypes": [
-            "CLIENT_TYPE_1"
+            "type1"
           ],
-          "lmfId": "LMF_ID_1"
+          "lmfId": "lmf123"
         }
       }
     },
@@ -4126,7 +4007,7 @@
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
-        "lmfInfo": "LMF_INFO_STRING"
+        "lmfInfo": "invalid_object"
       }
     },
     {
@@ -4146,7 +4027,7 @@
         "fqdn": "nrf.example.3gppnetwork.org",
         "gmlcInfo": {
           "servingClientTypes": [
-            "CLIENT_TYPE_1"
+            "type1"
           ],
           "gmlcNumbers": [
             "12345"
@@ -4169,7 +4050,7 @@
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
-        "gmlcInfo": "GMLC_INFO_STRING"
+        "gmlcInfo": "invalid_object"
       }
     },
     {
@@ -4288,7 +4169,7 @@
     },
     {
       "id": "tc_121_pos",
-      "name": "Valid servingScope with one item",
+      "name": "Valid servingScope with items",
       "constraint": "request_body.servingScope MUST contain at least 1 item.",
       "constraint_schema_id": "request_body.servingScope",
       "method": "PUT",
@@ -4436,7 +4317,7 @@
     },
     {
       "id": "tc_125_pos",
-      "name": "Valid nfSetRecoveryTimeList with one property",
+      "name": "Valid nfSetRecoveryTimeList with properties",
       "constraint": "request_body.nfSetRecoveryTimeList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.nfSetRecoveryTimeList",
       "method": "PUT",
@@ -4512,7 +4393,7 @@
     },
     {
       "id": "tc_127_pos",
-      "name": "Valid serviceSetRecoveryTimeList with one property",
+      "name": "Valid serviceSetRecoveryTimeList with properties",
       "constraint": "request_body.serviceSetRecoveryTimeList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.serviceSetRecoveryTimeList",
       "method": "PUT",
@@ -4588,7 +4469,7 @@
     },
     {
       "id": "tc_129_pos",
-      "name": "Valid scpDomains with one item",
+      "name": "Valid scpDomains with items",
       "constraint": "request_body.scpDomains MUST contain at least 1 item.",
       "constraint_schema_id": "request_body.scpDomains",
       "method": "PUT",
@@ -4864,7 +4745,7 @@
     },
     {
       "id": "tc_135_neg",
-      "name": "Invalid supportedVendorSpecificFeatures with No Properties",
+      "name": "Empty supportedVendorSpecificFeatures",
       "constraint": "request_body.supportedVendorSpecificFeatures MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.supportedVendorSpecificFeatures",
       "method": "PUT",
@@ -4948,7 +4829,7 @@
     },
     {
       "id": "tc_137_neg",
-      "name": "Invalid aanfInfoList with No Properties",
+      "name": "Empty aanfInfoList",
       "constraint": "request_body.aanfInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.aanfInfoList",
       "method": "PUT",
@@ -5099,7 +4980,7 @@
     },
     {
       "id": "tc_141_pos",
-      "name": "Valid EasdfInfoList",
+      "name": "Valid easdfInfoList with one property",
       "constraint": "request_body.easdfInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.easdfInfoList",
       "method": "PUT",
@@ -5133,7 +5014,7 @@
     },
     {
       "id": "tc_141_neg",
-      "name": "Empty EasdfInfoList",
+      "name": "Invalid easdfInfoList with no properties",
       "constraint": "request_body.easdfInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.easdfInfoList",
       "method": "PUT",
@@ -5151,7 +5032,7 @@
     },
     {
       "id": "tc_142_pos",
-      "name": "Valid DccfInfo",
+      "name": "Valid dccfInfo as an object",
       "constraint": "request_body.dccfInfo MUST be an object.",
       "constraint_schema_id": "request_body.dccfInfo",
       "method": "PUT",
@@ -5166,14 +5047,14 @@
         "fqdn": "nrf.example.3gppnetwork.org",
         "dccfInfo": {
           "servingNfTypeList": [
-            "NRF"
+            "AMF"
           ]
         }
       }
     },
     {
       "id": "tc_142_neg",
-      "name": "Invalid DccfInfo",
+      "name": "Invalid dccfInfo as a string",
       "constraint": "request_body.dccfInfo MUST be an object.",
       "constraint_schema_id": "request_body.dccfInfo",
       "method": "PUT",
@@ -5186,12 +5067,12 @@
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
-        "dccfInfo": "invalid"
+        "dccfInfo": "invalid_string"
       }
     },
     {
       "id": "tc_143_pos",
-      "name": "Valid NsacfInfoList",
+      "name": "Valid nsacfInfoList as an object",
       "constraint": "request_body.nsacfInfoList MUST be an object.",
       "constraint_schema_id": "request_body.nsacfInfoList",
       "method": "PUT",
@@ -5215,7 +5096,7 @@
     },
     {
       "id": "tc_143_neg",
-      "name": "Invalid NsacfInfoList",
+      "name": "Invalid nsacfInfoList as a string",
       "constraint": "request_body.nsacfInfoList MUST be an object.",
       "constraint_schema_id": "request_body.nsacfInfoList",
       "method": "PUT",
@@ -5228,12 +5109,12 @@
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
-        "nsacfInfoList": "invalid"
+        "nsacfInfoList": "invalid_string"
       }
     },
     {
       "id": "tc_144_pos",
-      "name": "Non-empty NsacfInfoList",
+      "name": "Valid nsacfInfoList with one property",
       "constraint": "request_body.nsacfInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.nsacfInfoList",
       "method": "PUT",
@@ -5257,7 +5138,7 @@
     },
     {
       "id": "tc_144_neg",
-      "name": "Empty NsacfInfoList",
+      "name": "Invalid nsacfInfoList with no properties",
       "constraint": "request_body.nsacfInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.nsacfInfoList",
       "method": "PUT",
@@ -5275,7 +5156,7 @@
     },
     {
       "id": "tc_145_pos",
-      "name": "Valid MbSmfInfoList",
+      "name": "Valid mbSmfInfoList as an object",
       "constraint": "request_body.mbSmfInfoList MUST be an object.",
       "constraint_schema_id": "request_body.mbSmfInfoList",
       "method": "PUT",
@@ -5309,7 +5190,7 @@
     },
     {
       "id": "tc_145_neg",
-      "name": "Invalid MbSmfInfoList",
+      "name": "Invalid mbSmfInfoList as a string",
       "constraint": "request_body.mbSmfInfoList MUST be an object.",
       "constraint_schema_id": "request_body.mbSmfInfoList",
       "method": "PUT",
@@ -5322,12 +5203,12 @@
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
-        "mbSmfInfoList": "invalid"
+        "mbSmfInfoList": "invalid_string"
       }
     },
     {
       "id": "tc_146_pos",
-      "name": "Non-empty MbSmfInfoList",
+      "name": "Valid mbSmfInfoList with one property",
       "constraint": "request_body.mbSmfInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.mbSmfInfoList",
       "method": "PUT",
@@ -5361,7 +5242,7 @@
     },
     {
       "id": "tc_146_neg",
-      "name": "Empty MbSmfInfoList",
+      "name": "Invalid mbSmfInfoList with no properties",
       "constraint": "request_body.mbSmfInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.mbSmfInfoList",
       "method": "PUT",
@@ -5379,7 +5260,7 @@
     },
     {
       "id": "tc_147_pos",
-      "name": "Valid TsctsfInfoList",
+      "name": "Valid tsctsfInfoList as an object",
       "constraint": "request_body.tsctsfInfoList MUST be an object.",
       "constraint_schema_id": "request_body.tsctsfInfoList",
       "method": "PUT",
@@ -5413,7 +5294,7 @@
     },
     {
       "id": "tc_147_neg",
-      "name": "Invalid TsctsfInfoList",
+      "name": "Invalid tsctsfInfoList as a string",
       "constraint": "request_body.tsctsfInfoList MUST be an object.",
       "constraint_schema_id": "request_body.tsctsfInfoList",
       "method": "PUT",
@@ -5426,12 +5307,12 @@
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
-        "tsctsfInfoList": "invalid"
+        "tsctsfInfoList": "invalid_string"
       }
     },
     {
       "id": "tc_148_pos",
-      "name": "Non-empty TsctsfInfoList",
+      "name": "Valid tsctsfInfoList with one property",
       "constraint": "request_body.tsctsfInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.tsctsfInfoList",
       "method": "PUT",
@@ -5465,7 +5346,7 @@
     },
     {
       "id": "tc_148_neg",
-      "name": "Empty TsctsfInfoList",
+      "name": "Invalid tsctsfInfoList with no properties",
       "constraint": "request_body.tsctsfInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.tsctsfInfoList",
       "method": "PUT",
@@ -5483,7 +5364,7 @@
     },
     {
       "id": "tc_149_pos",
-      "name": "Valid MbUpfInfoList",
+      "name": "Valid mbUpfInfoList as an object",
       "constraint": "request_body.mbUpfInfoList MUST be an object.",
       "constraint_schema_id": "request_body.mbUpfInfoList",
       "method": "PUT",
@@ -5512,7 +5393,7 @@
     },
     {
       "id": "tc_149_neg",
-      "name": "Invalid MbUpfInfoList",
+      "name": "Invalid mbUpfInfoList as a string",
       "constraint": "request_body.mbUpfInfoList MUST be an object.",
       "constraint_schema_id": "request_body.mbUpfInfoList",
       "method": "PUT",
@@ -5525,12 +5406,12 @@
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
-        "mbUpfInfoList": "invalid"
+        "mbUpfInfoList": "invalid_string"
       }
     },
     {
       "id": "tc_150_pos",
-      "name": "Non-empty MbUpfInfoList",
+      "name": "Valid mbUpfInfoList with one property",
       "constraint": "request_body.mbUpfInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.mbUpfInfoList",
       "method": "PUT",
@@ -5559,7 +5440,7 @@
     },
     {
       "id": "tc_150_neg",
-      "name": "Empty MbUpfInfoList",
+      "name": "Invalid mbUpfInfoList with no properties",
       "constraint": "request_body.mbUpfInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.mbUpfInfoList",
       "method": "PUT",
@@ -5600,12 +5481,6 @@
                 }
               ]
             }
-          ],
-          "afEvents": [
-            {}
-          ],
-          "appIds": [
-            "app1"
           ]
         }
       }
@@ -5648,12 +5523,6 @@
             {
               "start": "000000000000001",
               "end": "000000000000100"
-            }
-          ],
-          "internalGroupIdentifiersRanges": [
-            {
-              "start": "12345678-123-12-123456789012",
-              "end": "12345678-123-12-123456789013"
             }
           ]
         }
@@ -5771,31 +5640,10 @@
         "iwmscInfo": {
           "msisdnRanges": [
             {
-              "start": "1000000000",
-              "end": "1000000100"
+              "start": "10000",
+              "end": "20000"
             }
-          ],
-          "supiRanges": [
-            {
-              "start": "000000000000001",
-              "end": "000000000000100"
-            }
-          ],
-          "taiRangeList": [
-            {
-              "plmnId": {
-                "mcc": "001",
-                "mnc": "01"
-              },
-              "tacRangeList": [
-                {
-                  "start": "0001",
-                  "end": "0002"
-                }
-              ]
-            }
-          ],
-          "scNumber": "12345"
+          ]
         }
       }
     },
@@ -5835,8 +5683,8 @@
         "mnpfInfo": {
           "msisdnRanges": [
             {
-              "start": "1000000000",
-              "end": "1000000100"
+              "start": "10000",
+              "end": "20000"
             }
           ]
         }
@@ -5880,7 +5728,7 @@
           "remotePlmnRangeList": [
             {
               "start": "00101",
-              "end": "00102"
+              "end": "00199"
             }
           ]
         }
@@ -5923,26 +5771,8 @@
           "key1": {
             "imsiRanges": [
               {
-                "start": "1000000000",
-                "end": "1000000100"
-              }
-            ],
-            "imsPrivateIdentityRanges": [
-              {
-                "start": "1000000000",
-                "end": "1000000100"
-              }
-            ],
-            "imsPublicIdentityRanges": [
-              {
-                "start": "1000000000",
-                "end": "1000000100"
-              }
-            ],
-            "msisdnRanges": [
-              {
-                "start": "1000000000",
-                "end": "1000000100"
+                "start": "10000",
+                "end": "20000"
               }
             ]
           }
@@ -5986,26 +5816,8 @@
           "key1": {
             "imsiRanges": [
               {
-                "start": "1000000000",
-                "end": "1000000100"
-              }
-            ],
-            "imsPrivateIdentityRanges": [
-              {
-                "start": "1000000000",
-                "end": "1000000100"
-              }
-            ],
-            "imsPublicIdentityRanges": [
-              {
-                "start": "1000000000",
-                "end": "1000000100"
-              }
-            ],
-            "msisdnRanges": [
-              {
-                "start": "1000000000",
-                "end": "1000000100"
+                "start": "10000",
+                "end": "20000"
               }
             ]
           }
@@ -6074,7 +5886,7 @@
     },
     {
       "id": "tc_161_pos",
-      "name": "Valid MrfInfoList",
+      "name": "Valid mrfInfoList with one property",
       "constraint": "request_body.mrfInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.mrfInfoList",
       "method": "PUT",
@@ -6088,7 +5900,7 @@
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
         "mrfInfoList": {
-          "info1": {
+          "key1": {
             "mediaCapabilityList": [
               "capability1"
             ]
@@ -6098,7 +5910,7 @@
     },
     {
       "id": "tc_161_neg",
-      "name": "Empty MrfInfoList",
+      "name": "Invalid mrfInfoList with no properties",
       "constraint": "request_body.mrfInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.mrfInfoList",
       "method": "PUT",
@@ -6116,7 +5928,7 @@
     },
     {
       "id": "tc_162_pos",
-      "name": "Valid MrfpInfoList Object",
+      "name": "Valid mrfpInfoList as an object",
       "constraint": "request_body.mrfpInfoList MUST be an object.",
       "constraint_schema_id": "request_body.mrfpInfoList",
       "method": "PUT",
@@ -6130,7 +5942,7 @@
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
         "mrfpInfoList": {
-          "info1": {
+          "key1": {
             "mediaCapabilityList": [
               "capability1"
             ]
@@ -6140,7 +5952,7 @@
     },
     {
       "id": "tc_162_neg",
-      "name": "Invalid MrfpInfoList Type",
+      "name": "Invalid mrfpInfoList as a non-object",
       "constraint": "request_body.mrfpInfoList MUST be an object.",
       "constraint_schema_id": "request_body.mrfpInfoList",
       "method": "PUT",
@@ -6158,7 +5970,7 @@
     },
     {
       "id": "tc_163_pos",
-      "name": "Valid MrfpInfoList with Property",
+      "name": "Valid mrfpInfoList with one property",
       "constraint": "request_body.mrfpInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.mrfpInfoList",
       "method": "PUT",
@@ -6172,7 +5984,7 @@
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
         "mrfpInfoList": {
-          "info1": {
+          "key1": {
             "mediaCapabilityList": [
               "capability1"
             ]
@@ -6182,7 +5994,7 @@
     },
     {
       "id": "tc_163_neg",
-      "name": "Empty MrfpInfoList",
+      "name": "Invalid mrfpInfoList with no properties",
       "constraint": "request_body.mrfpInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.mrfpInfoList",
       "method": "PUT",
@@ -6200,7 +6012,7 @@
     },
     {
       "id": "tc_164_pos",
-      "name": "Valid MfInfoList Object",
+      "name": "Valid mfInfoList as an object",
       "constraint": "request_body.mfInfoList MUST be an object.",
       "constraint_schema_id": "request_body.mfInfoList",
       "method": "PUT",
@@ -6214,7 +6026,7 @@
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
         "mfInfoList": {
-          "info1": {
+          "key1": {
             "mediaCapabilityList": [
               "capability1"
             ]
@@ -6224,7 +6036,7 @@
     },
     {
       "id": "tc_164_neg",
-      "name": "Invalid MfInfoList Type",
+      "name": "Invalid mfInfoList as a non-object",
       "constraint": "request_body.mfInfoList MUST be an object.",
       "constraint_schema_id": "request_body.mfInfoList",
       "method": "PUT",
@@ -6242,7 +6054,7 @@
     },
     {
       "id": "tc_165_pos",
-      "name": "Valid MfInfoList with Property",
+      "name": "Valid mfInfoList with one property",
       "constraint": "request_body.mfInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.mfInfoList",
       "method": "PUT",
@@ -6256,7 +6068,7 @@
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
         "mfInfoList": {
-          "info1": {
+          "key1": {
             "mediaCapabilityList": [
               "capability1"
             ]
@@ -6266,7 +6078,7 @@
     },
     {
       "id": "tc_165_neg",
-      "name": "Empty MfInfoList",
+      "name": "Invalid mfInfoList with no properties",
       "constraint": "request_body.mfInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.mfInfoList",
       "method": "PUT",
@@ -6284,7 +6096,7 @@
     },
     {
       "id": "tc_166_pos",
-      "name": "Valid AdrfInfoList Object",
+      "name": "Valid adrfInfoList as an object",
       "constraint": "request_body.adrfInfoList MUST be an object.",
       "constraint_schema_id": "request_body.adrfInfoList",
       "method": "PUT",
@@ -6298,15 +6110,16 @@
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
         "adrfInfoList": {
-          "info1": {
-            "mlModelStorageInd": true
+          "key1": {
+            "mlModelStorageInd": true,
+            "dataStorageInd": false
           }
         }
       }
     },
     {
       "id": "tc_166_neg",
-      "name": "Invalid AdrfInfoList Type",
+      "name": "Invalid adrfInfoList as a non-object",
       "constraint": "request_body.adrfInfoList MUST be an object.",
       "constraint_schema_id": "request_body.adrfInfoList",
       "method": "PUT",
@@ -6324,7 +6137,7 @@
     },
     {
       "id": "tc_167_pos",
-      "name": "Valid AdrfInfoList with Property",
+      "name": "Valid adrfInfoList with one property",
       "constraint": "request_body.adrfInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.adrfInfoList",
       "method": "PUT",
@@ -6338,7 +6151,7 @@
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
         "adrfInfoList": {
-          "info1": {
+          "key1": {
             "mlModelStorageInd": true
           }
         }
@@ -6346,7 +6159,7 @@
     },
     {
       "id": "tc_167_neg",
-      "name": "Empty AdrfInfoList",
+      "name": "Invalid adrfInfoList with no properties",
       "constraint": "request_body.adrfInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.adrfInfoList",
       "method": "PUT",
@@ -6364,7 +6177,7 @@
     },
     {
       "id": "tc_168_pos",
-      "name": "Valid SelectionConditions Object",
+      "name": "Valid selectionConditions as an object",
       "constraint": "request_body.selectionConditions MUST be an object.",
       "constraint_schema_id": "request_body.selectionConditions",
       "method": "PUT",
@@ -6379,14 +6192,14 @@
         "fqdn": "nrf.example.3gppnetwork.org",
         "selectionConditions": {
           "consumerNfTypes": [
-            "NRF"
+            "AMF"
           ]
         }
       }
     },
     {
       "id": "tc_168_neg",
-      "name": "Invalid SelectionConditions Type",
+      "name": "Invalid selectionConditions as a non-object",
       "constraint": "request_body.selectionConditions MUST be an object.",
       "constraint_schema_id": "request_body.selectionConditions",
       "method": "PUT",
@@ -6404,7 +6217,7 @@
     },
     {
       "id": "tc_169_pos",
-      "name": "Valid CanaryRelease Boolean",
+      "name": "Valid canaryRelease as a boolean",
       "constraint": "request_body.canaryRelease MUST be a boolean.",
       "constraint_schema_id": "request_body.canaryRelease",
       "method": "PUT",
@@ -6422,7 +6235,7 @@
     },
     {
       "id": "tc_169_neg",
-      "name": "Invalid CanaryRelease Type",
+      "name": "Invalid canaryRelease as a non-boolean",
       "constraint": "request_body.canaryRelease MUST be a boolean.",
       "constraint_schema_id": "request_body.canaryRelease",
       "method": "PUT",
@@ -6440,7 +6253,7 @@
     },
     {
       "id": "tc_170_pos",
-      "name": "Valid ExclusiveCanaryReleaseSelection Boolean",
+      "name": "Valid exclusiveCanaryReleaseSelection as a boolean",
       "constraint": "request_body.exclusiveCanaryReleaseSelection MUST be a boolean.",
       "constraint_schema_id": "request_body.exclusiveCanaryReleaseSelection",
       "method": "PUT",
@@ -6458,7 +6271,7 @@
     },
     {
       "id": "tc_170_neg",
-      "name": "Invalid ExclusiveCanaryReleaseSelection Type",
+      "name": "Invalid exclusiveCanaryReleaseSelection as a non-boolean",
       "constraint": "request_body.exclusiveCanaryReleaseSelection MUST be a boolean.",
       "constraint_schema_id": "request_body.exclusiveCanaryReleaseSelection",
       "method": "PUT",
@@ -6489,7 +6302,7 @@
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
-        "sharedProfileDataId": "123e4567-e89b-12d3-a456-426614174000"
+        "sharedProfileDataId": "550e8400-e29b-41d4-a716-446655440000"
       }
     },
     {
@@ -6507,7 +6320,7 @@
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
-        "sharedProfileDataId": 123456
+        "sharedProfileDataId": 12345
       }
     },
     {
@@ -6525,7 +6338,7 @@
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
-        "sharedProfileDataId": "123e4567-e89b-12d3-a456-426614174000"
+        "sharedProfileDataId": "550e8400-e29b-41d4-a716-446655440000"
       }
     },
     {
@@ -6653,12 +6466,12 @@
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
-        "supportedRcfs": "rcf1"
+        "supportedRcfs": "not-an-array"
       }
     },
     {
       "id": "tc_176_pos",
-      "name": "Valid supportedRcfs with at least 1 Item",
+      "name": "Valid supportedRcfs with Items",
       "constraint": "request_body.supportedRcfs MUST contain at least 1 item.",
       "constraint_schema_id": "request_body.supportedRcfs",
       "method": "PUT",
@@ -6727,7 +6540,7 @@
         "nfType": "NRF",
         "nfStatus": "REGISTERED",
         "fqdn": "nrf.example.3gppnetwork.org",
-        "canaryPrecedenceOverPreferred": "true"
+        "canaryPrecedenceOverPreferred": "not-a-boolean"
       }
     },
     {
@@ -6814,7 +6627,7 @@
     },
     {
       "id": "tc_180_pos",
-      "name": "Valid aiotfInfoList with at least 1 Property",
+      "name": "Valid aiotfInfoList with Properties",
       "constraint": "request_body.aiotfInfoList MUST contain at least 1 property.",
       "constraint_schema_id": "request_body.aiotfInfoList",
       "method": "PUT",
@@ -6856,7 +6669,7 @@
     },
     {
       "id": "tc_181_pos",
-      "name": "Valid nssfInfo Object",
+      "name": "Valid NSSF Info Object",
       "constraint": "request_body.nssfInfo MUST be an object.",
       "constraint_schema_id": "request_body.nssfInfo",
       "method": "PUT",
@@ -6878,7 +6691,7 @@
     },
     {
       "id": "tc_181_neg",
-      "name": "Invalid nssfInfo Type",
+      "name": "Invalid NSSF Info Type",
       "constraint": "request_body.nssfInfo MUST be an object.",
       "constraint_schema_id": "request_body.nssfInfo",
       "method": "PUT",
@@ -6896,7 +6709,7 @@
     },
     {
       "id": "tc_182_pos",
-      "name": "Valid admInfo Object",
+      "name": "Valid ADM Info Object",
       "constraint": "request_body.admInfo MUST be an object.",
       "constraint_schema_id": "request_body.admInfo",
       "method": "PUT",
@@ -6921,7 +6734,7 @@
     },
     {
       "id": "tc_182_neg",
-      "name": "Invalid admInfo Type",
+      "name": "Invalid ADM Info Type",
       "constraint": "request_body.admInfo MUST be an object.",
       "constraint_schema_id": "request_body.admInfo",
       "method": "PUT",

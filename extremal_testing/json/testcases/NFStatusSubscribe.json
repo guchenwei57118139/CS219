@@ -2,47 +2,6 @@
   "operation": "NFStatusSubscribe",
   "path": "/subscriptions",
   "method": "POST",
-  "setup": [
-    {
-      "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
-      "method": "PUT",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfInstanceId": "550e8400-e29b-41d4-a716-446655440000",
-        "nfType": "NRF",
-        "nfStatus": "REGISTERED",
-        "fqdn": "nrf.example.3gppnetwork.org"
-      }
-    },
-    {
-      "path": "/nnrf-nfm/v1/subscriptions",
-      "method": "POST",
-      "headers": {
-        "Content-Type": "application/json"
-      },
-      "body": {
-        "nfStatusNotificationUri": "https://example.client/callback"
-      }
-    }
-  ],
-  "cleanup": [
-    {
-      "path": "/nnrf-nfm/v1/subscriptions/{subscriptionId}",
-      "method": "DELETE",
-      "headers": {
-        "Content-Type": "application/json"
-      }
-    },
-    {
-      "path": "/nnrf-nfm/v1/nf-instances/{nfInstanceId}",
-      "method": "DELETE",
-      "headers": {
-        "Content-Type": "application/json"
-      }
-    }
-  ],
   "tests": [
     {
       "id": "tc_1_pos",
@@ -56,7 +15,10 @@
         "Content-Encoding": "gzip"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback"
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -71,7 +33,10 @@
         "Content-Encoding": 123
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback"
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -86,7 +51,10 @@
         "Accept-Encoding": "gzip"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback"
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -101,7 +69,10 @@
         "Accept-Encoding": 123
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback"
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -115,7 +86,10 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback"
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -128,7 +102,10 @@
       "headers": {
         "Content-Type": "application/json"
       },
-      "body": null
+      "body": {},
+      "prerequisites": {
+        "registered_nf": true
+      }
     },
     {
       "id": "tc_4_pos",
@@ -141,7 +118,10 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback"
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -156,6 +136,9 @@
       },
       "body": {
         "nfStatusNotificationUri": 123
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -169,7 +152,10 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback"
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -182,7 +168,10 @@
       "headers": {
         "Content-Type": "application/json"
       },
-      "body": {}
+      "body": {},
+      "prerequisites": {
+        "registered_nf": true
+      }
     },
     {
       "id": "tc_6_pos",
@@ -195,8 +184,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "reqNfInstanceId": "550e8400-e29b-41d4-a716-446655440000"
+        "nfStatusNotificationUri": "http://example.com/notify",
+        "reqNfInstanceId": "{nfInstanceId}"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -210,8 +202,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
+        "nfStatusNotificationUri": "http://example.com/notify",
         "reqNfInstanceId": 123
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -225,8 +220,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "reqNfInstanceId": "550e8400-e29b-41d4-a716-446655440000"
+        "nfStatusNotificationUri": "http://example.com/notify",
+        "reqNfInstanceId": "{nfInstanceId}"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -240,8 +238,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "reqNfInstanceId": "not-a-uuid"
+        "nfStatusNotificationUri": "http://example.com/notify",
+        "reqNfInstanceId": "invalid-uuid"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -255,15 +256,18 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
+        "nfStatusNotificationUri": "http://example.com/notify",
         "sharedDataIds": [
           "data1"
         ]
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_8_neg",
-      "name": "Invalid sharedDataIds Type",
+      "name": "Invalid sharedDataIds Array",
       "constraint": "request_body.sharedDataIds MUST be an array.",
       "constraint_schema_id": "request_body.sharedDataIds",
       "method": "POST",
@@ -272,13 +276,16 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
+        "nfStatusNotificationUri": "http://example.com/notify",
         "sharedDataIds": "not-an-array"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_9_pos",
-      "name": "Non-Empty sharedDataIds Array",
+      "name": "Non-empty sharedDataIds Array",
       "constraint": "request_body.sharedDataIds MUST contain at least 1 item.",
       "constraint_schema_id": "request_body.sharedDataIds",
       "method": "POST",
@@ -287,10 +294,13 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
+        "nfStatusNotificationUri": "http://example.com/notify",
         "sharedDataIds": [
           "data1"
         ]
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -304,8 +314,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
+        "nfStatusNotificationUri": "http://example.com/notify",
         "sharedDataIds": []
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -319,10 +332,13 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
+        "nfStatusNotificationUri": "http://example.com/notify",
         "sharedDataIds": [
           "data1"
         ]
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -336,10 +352,13 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
+        "nfStatusNotificationUri": "http://example.com/notify",
         "sharedDataIds": [
           123
         ]
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -354,7 +373,10 @@
       },
       "body": {
         "subscriptionId": "12345-x3Lf57A:nid=abcdef12345:valid",
-        "nfStatusNotificationUri": "https://example.client/callback"
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -369,7 +391,10 @@
       },
       "body": {
         "subscriptionId": 12345,
-        "nfStatusNotificationUri": "https://example.client/callback"
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -383,8 +408,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "subscriptionId": "12345-x3Lf57A:nid=abcdef12345:valid",
-        "nfStatusNotificationUri": "https://example.client/callback"
+        "subscriptionId": "123456-x3Lf57A:nid=abcdef12345:valid",
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -399,7 +427,10 @@
       },
       "body": {
         "subscriptionId": "12345-invalid-pattern-",
-        "nfStatusNotificationUri": "https://example.client/callback"
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -414,7 +445,10 @@
       },
       "body": {
         "validityTime": "2023-10-01T12:00:00Z",
-        "nfStatusNotificationUri": "https://example.client/callback"
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -429,7 +463,10 @@
       },
       "body": {
         "validityTime": 1234567890,
-        "nfStatusNotificationUri": "https://example.client/callback"
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -444,7 +481,10 @@
       },
       "body": {
         "validityTime": "2023-10-01T12:00:00Z",
-        "nfStatusNotificationUri": "https://example.client/callback"
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -458,8 +498,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "validityTime": "2023-10-01",
-        "nfStatusNotificationUri": "https://example.client/callback"
+        "validityTime": "01-10-2023 12:00:00",
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -476,7 +519,10 @@
         "reqNotifEvents": [
           "NF_REGISTERED"
         ],
-        "nfStatusNotificationUri": "https://example.client/callback"
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -491,7 +537,10 @@
       },
       "body": {
         "reqNotifEvents": "NF_REGISTERED",
-        "nfStatusNotificationUri": "https://example.client/callback"
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -508,7 +557,10 @@
         "reqNotifEvents": [
           "NF_REGISTERED"
         ],
-        "nfStatusNotificationUri": "https://example.client/callback"
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -523,7 +575,10 @@
       },
       "body": {
         "reqNotifEvents": [],
-        "nfStatusNotificationUri": "https://example.client/callback"
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -538,10 +593,13 @@
       },
       "body": {
         "plmnId": {
-          "mcc": "001",
-          "mnc": "01"
+          "mcc": "310",
+          "mnc": "260"
         },
-        "nfStatusNotificationUri": "https://example.client/callback"
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -555,8 +613,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "plmnId": "001-01",
-        "nfStatusNotificationUri": "https://example.client/callback"
+        "plmnId": "310-260",
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -571,7 +632,10 @@
       },
       "body": {
         "nid": "abcdef12345",
-        "nfStatusNotificationUri": "https://example.client/callback"
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -586,7 +650,10 @@
       },
       "body": {
         "nid": 12345678901,
-        "nfStatusNotificationUri": "https://example.client/callback"
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -601,7 +668,10 @@
       },
       "body": {
         "nid": "abcdef12345",
-        "nfStatusNotificationUri": "https://example.client/callback"
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -615,8 +685,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nid": "abcdef1234",
-        "nfStatusNotificationUri": "https://example.client/callback"
+        "nid": "abc123",
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -631,7 +704,10 @@
       },
       "body": {
         "reqNfType": "NRF",
-        "nfStatusNotificationUri": "https://example.client/callback"
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -646,12 +722,15 @@
       },
       "body": {
         "reqNfType": 123,
-        "nfStatusNotificationUri": "https://example.client/callback"
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_21_pos",
-      "name": "Valid NF Type",
+      "name": "Valid NFType",
       "constraint": "request_body.reqNfType MUST be one of the predefined NF types.",
       "constraint_schema_id": "request_body.reqNfType",
       "method": "POST",
@@ -660,13 +739,16 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "reqNfType": "NRF"
+        "reqNfType": "NRF",
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_21_neg",
-      "name": "Invalid NF Type",
+      "name": "Invalid NFType",
       "constraint": "request_body.reqNfType MUST be one of the predefined NF types.",
       "constraint_schema_id": "request_body.reqNfType",
       "method": "POST",
@@ -675,13 +757,16 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "reqNfType": "INVALID_TYPE"
+        "reqNfType": "INVALID_TYPE",
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_22_pos",
-      "name": "Valid FQDN String",
+      "name": "Valid FQDN",
       "constraint": "request_body.reqNfFqdn MUST be a string.",
       "constraint_schema_id": "request_body.reqNfFqdn",
       "method": "POST",
@@ -690,8 +775,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "reqNfFqdn": "valid.example.com"
+        "reqNfFqdn": "valid.example.com",
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -705,13 +793,16 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "reqNfFqdn": 12345
+        "reqNfFqdn": 12345,
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_23_pos",
-      "name": "Valid FQDN Pattern",
+      "name": "FQDN Matches Pattern",
       "constraint": "request_body.reqNfFqdn MUST match the pattern ^([0-9A-Za-z]([-0-9A-Za-z]{0,61}[0-9A-Za-z])?\\.)+[A-Za-z]{2,63}\\.?$.",
       "constraint_schema_id": "request_body.reqNfFqdn",
       "method": "POST",
@@ -720,13 +811,16 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "reqNfFqdn": "valid.example.com"
+        "reqNfFqdn": "valid.example.com",
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_23_neg",
-      "name": "Invalid FQDN Pattern",
+      "name": "FQDN Does Not Match Pattern",
       "constraint": "request_body.reqNfFqdn MUST match the pattern ^([0-9A-Za-z]([-0-9A-Za-z]{0,61}[0-9A-Za-z])?\\.)+[A-Za-z]{2,63}\\.?$.",
       "constraint_schema_id": "request_body.reqNfFqdn",
       "method": "POST",
@@ -735,13 +829,16 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "reqNfFqdn": "invalid_fqdn"
+        "reqNfFqdn": "invalid_fqdn",
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_24_pos",
-      "name": "Valid FQDN Length",
+      "name": "FQDN Length Valid",
       "constraint": "request_body.reqNfFqdn MUST be between 4 and 253 characters long.",
       "constraint_schema_id": "request_body.reqNfFqdn",
       "method": "POST",
@@ -750,13 +847,16 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "reqNfFqdn": "valid.example.com"
+        "reqNfFqdn": "valid.example.com",
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_24_neg",
-      "name": "Invalid FQDN Length",
+      "name": "FQDN Length Invalid",
       "constraint": "request_body.reqNfFqdn MUST be between 4 and 253 characters long.",
       "constraint_schema_id": "request_body.reqNfFqdn",
       "method": "POST",
@@ -765,13 +865,16 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "reqNfFqdn": "a.b"
+        "reqNfFqdn": "a.b",
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_25_pos",
-      "name": "Valid SNSSAIs Array",
+      "name": "reqSnssais is Array",
       "constraint": "request_body.reqSnssais MUST be an array.",
       "constraint_schema_id": "request_body.reqSnssais",
       "method": "POST",
@@ -780,18 +883,18 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
         "reqSnssais": [
-          {
-            "sst": 1,
-            "sd": "010203"
-          }
-        ]
+          {}
+        ],
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_25_neg",
-      "name": "Invalid SNSSAIs Type",
+      "name": "reqSnssais is Not Array",
       "constraint": "request_body.reqSnssais MUST be an array.",
       "constraint_schema_id": "request_body.reqSnssais",
       "method": "POST",
@@ -800,13 +903,16 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "reqSnssais": "not-an-array"
+        "reqSnssais": {},
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_26_pos",
-      "name": "Valid SNSSAIs Minimum Items",
+      "name": "reqSnssais Contains Items",
       "constraint": "request_body.reqSnssais MUST contain at least 1 item.",
       "constraint_schema_id": "request_body.reqSnssais",
       "method": "POST",
@@ -815,18 +921,18 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
         "reqSnssais": [
-          {
-            "sst": 1,
-            "sd": "010203"
-          }
-        ]
+          {}
+        ],
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_26_neg",
-      "name": "Invalid SNSSAIs Empty Array",
+      "name": "reqSnssais Empty",
       "constraint": "request_body.reqSnssais MUST contain at least 1 item.",
       "constraint_schema_id": "request_body.reqSnssais",
       "method": "POST",
@@ -835,13 +941,16 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "reqSnssais": []
+        "reqSnssais": [],
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_27_pos",
-      "name": "Valid Per PLMN SNSSAIs Array",
+      "name": "reqPerPlmnSnssais is Array",
       "constraint": "request_body.reqPerPlmnSnssais MUST be an array.",
       "constraint_schema_id": "request_body.reqPerPlmnSnssais",
       "method": "POST",
@@ -850,26 +959,18 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
         "reqPerPlmnSnssais": [
-          {
-            "plmnId": {
-              "mcc": "001",
-              "mnc": "01"
-            },
-            "sNssaiList": [
-              {
-                "sst": 1,
-                "sd": "010203"
-              }
-            ]
-          }
-        ]
+          {}
+        ],
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_27_neg",
-      "name": "Invalid Per PLMN SNSSAIs Type",
+      "name": "reqPerPlmnSnssais is Not Array",
       "constraint": "request_body.reqPerPlmnSnssais MUST be an array.",
       "constraint_schema_id": "request_body.reqPerPlmnSnssais",
       "method": "POST",
@@ -878,13 +979,16 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "reqPerPlmnSnssais": "not-an-array"
+        "reqPerPlmnSnssais": {},
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_28_pos",
-      "name": "Valid Per PLMN SNSSAIs Minimum Items",
+      "name": "reqPerPlmnSnssais Contains Items",
       "constraint": "request_body.reqPerPlmnSnssais MUST contain at least 1 item.",
       "constraint_schema_id": "request_body.reqPerPlmnSnssais",
       "method": "POST",
@@ -893,26 +997,18 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
         "reqPerPlmnSnssais": [
-          {
-            "plmnId": {
-              "mcc": "001",
-              "mnc": "01"
-            },
-            "sNssaiList": [
-              {
-                "sst": 1,
-                "sd": "010203"
-              }
-            ]
-          }
-        ]
+          {}
+        ],
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_28_neg",
-      "name": "Invalid Per PLMN SNSSAIs Empty Array",
+      "name": "reqPerPlmnSnssais Empty",
       "constraint": "request_body.reqPerPlmnSnssais MUST contain at least 1 item.",
       "constraint_schema_id": "request_body.reqPerPlmnSnssais",
       "method": "POST",
@@ -921,13 +1017,16 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "reqPerPlmnSnssais": []
+        "reqPerPlmnSnssais": [],
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_29_pos",
-      "name": "Valid PLMN List Array",
+      "name": "reqPlmnList is Array",
       "constraint": "request_body.reqPlmnList MUST be an array.",
       "constraint_schema_id": "request_body.reqPlmnList",
       "method": "POST",
@@ -936,18 +1035,18 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
         "reqPlmnList": [
-          {
-            "mcc": "001",
-            "mnc": "01"
-          }
-        ]
+          {}
+        ],
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_29_neg",
-      "name": "Invalid PLMN List Type",
+      "name": "reqPlmnList is Not Array",
       "constraint": "request_body.reqPlmnList MUST be an array.",
       "constraint_schema_id": "request_body.reqPlmnList",
       "method": "POST",
@@ -956,13 +1055,16 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "reqPlmnList": "not-an-array"
+        "reqPlmnList": {},
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_30_pos",
-      "name": "Valid PLMN List Minimum Items",
+      "name": "reqPlmnList Contains Items",
       "constraint": "request_body.reqPlmnList MUST contain at least 1 item.",
       "constraint_schema_id": "request_body.reqPlmnList",
       "method": "POST",
@@ -971,18 +1073,18 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
         "reqPlmnList": [
-          {
-            "mcc": "001",
-            "mnc": "01"
-          }
-        ]
+          {}
+        ],
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_30_neg",
-      "name": "Invalid PLMN List Empty Array",
+      "name": "reqPlmnList Empty",
       "constraint": "request_body.reqPlmnList MUST contain at least 1 item.",
       "constraint_schema_id": "request_body.reqPlmnList",
       "method": "POST",
@@ -991,8 +1093,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "reqPlmnList": []
+        "reqPlmnList": [],
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -1006,19 +1111,22 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
         "reqSnpnList": [
           {
-            "mcc": "310",
-            "mnc": "260",
-            "nid": "12345"
+            "mcc": "001",
+            "mnc": "01",
+            "nid": "123"
           }
-        ]
+        ],
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_31_neg",
-      "name": "Invalid reqSnpnList Type",
+      "name": "Invalid reqSnpnList Not Array",
       "constraint": "request_body.reqSnpnList MUST be an array.",
       "constraint_schema_id": "request_body.reqSnpnList",
       "method": "POST",
@@ -1027,13 +1135,20 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "reqSnpnList": "not-an-array"
+        "reqSnpnList": {
+          "mcc": "001",
+          "mnc": "01",
+          "nid": "123"
+        },
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_32_pos",
-      "name": "reqSnpnList with One Item",
+      "name": "Valid reqSnpnList with One Item",
       "constraint": "request_body.reqSnpnList MUST contain at least 1 item.",
       "constraint_schema_id": "request_body.reqSnpnList",
       "method": "POST",
@@ -1042,19 +1157,22 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
         "reqSnpnList": [
           {
-            "mcc": "310",
-            "mnc": "260",
-            "nid": "12345"
+            "mcc": "001",
+            "mnc": "01",
+            "nid": "123"
           }
-        ]
+        ],
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_32_neg",
-      "name": "Empty reqSnpnList",
+      "name": "Invalid reqSnpnList Empty Array",
       "constraint": "request_body.reqSnpnList MUST contain at least 1 item.",
       "constraint_schema_id": "request_body.reqSnpnList",
       "method": "POST",
@@ -1063,8 +1181,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "reqSnpnList": []
+        "reqSnpnList": [],
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -1078,15 +1199,18 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
         "servingScope": [
           "scope1"
-        ]
+        ],
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_33_neg",
-      "name": "Invalid servingScope Type",
+      "name": "Invalid servingScope Not Array",
       "constraint": "request_body.servingScope MUST be an array.",
       "constraint_schema_id": "request_body.servingScope",
       "method": "POST",
@@ -1095,13 +1219,16 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "servingScope": "not-an-array"
+        "servingScope": "scope1",
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_34_pos",
-      "name": "servingScope with One Item",
+      "name": "Valid servingScope with One Item",
       "constraint": "request_body.servingScope MUST contain at least 1 item.",
       "constraint_schema_id": "request_body.servingScope",
       "method": "POST",
@@ -1110,15 +1237,18 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
         "servingScope": [
           "scope1"
-        ]
+        ],
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_34_neg",
-      "name": "Empty servingScope",
+      "name": "Invalid servingScope Empty Array",
       "constraint": "request_body.servingScope MUST contain at least 1 item.",
       "constraint_schema_id": "request_body.servingScope",
       "method": "POST",
@@ -1127,13 +1257,16 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "servingScope": []
+        "servingScope": [],
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_35_pos",
-      "name": "Valid servingScope Item Type",
+      "name": "Valid servingScope Item String",
       "constraint": "request_body.servingScope[] MUST be a string.",
       "constraint_schema_id": "request_body.servingScope[]",
       "method": "POST",
@@ -1142,15 +1275,18 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
         "servingScope": [
           "scope1"
-        ]
+        ],
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_35_neg",
-      "name": "Invalid servingScope Item Type",
+      "name": "Invalid servingScope Item Not String",
       "constraint": "request_body.servingScope[] MUST be a string.",
       "constraint_schema_id": "request_body.servingScope[]",
       "method": "POST",
@@ -1159,10 +1295,13 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
         "servingScope": [
           123
-        ]
+        ],
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -1176,13 +1315,16 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "requesterFeatures": "1A2B"
+        "requesterFeatures": "1A2B",
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_36_neg",
-      "name": "Invalid requesterFeatures Type",
+      "name": "Invalid requesterFeatures Not String",
       "constraint": "request_body.requesterFeatures MUST be a string.",
       "constraint_schema_id": "request_body.requesterFeatures",
       "method": "POST",
@@ -1191,8 +1333,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "requesterFeatures": 1234
+        "requesterFeatures": 1234,
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -1206,8 +1351,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "requesterFeatures": "1A2B"
+        "requesterFeatures": "1A2B",
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -1221,8 +1369,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "requesterFeatures": "1A2G"
+        "requesterFeatures": "1A2G",
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -1236,13 +1387,16 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "nrfSupportedFeatures": "1A2B"
+        "nrfSupportedFeatures": "1A2B",
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_38_neg",
-      "name": "Invalid nrfSupportedFeatures Type",
+      "name": "Invalid nrfSupportedFeatures Not String",
       "constraint": "request_body.nrfSupportedFeatures MUST be a string.",
       "constraint_schema_id": "request_body.nrfSupportedFeatures",
       "method": "POST",
@@ -1251,8 +1405,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "nrfSupportedFeatures": 1234
+        "nrfSupportedFeatures": 1234,
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -1266,8 +1423,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "nrfSupportedFeatures": "1A2B"
+        "nrfSupportedFeatures": "1A2B",
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -1281,8 +1441,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "nrfSupportedFeatures": "1A2G"
+        "nrfSupportedFeatures": "1A2G",
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -1296,13 +1459,16 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "hnrfUri": "https://example.hnrf/callback"
+        "hnrfUri": "http://example.com/hnrf",
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_40_neg",
-      "name": "Invalid hnrfUri Type",
+      "name": "Invalid hnrfUri Not String",
       "constraint": "request_body.hnrfUri MUST be a string.",
       "constraint_schema_id": "request_body.hnrfUri",
       "method": "POST",
@@ -1311,8 +1477,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "hnrfUri": 1234
+        "hnrfUri": 1234,
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -1326,8 +1495,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "onboardingCapability": true
+        "onboardingCapability": true,
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -1341,8 +1513,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "onboardingCapability": "true"
+        "onboardingCapability": "true",
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -1356,13 +1531,16 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "targetHni": "example.com"
+        "targetHni": "example.com",
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
       "id": "tc_42_neg",
-      "name": "Invalid Target HNI Type",
+      "name": "Invalid Target HNI",
       "constraint": "request_body.targetHni MUST be a string.",
       "constraint_schema_id": "request_body.targetHni",
       "method": "POST",
@@ -1371,8 +1549,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "targetHni": 12345
+        "targetHni": 12345,
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -1386,8 +1567,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "targetHni": "valid.example.com"
+        "targetHni": "valid.example.com",
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -1401,8 +1585,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "targetHni": "invalid_domain"
+        "targetHni": "invalid_domain",
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -1416,8 +1603,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "targetHni": "abcd.com"
+        "targetHni": "abcd.com",
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -1431,8 +1621,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "targetHni": "a.com"
+        "targetHni": "abc",
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -1446,8 +1639,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "preferredLocality": "New York"
+        "preferredLocality": "LocalityName",
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -1461,8 +1657,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "preferredLocality": 123
+        "preferredLocality": 12345,
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -1476,7 +1675,6 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
         "extPreferredLocality": {
           "1": [
             {
@@ -1484,7 +1682,11 @@
               "localityValue": "New York"
             }
           ]
-        }
+        },
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -1498,8 +1700,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "extPreferredLocality": "New York"
+        "extPreferredLocality": "NotAnObject",
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -1513,7 +1718,6 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
         "extPreferredLocality": {
           "1": [
             {
@@ -1521,7 +1725,11 @@
               "localityValue": "New York"
             }
           ]
-        }
+        },
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -1535,8 +1743,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "extPreferredLocality": {}
+        "extPreferredLocality": {},
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -1550,8 +1761,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "completeProfileSubscription": false
+        "completeProfileSubscription": false,
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     },
     {
@@ -1565,8 +1779,11 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "nfStatusNotificationUri": "https://example.client/callback",
-        "completeProfileSubscription": "false"
+        "completeProfileSubscription": "false",
+        "nfStatusNotificationUri": "http://example.com/notify"
+      },
+      "prerequisites": {
+        "registered_nf": true
       }
     }
   ]

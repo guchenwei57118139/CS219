@@ -94,19 +94,17 @@ class ImplementationTester:
         self,
         tester: BaseNRFTester,
         client: Any,
-        shared_setup: List[Dict[str, Any]],
-        shared_cleanup: List[Dict[str, Any]],
+        operation_name: str,
         test_case: Dict[str, Any],
     ) -> Dict[str, Any]:
-        execution = tester.execute_test_case(client, shared_setup, shared_cleanup, test_case)
+        execution = tester.execute_test_case(client, operation_name, test_case)
         response = execution["response"]
         setup_summary = execution["setup"]
-        cleanup_summary = execution["cleanup"]
 
         return {
             "status_code": response.get("status_code"),
             "response_body": response.get("response_body"),
-            "error": tester.result_error(setup_summary, response, cleanup_summary),
+            "error": tester.result_error(setup_summary, response),
         }
 
     def unavailable_result(self, error: str) -> Dict[str, Any]:
@@ -119,8 +117,6 @@ class ImplementationTester:
     def run_suite(self, test_cases_file: Path) -> Dict[str, Any]:
         suite = self.load_suite(test_cases_file)
         operation = str(suite.get("operation") or operation_name_from_suite_path(test_cases_file))
-        shared_setup = suite.get("setup", [])
-        shared_cleanup = suite.get("cleanup", [])
         tests = suite.get("tests", [])
         print(f"[*] Running {operation} from {test_cases_file} ({len(tests)} test case(s))", flush=True)
 
@@ -152,8 +148,7 @@ class ImplementationTester:
                     implementation_result = self.run_test_case_for_impl(
                         tester,
                         client,
-                        shared_setup,
-                        shared_cleanup,
+                        operation,
                         test_case,
                     )
                     result_tests[index]["implementations"][implementation_name] = implementation_result

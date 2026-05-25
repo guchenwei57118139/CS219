@@ -1,12 +1,10 @@
 {
-  "description": "Use one suite object per operation. Setup, tests, and cleanup are arrays of steps. Every step uses the same field names: method, path, headers, and optional body. Tests add name and constraint.",
+  "description": "Use one suite object per operation. Tests are an array of request cases. Each test uses method, path, headers, optional body, and may later be annotated in code with prerequisites.",
   "suite_structure": {
     "operation": "NFRegister",
     "path": "/nf-instances/{nfInstanceId}",
     "method": "PUT",
-    "setup": [],
-    "tests": [],
-    "cleanup": []
+    "tests": []
   },
   "step_structure": {
     "method": "PUT",
