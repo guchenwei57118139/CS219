@@ -1,0 +1,2027 @@
+{
+  "operation": "NFStatusSubscribe",
+  "source_tests_file": "/Users/adimehta/Desktop/School/ExtremalTesting/CS219/extremal_testing/json/testcases/NFStatusSubscribe.json",
+  "implementation_order": [
+    "free5gc",
+    "oai",
+    "open5gs"
+  ],
+  "tests": [
+    {
+      "test_case_index": 0,
+      "test_name": "Valid Content-Encoding Header",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"223766518285292a2c94f4a34e754946\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"notifCondition\":{\"monitoredAttributes\":[\"nfStatus\",\"fqdn\"],\"unmonitoredAttributes\":[\"nfStatusChange\"]},\"reqNfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"conditionType\":\"INVALID_COND\",\"dccfCond\":{\"exampleField\":\"exampleValue\"}},\"subscriptionId\":\"35\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 1,
+      "test_name": "Invalid Content-Encoding Header",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"effa6794f1f09fafd2dfdc0dfec21b4a\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"notifCondition\":{\"monitoredAttributes\":[\"nfStatus\",\"fqdn\"],\"unmonitoredAttributes\":[\"nfStatusChange\"]},\"reqNfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"conditionType\":\"INVALID_COND\",\"dccfCond\":{\"exampleField\":\"exampleValue\"}},\"subscriptionId\":\"36\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 2,
+      "test_name": "Valid Accept-Encoding Header",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"82690550bc3fe08d6a5aab9c6cdd5227\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"notifCondition\":{\"monitoredAttributes\":[\"nfStatus\",\"fqdn\"],\"unmonitoredAttributes\":[\"nfStatusChange\"]},\"reqNfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"conditionType\":\"INVALID_COND\",\"dccfCond\":{\"exampleField\":\"exampleValue\"}},\"subscriptionId\":\"37\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 3,
+      "test_name": "Invalid Accept-Encoding Header",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"5113b1630cda3993f529a9b2cf9aca77\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"notifCondition\":{\"monitoredAttributes\":[\"nfStatus\",\"fqdn\"],\"unmonitoredAttributes\":[\"nfStatusChange\"]},\"reqNfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"conditionType\":\"INVALID_COND\",\"dccfCond\":{\"exampleField\":\"exampleValue\"}},\"subscriptionId\":\"38\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 4,
+      "test_name": "Valid Request Body",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"541d69de3462ea53f5e38c81748213de\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"notifCondition\":{\"monitoredAttributes\":[\"nfStatus\",\"fqdn\"],\"unmonitoredAttributes\":[\"nfStatusChange\"]},\"reqNfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"conditionType\":\"INVALID_COND\",\"dccfCond\":{\"exampleField\":\"exampleValue\"}},\"subscriptionId\":\"39\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 5,
+      "test_name": "Missing Request Body",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"\",\"subscriptionId\":\"f355f50dfbfa5e40056bcd98de2980c5\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 6,
+      "test_name": "Valid nfStatusNotificationUri",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"adb14f4053b993edb73bc467dd7035d0\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"notifCondition\":{\"monitoredAttributes\":[\"nfStatus\",\"fqdn\"],\"unmonitoredAttributes\":[\"nfStatusChange\"]},\"reqNfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"conditionType\":\"INVALID_COND\",\"dccfCond\":{\"exampleField\":\"exampleValue\"}},\"subscriptionId\":\"40\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 7,
+      "test_name": "Invalid nfStatusNotificationUri",
+      "implementations": {
+        "free5gc": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"Malformed request syntax\",\"status\":400,\"detail\":\"[Request Body] json: cannot unmarshal number into Go struct field NrfNfManagementSubscriptionData.nfStatusNotificationUri of type string\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 8,
+      "test_name": "Present nfStatusNotificationUri",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"15d2593657e97db028562225d98e5131\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"notifCondition\":{\"monitoredAttributes\":[\"nfStatus\",\"fqdn\"],\"unmonitoredAttributes\":[\"nfStatusChange\"]},\"reqNfInstanceId\":\"550e8400-e29b-41d4-a716-446655440000\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"conditionType\":\"INVALID_COND\",\"dccfCond\":{\"exampleField\":\"exampleValue\"}},\"subscriptionId\":\"41\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 9,
+      "test_name": "Missing nfStatusNotificationUri",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"\",\"subscriptionId\":\"b87ae65a625beed9d2c1fb7f96eccc60\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 10,
+      "test_name": "Valid reqNfInstanceId",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"reqNfInstanceId\":\"73c4e482-3338-52ed-af7d-0dd1d3ea6c12\",\"subscriptionId\":\"7e3edee6792d921de31eec1c2f7bd98e\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"notifCondition\":{\"monitoredAttributes\":[\"nfStatus\",\"fqdn\"],\"unmonitoredAttributes\":[\"nfStatusChange\"]},\"reqNfInstanceId\":\"73c4e482-3338-52ed-af7d-0dd1d3ea6c12\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"conditionType\":\"INVALID_COND\",\"dccfCond\":{\"exampleField\":\"exampleValue\"}},\"subscriptionId\":\"42\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 11,
+      "test_name": "Invalid reqNfInstanceId",
+      "implementations": {
+        "free5gc": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"Malformed request syntax\",\"status\":400,\"detail\":\"[Request Body] json: cannot unmarshal number into Go struct field NrfNfManagementSubscriptionData.reqNfInstanceId of type string\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 12,
+      "test_name": "Valid UUID reqNfInstanceId",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"reqNfInstanceId\":\"fc7250d8-c6da-5528-ac97-c017cb6ba270\",\"subscriptionId\":\"dc2973cc7c51c1c96bac92b0a21d8475\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"notifCondition\":{\"monitoredAttributes\":[\"nfStatus\",\"fqdn\"],\"unmonitoredAttributes\":[\"nfStatusChange\"]},\"reqNfInstanceId\":\"fc7250d8-c6da-5528-ac97-c017cb6ba270\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"conditionType\":\"INVALID_COND\",\"dccfCond\":{\"exampleField\":\"exampleValue\"}},\"subscriptionId\":\"43\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 13,
+      "test_name": "Invalid UUID reqNfInstanceId",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"reqNfInstanceId\":\"invalid-uuid\",\"subscriptionId\":\"123351f1e2acd52c85baa43dc0e0aa48\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"notifCondition\":{\"monitoredAttributes\":[\"nfStatus\",\"fqdn\"],\"unmonitoredAttributes\":[\"nfStatusChange\"]},\"reqNfInstanceId\":\"invalid-uuid\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"conditionType\":\"INVALID_COND\",\"dccfCond\":{\"exampleField\":\"exampleValue\"}},\"subscriptionId\":\"44\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 14,
+      "test_name": "Valid sharedDataIds Array",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"8b0c746e6cad0792f72b5c0e6e992e6e\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"notifCondition\":{\"monitoredAttributes\":[\"nfStatus\",\"fqdn\"],\"unmonitoredAttributes\":[\"nfStatusChange\"]},\"reqNfInstanceId\":\"invalid-uuid\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"conditionType\":\"INVALID_COND\",\"dccfCond\":{\"exampleField\":\"exampleValue\"}},\"subscriptionId\":\"45\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 15,
+      "test_name": "Invalid sharedDataIds Array",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"93083ee435c434e223ade3ff25efb5a7\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"notifCondition\":{\"monitoredAttributes\":[\"nfStatus\",\"fqdn\"],\"unmonitoredAttributes\":[\"nfStatusChange\"]},\"reqNfInstanceId\":\"invalid-uuid\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"conditionType\":\"INVALID_COND\",\"dccfCond\":{\"exampleField\":\"exampleValue\"}},\"subscriptionId\":\"46\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 16,
+      "test_name": "Non-empty sharedDataIds Array",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"407bae173deffd0878e68a0da38681cb\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"notifCondition\":{\"monitoredAttributes\":[\"nfStatus\",\"fqdn\"],\"unmonitoredAttributes\":[\"nfStatusChange\"]},\"reqNfInstanceId\":\"invalid-uuid\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"conditionType\":\"INVALID_COND\",\"dccfCond\":{\"exampleField\":\"exampleValue\"}},\"subscriptionId\":\"47\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 17,
+      "test_name": "Empty sharedDataIds Array",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"442a223e923098db9fcfa4def892dce9\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"notifCondition\":{\"monitoredAttributes\":[\"nfStatus\",\"fqdn\"],\"unmonitoredAttributes\":[\"nfStatusChange\"]},\"reqNfInstanceId\":\"invalid-uuid\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"conditionType\":\"INVALID_COND\",\"dccfCond\":{\"exampleField\":\"exampleValue\"}},\"subscriptionId\":\"48\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 18,
+      "test_name": "Valid sharedDataIds Item",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"14f1f1b8754edda4700ab3c070e0892c\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"notifCondition\":{\"monitoredAttributes\":[\"nfStatus\",\"fqdn\"],\"unmonitoredAttributes\":[\"nfStatusChange\"]},\"reqNfInstanceId\":\"invalid-uuid\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"conditionType\":\"INVALID_COND\",\"dccfCond\":{\"exampleField\":\"exampleValue\"}},\"subscriptionId\":\"49\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 19,
+      "test_name": "Invalid sharedDataIds Item",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"fa586ffd351c69b9c8d3c38781dc861a\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"notifCondition\":{\"monitoredAttributes\":[\"nfStatus\",\"fqdn\"],\"unmonitoredAttributes\":[\"nfStatusChange\"]},\"reqNfInstanceId\":\"invalid-uuid\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"conditionType\":\"INVALID_COND\",\"dccfCond\":{\"exampleField\":\"exampleValue\"}},\"subscriptionId\":\"50\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 20,
+      "test_name": "Valid SubscriptionId as String",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"1441e40e9a8c82fe624a0d15e767bcc5\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"notifCondition\":{\"monitoredAttributes\":[\"nfStatus\",\"fqdn\"],\"unmonitoredAttributes\":[\"nfStatusChange\"]},\"reqNfInstanceId\":\"invalid-uuid\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"conditionType\":\"INVALID_COND\",\"dccfCond\":{\"exampleField\":\"exampleValue\"}},\"subscriptionId\":\"51\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 21,
+      "test_name": "Invalid SubscriptionId as Non-String",
+      "implementations": {
+        "free5gc": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"Malformed request syntax\",\"status\":400,\"detail\":\"[Request Body] json: cannot unmarshal number into Go struct field NrfNfManagementSubscriptionData.subscriptionId of type string\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 22,
+      "test_name": "Valid SubscriptionId Pattern",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"abe5cb06600e0055cc87924e54de00a3\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"notifCondition\":{\"monitoredAttributes\":[\"nfStatus\",\"fqdn\"],\"unmonitoredAttributes\":[\"nfStatusChange\"]},\"reqNfInstanceId\":\"invalid-uuid\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"conditionType\":\"INVALID_COND\",\"dccfCond\":{\"exampleField\":\"exampleValue\"}},\"subscriptionId\":\"52\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 23,
+      "test_name": "Invalid SubscriptionId Pattern",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"6b55e15b4a4d0cee817ea2e21119170b\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"notifCondition\":{\"monitoredAttributes\":[\"nfStatus\",\"fqdn\"],\"unmonitoredAttributes\":[\"nfStatusChange\"]},\"reqNfInstanceId\":\"invalid-uuid\",\"reqNfType\":\"NRF\",\"reqNotifEvents\":[\"NF_STATUS_CHANGE\"],\"reqSnssais\":[],\"subscrCond\":{\"conditionType\":\"INVALID_COND\",\"dccfCond\":{\"exampleField\":\"exampleValue\"}},\"subscriptionId\":\"53\",\"validityTime\":\"20390531T235959\"}",
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 24,
+      "test_name": "Valid ValidityTime as String",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"d60b2606d13759799dd9827fb10c8087\",\"validityTime\":\"2023-10-01T12:00:00Z\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 25,
+      "test_name": "Invalid ValidityTime as Non-String",
+      "implementations": {
+        "free5gc": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"Malformed request syntax\",\"status\":400,\"detail\":\"[Request Body] Time.UnmarshalJSON: input is not a JSON string\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 26,
+      "test_name": "Valid ValidityTime Format",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"c5cec44656e594e2371e887f8e66b6f5\",\"validityTime\":\"2023-10-01T12:00:00Z\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 27,
+      "test_name": "Invalid ValidityTime Format",
+      "implementations": {
+        "free5gc": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"Malformed request syntax\",\"status\":400,\"detail\":\"[Request Body] parsing time \\\"01-10-2023 12:00:00\\\" as \\\"2006-01-02T15:04:05Z07:00\\\": cannot parse \\\"01-10-2023 12:00:00\\\" as \\\"2006\\\"\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 28,
+      "test_name": "Valid ReqNotifEvents as Array",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"reqNotifEvents\":[\"NF_REGISTERED\"],\"subscriptionId\":\"2cda92f5ea12aa113c20547c582bde59\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 29,
+      "test_name": "Invalid ReqNotifEvents as Non-Array",
+      "implementations": {
+        "free5gc": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"Malformed request syntax\",\"status\":400,\"detail\":\"[Request Body] json: cannot unmarshal string into Go struct field NrfNfManagementSubscriptionData.reqNotifEvents of type []models.NotificationEventType\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 30,
+      "test_name": "Valid ReqNotifEvents with Items",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"reqNotifEvents\":[\"NF_REGISTERED\"],\"subscriptionId\":\"250f67f372a08ac4cba8ed5758c458a3\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 31,
+      "test_name": "Invalid ReqNotifEvents with No Items",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"0e738464bc5dfc1b81fc2e58048b105d\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 32,
+      "test_name": "Valid PlmnId as Object",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"plmnId\":{\"mcc\":\"310\",\"mnc\":\"260\"},\"subscriptionId\":\"381bda673464300b4ba5cfa886758457\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 33,
+      "test_name": "Invalid PlmnId as Non-Object",
+      "implementations": {
+        "free5gc": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"Malformed request syntax\",\"status\":400,\"detail\":\"[Request Body] json: cannot unmarshal string into Go struct field NrfNfManagementSubscriptionData.plmnId of type models.PlmnId\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 34,
+      "test_name": "Valid Nid as String",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"nid\":\"abcdef12345\",\"subscriptionId\":\"cc698ca5315b7ad97cc7d02df9e23b43\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 35,
+      "test_name": "Invalid Nid as Non-String",
+      "implementations": {
+        "free5gc": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"Malformed request syntax\",\"status\":400,\"detail\":\"[Request Body] json: cannot unmarshal number into Go struct field NrfNfManagementSubscriptionData.nid of type string\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 36,
+      "test_name": "Valid Nid Pattern",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"nid\":\"abcdef12345\",\"subscriptionId\":\"5e72092114bf1e0d3599f540550c6f1d\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 37,
+      "test_name": "Invalid Nid Pattern",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"nid\":\"abc123\",\"subscriptionId\":\"c45e97c2d12449e853c76fc023d30c0d\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 38,
+      "test_name": "Valid ReqNfType as String",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"reqNfType\":\"NRF\",\"subscriptionId\":\"c85a3182467ad722064e261c5813e29a\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 39,
+      "test_name": "Invalid ReqNfType as Non-String",
+      "implementations": {
+        "free5gc": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"Malformed request syntax\",\"status\":400,\"detail\":\"[Request Body] json: cannot unmarshal number into Go struct field NrfNfManagementSubscriptionData.reqNfType of type models.NrfNfManagementNfType\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 40,
+      "test_name": "Valid NFType",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"reqNfType\":\"NRF\",\"subscriptionId\":\"2eeb3904cb6a62496774912b64796f18\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 41,
+      "test_name": "Invalid NFType",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"reqNfType\":\"INVALID_TYPE\",\"subscriptionId\":\"2b3a844d27b7352e9fc61448b2500ed9\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 42,
+      "test_name": "Valid FQDN",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"reqNfFqdn\":\"valid.example.com\",\"subscriptionId\":\"e6a2bd9713dee9b541557c0e200b46e4\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 43,
+      "test_name": "Invalid FQDN Type",
+      "implementations": {
+        "free5gc": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"Malformed request syntax\",\"status\":400,\"detail\":\"[Request Body] json: cannot unmarshal number into Go struct field NrfNfManagementSubscriptionData.reqNfFqdn of type string\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 44,
+      "test_name": "FQDN Matches Pattern",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"reqNfFqdn\":\"valid.example.com\",\"subscriptionId\":\"f074a43d1ed231c8c18ccc938d64efc5\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 45,
+      "test_name": "FQDN Does Not Match Pattern",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"reqNfFqdn\":\"invalid_fqdn\",\"subscriptionId\":\"0d501f4dcdf1946d88740ad12deb2d50\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 46,
+      "test_name": "FQDN Length Valid",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"reqNfFqdn\":\"valid.example.com\",\"subscriptionId\":\"ef1aec4ee517551488f657a7df6c393e\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 47,
+      "test_name": "FQDN Length Invalid",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"reqNfFqdn\":\"a.b\",\"subscriptionId\":\"9ee67e5951486431078c9c6eb65eda6c\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 48,
+      "test_name": "reqSnssais is Array",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"reqSnssais\":[{\"sst\":0}],\"subscriptionId\":\"eb56f533d8dbd8d9c04d256fd9ce354e\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 49,
+      "test_name": "reqSnssais is Not Array",
+      "implementations": {
+        "free5gc": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"Malformed request syntax\",\"status\":400,\"detail\":\"[Request Body] json: cannot unmarshal object into Go struct field NrfNfManagementSubscriptionData.reqSnssais of type []models.ExtSnssai\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 50,
+      "test_name": "reqSnssais Contains Items",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"reqSnssais\":[{\"sst\":0}],\"subscriptionId\":\"6fd4efab64e80d6aeab70b4a0c81fc38\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 51,
+      "test_name": "reqSnssais Empty",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"da1310ccccbb8b45e0115654549ae09a\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 52,
+      "test_name": "reqPerPlmnSnssais is Array",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"reqPerPlmnSnssais\":[{\"plmnId\":null,\"sNssaiList\":null}],\"subscriptionId\":\"a45c1f30ee2e9cba0f2c5927dbd03552\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 53,
+      "test_name": "reqPerPlmnSnssais is Not Array",
+      "implementations": {
+        "free5gc": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"Malformed request syntax\",\"status\":400,\"detail\":\"[Request Body] json: cannot unmarshal object into Go struct field NrfNfManagementSubscriptionData.reqPerPlmnSnssais of type []models.PlmnSnssai\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 54,
+      "test_name": "reqPerPlmnSnssais Contains Items",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"reqPerPlmnSnssais\":[{\"plmnId\":null,\"sNssaiList\":null}],\"subscriptionId\":\"5d74e61c3b8ea640a9f6fc92c66ef7fd\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 55,
+      "test_name": "reqPerPlmnSnssais Empty",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"c4c6a1db364c2755c5df75579392cce6\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 56,
+      "test_name": "reqPlmnList is Array",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"reqPlmnList\":[{\"mcc\":\"\",\"mnc\":\"\"}],\"subscriptionId\":\"06db2c6ed5e3266eed8521da002d5270\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 57,
+      "test_name": "reqPlmnList is Not Array",
+      "implementations": {
+        "free5gc": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"Malformed request syntax\",\"status\":400,\"detail\":\"[Request Body] json: cannot unmarshal object into Go struct field NrfNfManagementSubscriptionData.reqPlmnList of type []models.PlmnId\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 58,
+      "test_name": "reqPlmnList Contains Items",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"reqPlmnList\":[{\"mcc\":\"\",\"mnc\":\"\"}],\"subscriptionId\":\"a826883fc2199c80a490b0882d1f8ab2\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 59,
+      "test_name": "reqPlmnList Empty",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"96f3c8a35effb6a1b387d888ba574067\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 60,
+      "test_name": "Valid reqSnpnList Array",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"reqSnpnList\":[{\"mcc\":\"001\",\"mnc\":\"01\",\"nid\":\"123\"}],\"subscriptionId\":\"8cdf1333850282379445c4431a439cd5\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 61,
+      "test_name": "Invalid reqSnpnList Not Array",
+      "implementations": {
+        "free5gc": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"Malformed request syntax\",\"status\":400,\"detail\":\"[Request Body] json: cannot unmarshal object into Go struct field NrfNfManagementSubscriptionData.reqSnpnList of type []models.PlmnIdNid\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"cannot parse HTTP message\",\"status\":400}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 62,
+      "test_name": "Valid reqSnpnList with One Item",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"reqSnpnList\":[{\"mcc\":\"001\",\"mnc\":\"01\",\"nid\":\"123\"}],\"subscriptionId\":\"3a2026f78667190a3bf9b44b8a53574b\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": 400,
+          "response_body": "{\"type\":\"/nnrf-nfm/v1\",\"title\":\"No SubscrCond found in NF Subscription message\",\"status\":400,\"instance\":\"/subscriptions\"}",
+          "error": null
+        }
+      }
+    },
+    {
+      "test_case_index": 63,
+      "test_name": "Invalid reqSnpnList Empty Array",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"09c897c0974b94a14b0b8b6c6506d93a\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 64,
+      "test_name": "Valid servingScope Array",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"servingScope\":[\"scope1\"],\"subscriptionId\":\"36b577057584717986a9e37746960000\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 65,
+      "test_name": "Invalid servingScope Not Array",
+      "implementations": {
+        "free5gc": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"Malformed request syntax\",\"status\":400,\"detail\":\"[Request Body] json: cannot unmarshal string into Go struct field NrfNfManagementSubscriptionData.servingScope of type []string\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 66,
+      "test_name": "Valid servingScope with One Item",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"servingScope\":[\"scope1\"],\"subscriptionId\":\"0532fbcf29f302b623b42db1cb31ba25\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 67,
+      "test_name": "Invalid servingScope Empty Array",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"b290b115d8179814dbb54ebbaf2b3798\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 68,
+      "test_name": "Valid servingScope Item String",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"servingScope\":[\"scope1\"],\"subscriptionId\":\"c673fe822bbd6ebd88839917d0364bf8\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 69,
+      "test_name": "Invalid servingScope Item Not String",
+      "implementations": {
+        "free5gc": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"Malformed request syntax\",\"status\":400,\"detail\":\"[Request Body] json: cannot unmarshal number into Go struct field NrfNfManagementSubscriptionData.servingScope of type string\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 70,
+      "test_name": "Valid requesterFeatures String",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"requesterFeatures\":\"1A2B\",\"subscriptionId\":\"6d3a73c8e6028a6db5ab2e167cbbb3a9\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 71,
+      "test_name": "Invalid requesterFeatures Not String",
+      "implementations": {
+        "free5gc": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"Malformed request syntax\",\"status\":400,\"detail\":\"[Request Body] json: cannot unmarshal number into Go struct field NrfNfManagementSubscriptionData.requesterFeatures of type string\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 72,
+      "test_name": "Valid requesterFeatures Pattern",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"requesterFeatures\":\"1A2B\",\"subscriptionId\":\"815fc8895cefd3af93f51054eb3ef8e4\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 73,
+      "test_name": "Invalid requesterFeatures Pattern",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"requesterFeatures\":\"1A2G\",\"subscriptionId\":\"40921b45f9af75bc0f65c08413303597\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 74,
+      "test_name": "Valid nrfSupportedFeatures String",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"nrfSupportedFeatures\":\"1A2B\",\"subscriptionId\":\"1ff54a0bfa801e70f1db68992e804b84\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 75,
+      "test_name": "Invalid nrfSupportedFeatures Not String",
+      "implementations": {
+        "free5gc": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"Malformed request syntax\",\"status\":400,\"detail\":\"[Request Body] json: cannot unmarshal number into Go struct field NrfNfManagementSubscriptionData.nrfSupportedFeatures of type string\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 76,
+      "test_name": "Valid nrfSupportedFeatures Pattern",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"nrfSupportedFeatures\":\"1A2B\",\"subscriptionId\":\"1090db4b00be89d10af127140173dc38\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 77,
+      "test_name": "Invalid nrfSupportedFeatures Pattern",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"nrfSupportedFeatures\":\"1A2G\",\"subscriptionId\":\"a54ba20f9670eea159eee644f79c844c\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 78,
+      "test_name": "Valid hnrfUri String",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"hnrfUri\":\"http://example.com/hnrf\",\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"0060d1f8ff4f8a31ea4abb460b11ff02\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 79,
+      "test_name": "Invalid hnrfUri Not String",
+      "implementations": {
+        "free5gc": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"Malformed request syntax\",\"status\":400,\"detail\":\"[Request Body] json: cannot unmarshal number into Go struct field NrfNfManagementSubscriptionData.hnrfUri of type string\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 80,
+      "test_name": "Valid Onboarding Capability",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"onboardingCapability\":true,\"subscriptionId\":\"d1a4bb21b1dbb91b9ed8b2746a2f8535\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 81,
+      "test_name": "Invalid Onboarding Capability",
+      "implementations": {
+        "free5gc": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"Malformed request syntax\",\"status\":400,\"detail\":\"[Request Body] json: cannot unmarshal string into Go struct field NrfNfManagementSubscriptionData.onboardingCapability of type bool\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 82,
+      "test_name": "Valid Target HNI",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"6c0787b1aaa8c9b7f9ecac0b7b859ce2\",\"targetHni\":\"example.com\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 83,
+      "test_name": "Invalid Target HNI",
+      "implementations": {
+        "free5gc": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"Malformed request syntax\",\"status\":400,\"detail\":\"[Request Body] json: cannot unmarshal number into Go struct field NrfNfManagementSubscriptionData.targetHni of type string\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 84,
+      "test_name": "Valid Target HNI Pattern",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"1dc32a4b32b46b1751c1ff2cf35e4ba2\",\"targetHni\":\"valid.example.com\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 85,
+      "test_name": "Invalid Target HNI Pattern",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"8676985c3cd5f08ca4541ffee9c481d2\",\"targetHni\":\"invalid_domain\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 86,
+      "test_name": "Valid Target HNI Length",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"8573a5b265e565d2e4840b946c975437\",\"targetHni\":\"abcd.com\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 87,
+      "test_name": "Invalid Target HNI Length",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"93e70396c73b31ba5cf63c52cbeaacdd\",\"targetHni\":\"abc\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 88,
+      "test_name": "Valid Preferred Locality",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"preferredLocality\":\"LocalityName\",\"subscriptionId\":\"31eb82670b89d43ef854215d84b8d66d\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 89,
+      "test_name": "Invalid Preferred Locality",
+      "implementations": {
+        "free5gc": {
+          "status_code": 400,
+          "response_body": "{\"title\":\"Malformed request syntax\",\"status\":400,\"detail\":\"[Request Body] json: cannot unmarshal number into Go struct field NrfNfManagementSubscriptionData.preferredLocality of type string\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 90,
+      "test_name": "Valid Ext Preferred Locality",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"0222e6a41d1df13568877e87bf7cb555\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 91,
+      "test_name": "Invalid Ext Preferred Locality",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"8c42f39b2629569e344ecbd640d63702\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 92,
+      "test_name": "Valid Ext Preferred Locality Properties",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"a2bbcf675d137b16541ae4923ec3e255\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 93,
+      "test_name": "Invalid Ext Preferred Locality Properties",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"e614062f0cef1a660ffcada79b0c24e2\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 94,
+      "test_name": "Valid Complete Profile Subscription",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"a61904c8410790cdec6ce20ef4095cb6\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    },
+    {
+      "test_case_index": 95,
+      "test_name": "Invalid Complete Profile Subscription",
+      "implementations": {
+        "free5gc": {
+          "status_code": 201,
+          "response_body": "{\"nfStatusNotificationUri\":\"http://example.com/notify\",\"subscriptionId\":\"8ce3b191723004ae474d4deae4a46c59\"}",
+          "error": null
+        },
+        "oai": {
+          "status_code": 400,
+          "response_body": null,
+          "error": null
+        },
+        "open5gs": {
+          "status_code": null,
+          "response_body": null,
+          "error": "Setup failed; test request skipped: Step failed with status 413: Request Entity Too Large"
+        }
+      }
+    }
+  ]
+}
