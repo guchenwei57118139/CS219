@@ -128,16 +128,6 @@ def _has_meaningful_difference(test_result: Dict[str, Any], implementation_order
     if len(status_codes) >= 2 and len(set(status_codes)) > 1:
         return True
 
-    errors = _normalized_values(implementations, implementation_order, "error")
-    non_empty_errors = [value for value in errors if value]
-    if non_empty_errors and len(set(errors)) > 1:
-        return True
-
-    bodies = _normalized_values(implementations, implementation_order, "response_body")
-    non_empty_bodies = [value for value in bodies if value]
-    if non_empty_bodies and len(set(bodies)) > 1:
-        return True
-
     return False
 
 
