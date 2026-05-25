@@ -23,7 +23,6 @@ from extremal_testing.nrf_agents.prompts.bug_reports import (
 )
 from extremal_testing.nrf_agents.workflow.sdk import run_text_agent
 
-DEFAULT_BATCH_SIZE = 5
 DEFAULT_MAX_REPORTS = 3
 DEFAULT_MIN_STRENGTH = 7
 DEFAULT_EXCEPTIONAL_STRENGTH = 9
@@ -31,6 +30,7 @@ BODY_SNIPPET_LIMIT = 240
 
 TEST_RESULTS_DIR = ROOT_DIR / "json" / "test_results"
 TESTCASES_DIR = ROOT_DIR / "json" / "testcases"
+CONSTRAINTS_DIR = ROOT_DIR / "json" / "constraints"
 REPORTS_DIR = ROOT_DIR / "reports"
 
 
@@ -57,12 +57,6 @@ def _parse_json_array(text: str) -> Optional[List[Dict[str, Any]]]:
         print(f"Response text: {cleaned[:500]}...", flush=True)
         return None
     return parsed if isinstance(parsed, list) else None
-
-
-def _chunked(items: Sequence[Dict[str, Any]], chunk_size: int) -> List[List[Dict[str, Any]]]:
-    if chunk_size <= 0:
-        chunk_size = DEFAULT_BATCH_SIZE
-    return [list(items[idx : idx + chunk_size]) for idx in range(0, len(items), chunk_size)]
 
 
 def _load_json_file(path: Path) -> Any:
@@ -142,6 +136,7 @@ def _normalize_string(value: Any) -> str:
 def _normalize_report_item(
     item: Dict[str, Any],
     valid_test_ids: set[int],
+    valid_schema_ids: set[str],
     min_strength: int,
 ) -> Optional[Dict[str, Any]]:
     if not isinstance(item, dict):
@@ -163,6 +158,16 @@ def _normalize_report_item(
         if isinstance(test_id, int) and test_id in valid_test_ids and test_id not in evidence_test_ids:
             evidence_test_ids.append(test_id)
     if not evidence_test_ids:
+        return None
+
+    evidence_schema_ids_raw = item.get("evidence_schema_ids")
+    evidence_schema_ids: List[str] = []
+    if isinstance(evidence_schema_ids_raw, list):
+        for schema_id in evidence_schema_ids_raw:
+            normalized = _normalize_string(schema_id)
+            if normalized in valid_schema_ids and normalized not in evidence_schema_ids:
+                evidence_schema_ids.append(normalized)
+    if valid_schema_ids and not evidence_schema_ids:
         return None
 
     strength = item.get("strength")
@@ -191,6 +196,7 @@ def _normalize_report_item(
         "possibly_affected_implementations": possibly_affected,
         "affected_rationale": _normalize_string(item.get("affected_rationale")),
         "evidence_test_ids": evidence_test_ids,
+        "evidence_schema_ids": evidence_schema_ids,
         "investigation_value": investigation_value,
         "strength": strength,
     }
@@ -245,8 +251,8 @@ class BugReportAgent:
         self,
         test_results_dir: Path = TEST_RESULTS_DIR,
         testcases_dir: Path = TESTCASES_DIR,
+        constraints_dir: Path = CONSTRAINTS_DIR,
         reports_dir: Path = REPORTS_DIR,
-        batch_size: int = DEFAULT_BATCH_SIZE,
         max_reports: int = DEFAULT_MAX_REPORTS,
         min_strength: int = DEFAULT_MIN_STRENGTH,
         exceptional_strength: int = DEFAULT_EXCEPTIONAL_STRENGTH,
@@ -254,8 +260,8 @@ class BugReportAgent:
     ) -> None:
         self.test_results_dir = test_results_dir
         self.testcases_dir = testcases_dir
+        self.constraints_dir = constraints_dir
         self.reports_dir = reports_dir
-        self.batch_size = batch_size
         self.max_reports = max_reports
         self.min_strength = min_strength
         self.exceptional_strength = exceptional_strength
@@ -295,6 +301,245 @@ class BugReportAgent:
         if not isinstance(payload, dict) or not isinstance(payload.get("tests"), list):
             raise ValueError(f"Result file is not a comparison result object: {result_file}")
         return payload
+
+    def load_constraints(self, operation: str) -> Dict[str, Any]:
+        constraints_file = self.constraints_dir / f"{operation}.json"
+        if not constraints_file.exists():
+            return {}
+        payload = _load_json_file(constraints_file)
+        return payload if isinstance(payload, dict) else {}
+
+    @staticmethod
+    def _definition_key_from_ref(ref: str) -> Optional[str]:
+        prefix = "#/definitions/"
+        if not ref.startswith(prefix):
+            return None
+        return ref[len(prefix):]
+
+    def _resolve_local_ref(self, schema: Dict[str, Any], definitions: Dict[str, Any]) -> Dict[str, Any]:
+        ref = schema.get("$ref")
+        if not isinstance(ref, str):
+            return schema
+        definition_key = self._definition_key_from_ref(ref)
+        if not definition_key:
+            return schema
+        definition = definitions.get(definition_key)
+        return definition if isinstance(definition, dict) else schema
+
+    def _collect_referenced_definitions(
+        self,
+        node: Any,
+        definitions: Dict[str, Any],
+        collected: Dict[str, Any],
+        seen: Optional[set[str]] = None,
+    ) -> None:
+        seen = seen or set()
+        if isinstance(node, list):
+            for item in node:
+                self._collect_referenced_definitions(item, definitions, collected, seen)
+            return
+        if not isinstance(node, dict):
+            return
+
+        ref = node.get("$ref")
+        if isinstance(ref, str):
+            definition_key = self._definition_key_from_ref(ref)
+            if definition_key and definition_key not in seen:
+                definition = definitions.get(definition_key)
+                if isinstance(definition, dict):
+                    seen.add(definition_key)
+                    collected[definition_key] = definition
+                    self._collect_referenced_definitions(definition, definitions, collected, seen)
+
+        for value in node.values():
+            self._collect_referenced_definitions(value, definitions, collected, seen)
+
+    def _build_operation_input_summary(self, operation: str, input_schema: Dict[str, Any]) -> Dict[str, Any]:
+        summary: Dict[str, Any] = {"operation": operation}
+        parameters = input_schema.get("parameters", [])
+        grouped_params: Dict[str, Dict[str, List[str]]] = {}
+        if isinstance(parameters, list):
+            for parameter in parameters:
+                if not isinstance(parameter, dict):
+                    continue
+                location = str(parameter.get("in") or "unknown")
+                name = _normalize_string(parameter.get("name"))
+                if not name:
+                    continue
+                bucket = grouped_params.setdefault(location, {"required": [], "optional": []})
+                key = "required" if parameter.get("required") is True else "optional"
+                bucket[key].append(name)
+        summary["parameters"] = grouped_params
+
+        request_body = input_schema.get("request_body", {})
+        if isinstance(request_body, dict):
+            summary["request_body"] = {
+                "required": request_body.get("required") is True,
+                "root_required": self._request_body_root_required(request_body),
+            }
+        else:
+            summary["request_body"] = {"required": False, "root_required": []}
+        return summary
+
+    def _request_body_root_required(self, request_body: Dict[str, Any]) -> List[str]:
+        content = request_body.get("content", {})
+        if not isinstance(content, dict):
+            return []
+        for content_obj in content.values():
+            if not isinstance(content_obj, dict):
+                continue
+            schema = content_obj.get("schema")
+            if isinstance(schema, dict) and isinstance(schema.get("required"), list):
+                return [str(item) for item in schema["required"]]
+        return []
+
+    def _find_parameter_schema_slice(
+        self,
+        schema_id: str,
+        input_schema: Dict[str, Any],
+        definitions: Dict[str, Any],
+    ) -> Optional[Dict[str, Any]]:
+        try:
+            location, name = schema_id.split(".", 1)
+        except ValueError:
+            return None
+
+        parameters = input_schema.get("parameters", [])
+        if not isinstance(parameters, list):
+            return None
+        for parameter in parameters:
+            if not isinstance(parameter, dict):
+                continue
+            if parameter.get("in") == location and parameter.get("name") == name:
+                referenced_definitions: Dict[str, Any] = {}
+                self._collect_referenced_definitions(parameter, definitions, referenced_definitions)
+                return {
+                    "schema_id": schema_id,
+                    "kind": "parameter",
+                    "location": location,
+                    "name": name,
+                    "required": parameter.get("required") is True,
+                    "description": parameter.get("description"),
+                    "schema": parameter.get("schema", {}),
+                    "definitions": referenced_definitions,
+                }
+        return None
+
+    def _request_body_content_schemas(self, input_schema: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
+        request_body = input_schema.get("request_body", {})
+        if not isinstance(request_body, dict):
+            return {}
+        content = request_body.get("content", {})
+        if not isinstance(content, dict):
+            return {}
+
+        schemas: Dict[str, Dict[str, Any]] = {}
+        for content_type, content_obj in content.items():
+            if not isinstance(content_obj, dict):
+                continue
+            schema = content_obj.get("schema")
+            if isinstance(schema, dict):
+                schemas[str(content_type)] = schema
+        return schemas
+
+    def _walk_request_schema_path(
+        self,
+        root_schema: Dict[str, Any],
+        path_parts: List[str],
+        definitions: Dict[str, Any],
+    ) -> Optional[Dict[str, Any]]:
+        current = root_schema
+        for raw_part in path_parts:
+            current = self._resolve_local_ref(current, definitions)
+            part = raw_part.removesuffix("[]")
+            properties = current.get("properties", {})
+            if isinstance(properties, dict) and isinstance(properties.get(part), dict):
+                current = properties[part]
+            else:
+                return None
+            if raw_part.endswith("[]"):
+                current = self._resolve_local_ref(current, definitions)
+                items = current.get("items")
+                if not isinstance(items, dict):
+                    return None
+                current = items
+        return current
+
+    def _find_request_schema_slice(
+        self,
+        schema_id: str,
+        input_schema: Dict[str, Any],
+        definitions: Dict[str, Any],
+    ) -> Optional[Dict[str, Any]]:
+        content_schemas = self._request_body_content_schemas(input_schema)
+        if not content_schemas:
+            return None
+
+        request_body = input_schema.get("request_body", {})
+        path_suffix = schema_id.removeprefix("request_body").lstrip(".")
+        path_parts = [part for part in path_suffix.split(".") if part]
+        content_slices: Dict[str, Dict[str, Any]] = {}
+        referenced_definitions: Dict[str, Any] = {}
+
+        for content_type, root_schema in content_schemas.items():
+            target_schema = root_schema if not path_parts else self._walk_request_schema_path(
+                root_schema,
+                path_parts,
+                definitions,
+            )
+            if not isinstance(target_schema, dict):
+                continue
+            content_slices[content_type] = {
+                "root_required": root_schema.get("required", []),
+                "root_anyOf": root_schema.get("anyOf"),
+                "target_schema": target_schema,
+            }
+            self._collect_referenced_definitions(target_schema, definitions, referenced_definitions)
+
+        if not content_slices:
+            return None
+
+        return {
+            "schema_id": schema_id,
+            "kind": "request_body",
+            "request_body_required": isinstance(request_body, dict) and request_body.get("required") is True,
+            "field_path": path_suffix or "<root>",
+            "content": content_slices,
+            "definitions": referenced_definitions,
+        }
+
+    def build_schema_context(self, operation: str, anomalies: Sequence[Dict[str, Any]]) -> Dict[str, Any]:
+        constraints = self.load_constraints(operation)
+        input_schema = constraints.get("input_schema", {})
+        definitions = constraints.get("definitions", {})
+        if not isinstance(input_schema, dict):
+            input_schema = {}
+        if not isinstance(definitions, dict):
+            definitions = {}
+
+        schema_ids: List[str] = []
+        for anomaly in anomalies:
+            schema_id = _normalize_string(anomaly.get("constraint_schema_id"))
+            if schema_id and schema_id not in schema_ids:
+                schema_ids.append(schema_id)
+
+        schema_definitions: Dict[str, Dict[str, Any]] = {}
+        for schema_id in schema_ids:
+            schema_slice: Optional[Dict[str, Any]] = None
+            if schema_id.startswith(("path.", "query.", "header.")):
+                schema_slice = self._find_parameter_schema_slice(schema_id, input_schema, definitions)
+            elif schema_id == "request_body" or schema_id.startswith("request_body."):
+                schema_slice = self._find_request_schema_slice(schema_id, input_schema, definitions)
+            schema_definitions[schema_id] = schema_slice or {
+                "schema_id": schema_id,
+                "kind": "unresolved",
+                "note": "No exact schema slice found for this referenced schema ID.",
+            }
+
+        return {
+            "operation_input_summary": self._build_operation_input_summary(operation, input_schema),
+            "schema_definitions": schema_definitions,
+        }
 
     def build_anomalies(self, operation: str, result_file: Path) -> List[Dict[str, Any]]:
         suite = self.load_test_suite(operation)
@@ -349,16 +594,18 @@ class BugReportAgent:
 
         return anomalies
 
-    def generate_bug_report_batch(
+    def generate_bug_report(
         self,
         operation: str,
-        batch: List[Dict[str, Any]],
+        anomalies: List[Dict[str, Any]],
+        schema_context: Dict[str, Any],
         result_file: Path,
         suite_file: Path,
     ) -> List[Dict[str, Any]]:
         prompt = build_bug_report_prompt(
             operation=operation,
-            batch=batch,
+            anomalies=anomalies,
+            schema_context=schema_context,
             result_file=str(result_file),
             suite_file=str(suite_file),
             protocol=self.protocol,
@@ -378,10 +625,12 @@ class BugReportAgent:
         if parsed is None:
             return []
 
-        valid_test_ids = {item["test_id"] for item in batch if isinstance(item.get("test_id"), int)}
+        valid_test_ids = {item["test_id"] for item in anomalies if isinstance(item.get("test_id"), int)}
+        schema_definitions = schema_context.get("schema_definitions", {})
+        valid_schema_ids = set(schema_definitions) if isinstance(schema_definitions, dict) else set()
         normalized_reports: List[Dict[str, Any]] = []
         for item in parsed:
-            normalized = _normalize_report_item(item, valid_test_ids, self.min_strength)
+            normalized = _normalize_report_item(item, valid_test_ids, valid_schema_ids, self.min_strength)
             if normalized is not None:
                 normalized_reports.append(normalized)
         return normalized_reports
@@ -392,6 +641,7 @@ class BugReportAgent:
         source_result_file: Path,
         source_suite_file: Path,
         anomalies: Sequence[Dict[str, Any]],
+        schema_context: Dict[str, Any],
         reports: Sequence[Dict[str, Any]],
     ) -> str:
         anomaly_by_id = {
@@ -443,6 +693,18 @@ class BugReportAgent:
             lines.extend(
                 [
                     "",
+                    "### Relevant Schema Evidence",
+                    "",
+                ]
+            )
+            schema_ids = report.get("evidence_schema_ids", [])
+            if isinstance(schema_ids, list) and schema_ids:
+                lines.extend(self._render_schema_evidence(schema_context, schema_ids))
+            else:
+                lines.append("No schema definitions were selected by the report agent.")
+            lines.extend(
+                [
+                    "",
                     "| Test | Constraint | Request | free5gc | oai | open5gs |",
                     "| --- | --- | --- | --- | --- | --- |",
                 ]
@@ -468,6 +730,80 @@ class BugReportAgent:
 
         return "\n".join(lines).rstrip() + "\n"
 
+    def _render_schema_evidence(self, schema_context: Dict[str, Any], schema_ids: Sequence[Any]) -> List[str]:
+        schema_definitions = schema_context.get("schema_definitions", {})
+        if not isinstance(schema_definitions, dict):
+            return ["No schema context was available."]
+
+        lines = [
+            "| Schema ID | Location / Field | Required | Schema Summary |",
+            "| --- | --- | --- | --- |",
+        ]
+        for raw_schema_id in schema_ids:
+            schema_id = _normalize_string(raw_schema_id)
+            schema_definition = schema_definitions.get(schema_id)
+            if not isinstance(schema_definition, dict):
+                continue
+            lines.append(
+                "| "
+                + " | ".join(
+                    _markdown_escape_cell(value)
+                    for value in [
+                        schema_id,
+                        self._schema_location_summary(schema_definition),
+                        self._schema_required_summary(schema_definition),
+                        self._schema_shape_summary(schema_definition),
+                    ]
+                )
+                + " |"
+            )
+        return lines if len(lines) > 2 else ["No matching schema definitions were found."]
+
+    def _schema_location_summary(self, schema_definition: Dict[str, Any]) -> str:
+        kind = schema_definition.get("kind")
+        if kind == "parameter":
+            return f"{schema_definition.get('location', '-')}.{schema_definition.get('name', '-')}"
+        if kind == "request_body":
+            return f"request_body.{schema_definition.get('field_path', '<root>')}"
+        return _normalize_string(schema_definition.get("note")) or "unresolved"
+
+    def _schema_required_summary(self, schema_definition: Dict[str, Any]) -> str:
+        kind = schema_definition.get("kind")
+        if kind == "parameter":
+            return str(schema_definition.get("required") is True).lower()
+        if kind == "request_body":
+            parts = [f"request_body={str(schema_definition.get('request_body_required') is True).lower()}"]
+            content = schema_definition.get("content", {})
+            if isinstance(content, dict):
+                root_required_values = []
+                for content_slice in content.values():
+                    if isinstance(content_slice, dict) and isinstance(content_slice.get("root_required"), list):
+                        root_required_values.extend(str(item) for item in content_slice["root_required"])
+                if root_required_values:
+                    parts.append(f"root_required={sorted(set(root_required_values))}")
+            return "; ".join(parts)
+        return "-"
+
+    def _schema_shape_summary(self, schema_definition: Dict[str, Any]) -> str:
+        kind = schema_definition.get("kind")
+        if kind == "parameter":
+            return _stringify_compact(schema_definition.get("schema"), limit=360) or "-"
+        if kind == "request_body":
+            content = schema_definition.get("content", {})
+            summaries: List[str] = []
+            if isinstance(content, dict):
+                for content_type, content_slice in content.items():
+                    if not isinstance(content_slice, dict):
+                        continue
+                    target_schema = content_slice.get("target_schema")
+                    root_any_of = content_slice.get("root_anyOf")
+                    summary = f"{content_type}: target={_stringify_compact(target_schema, limit=280)}"
+                    if root_any_of:
+                        summary += f"; root_anyOf={_stringify_compact(root_any_of, limit=160)}"
+                    summaries.append(summary)
+            return " | ".join(summaries) if summaries else "-"
+        return _normalize_string(schema_definition.get("note")) or "-"
+
     def _implementation_summary(self, implementation_result: Any) -> str:
         if not isinstance(implementation_result, dict):
             return "-"
@@ -488,7 +824,8 @@ class BugReportAgent:
     ) -> Path:
         self.reports_dir.mkdir(parents=True, exist_ok=True)
         output_file = self.reports_dir / f"{operation}.md"
-        markdown = self.render_markdown(operation, source_result_file, source_suite_file, anomalies, reports)
+        schema_context = self.build_schema_context(operation, anomalies)
+        markdown = self.render_markdown(operation, source_result_file, source_suite_file, anomalies, schema_context, reports)
         with open(output_file, "w", encoding="utf-8") as f:
             f.write(markdown)
         return output_file
@@ -501,16 +838,12 @@ class BugReportAgent:
         if not anomalies:
             return self.write_operation_report(operation, result_file, suite_file, [], [])
 
-        all_reports: List[Dict[str, Any]] = []
-        batches = _chunked(anomalies, self.batch_size)
-        for batch_index, batch in enumerate(batches, 1):
-            print(
-                f"  -> Reviewing {operation} anomaly batch {batch_index}/{len(batches)} ({len(batch)} test(s))",
-                flush=True,
-            )
-            batch_reports = self.generate_bug_report_batch(operation, batch, result_file, suite_file)
-            all_reports.extend(batch_reports)
-
+        schema_context = self.build_schema_context(operation, anomalies)
+        print(
+            f"  -> Reviewing {operation} anomaly set ({len(anomalies)} test(s))",
+            flush=True,
+        )
+        all_reports = self.generate_bug_report(operation, anomalies, schema_context, result_file, suite_file)
         selected_reports = _select_strong_reports(all_reports, self.max_reports, self.exceptional_strength)
         return self.write_operation_report(operation, result_file, suite_file, anomalies, selected_reports)
 
@@ -547,16 +880,16 @@ def build_arg_parser() -> argparse.ArgumentParser:
         help="Directory containing the original operation JSON suites.",
     )
     parser.add_argument(
+        "--constraints-dir",
+        type=Path,
+        default=CONSTRAINTS_DIR,
+        help="Directory containing per-operation constraint/schema JSON files.",
+    )
+    parser.add_argument(
         "--reports-dir",
         type=Path,
         default=REPORTS_DIR,
         help="Directory where Markdown bug reports should be written.",
-    )
-    parser.add_argument(
-        "--batch-size",
-        type=int,
-        default=DEFAULT_BATCH_SIZE,
-        help="Maximum number of anomaly tests to send to the agent per call.",
     )
     parser.add_argument(
         "--max-reports",
@@ -585,8 +918,8 @@ def main() -> None:
     generator = BugReportAgent(
         test_results_dir=args.test_results_dir,
         testcases_dir=args.testcases_dir,
+        constraints_dir=args.constraints_dir,
         reports_dir=args.reports_dir,
-        batch_size=args.batch_size,
         max_reports=args.max_reports,
         min_strength=args.min_strength,
         exceptional_strength=args.exceptional_strength,
