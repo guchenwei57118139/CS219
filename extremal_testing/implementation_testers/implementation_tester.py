@@ -8,8 +8,16 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, Sequence
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 from extremal_testing.implementation_testers.base import BaseNRFTester
-from extremal_testing.implementation_testers.common import load_clean_suite, validate_clean_suite
+from extremal_testing.implementation_testers.common import (
+    load_clean_suite,
+    operation_name_from_suite_path,
+    validate_clean_suite,
+)
 from extremal_testing.implementation_testers.test_free5gc import Free5GCNRFTester
 from extremal_testing.implementation_testers.test_oai import OAINRFTester
 from extremal_testing.implementation_testers.test_open5gs import Open5GSNRFTester
@@ -36,12 +44,18 @@ class ImplementationTester:
         }
 
     def discover_suite_files(self) -> List[Path]:
-        suite_files = sorted(TESTCASES_DIR.glob("*_tests.json"))
-        return [
+        suite_files = [
             path
-            for path in suite_files
+            for path in sorted(TESTCASES_DIR.glob("*.json"))
             if path.name != "dummy_tests.json" and self._is_clean_suite_file(path)
         ]
+        by_operation: Dict[str, Path] = {}
+        for path in suite_files:
+            operation = operation_name_from_suite_path(path)
+            current = by_operation.get(operation)
+            if current is None or current.stem.endswith("_tests"):
+                by_operation[operation] = path
+        return [by_operation[operation] for operation in sorted(by_operation)]
 
     def _is_clean_suite_file(self, suite_file: Path) -> bool:
         try:
@@ -68,11 +82,12 @@ class ImplementationTester:
         return True
 
     def load_suite(self, test_cases_file: Path) -> Dict[str, Any]:
-        suite = load_clean_suite(str(test_cases_file), test_cases_file.stem.replace("_tests", ""))
+        operation_name = operation_name_from_suite_path(test_cases_file)
+        suite = load_clean_suite(str(test_cases_file), operation_name)
         validate_clean_suite(suite)
         suite.setdefault("setup", [])
         suite.setdefault("cleanup", [])
-        suite.setdefault("operation", test_cases_file.stem.replace("_tests", ""))
+        suite.setdefault("operation", operation_name)
         return suite
 
     def run_test_case_for_impl(
@@ -103,10 +118,11 @@ class ImplementationTester:
 
     def run_suite(self, test_cases_file: Path) -> Dict[str, Any]:
         suite = self.load_suite(test_cases_file)
-        operation = str(suite.get("operation") or test_cases_file.stem.replace("_tests", ""))
+        operation = str(suite.get("operation") or operation_name_from_suite_path(test_cases_file))
         shared_setup = suite.get("setup", [])
         shared_cleanup = suite.get("cleanup", [])
         tests = suite.get("tests", [])
+        print(f"[*] Running {operation} from {test_cases_file} ({len(tests)} test case(s))", flush=True)
 
         result_tests: List[Dict[str, Any]] = [
             {
@@ -119,19 +135,27 @@ class ImplementationTester:
 
         for implementation_name in IMPLEMENTATION_ORDER:
             tester = self.testers[implementation_name]
+            print(f"  -> {operation}: starting {implementation_name}", flush=True)
             with tester.create_client() as client:
                 readiness_error = tester.probe_service(client)
+                if readiness_error:
+                    print(f"  -> {operation}: {implementation_name} unavailable; recording errors", flush=True)
+                    for index in range(len(tests)):
+                        result_tests[index]["implementations"][implementation_name] = self.unavailable_result(readiness_error)
+                    continue
                 for index, test_case in enumerate(tests):
-                    if readiness_error:
-                        implementation_result = self.unavailable_result(readiness_error)
-                    else:
-                        implementation_result = self.run_test_case_for_impl(
-                            tester,
-                            client,
-                            shared_setup,
-                            shared_cleanup,
-                            test_case,
-                        )
+                    test_name = test_case.get("name", f"Test case {index + 1}")
+                    print(
+                        f"    [{index + 1}/{len(tests)}] {implementation_name}: {test_name}",
+                        flush=True,
+                    )
+                    implementation_result = self.run_test_case_for_impl(
+                        tester,
+                        client,
+                        shared_setup,
+                        shared_cleanup,
+                        test_case,
+                    )
                     result_tests[index]["implementations"][implementation_name] = implementation_result
 
         return {
@@ -154,9 +178,13 @@ class ImplementationTester:
 
     def run(self, suite_files: Sequence[Path]) -> List[Path]:
         written_files: List[Path] = []
-        for suite_file in suite_files:
+        print(f"[*] Implementation Testing: {len(suite_files)} suite(s)", flush=True)
+        for suite_index, suite_file in enumerate(suite_files, 1):
+            print(f"[*] Suite {suite_index}/{len(suite_files)}: {suite_file}", flush=True)
             suite_result = self.run_suite(suite_file)
-            written_files.append(self.write_suite_result(suite_result))
+            result_path = self.write_suite_result(suite_result)
+            print(f"[*] Saved comparison result to {result_path}", flush=True)
+            written_files.append(result_path)
         return written_files
 
 
@@ -168,19 +196,34 @@ def _resolve_input_paths(args: Sequence[str]) -> List[Path]:
     for raw_arg in args:
         path = Path(raw_arg)
         if path.is_dir():
-            resolved.extend(sorted(path.glob("*_tests.json")))
-        else:
+            resolved.extend(sorted(path.glob("*.json")))
+        elif path.exists():
             resolved.append(path)
+        elif path.suffix:
+            raise SystemExit(f"Test suite not found: {path}")
+        else:
+            suite_path = TESTCASES_DIR / f"{raw_arg}.json"
+            legacy_suite_path = TESTCASES_DIR / f"{raw_arg}_tests.json"
+            if suite_path.exists():
+                resolved.append(suite_path)
+            elif legacy_suite_path.exists():
+                resolved.append(legacy_suite_path)
+            else:
+                raise SystemExit(f"Test suite not found for operation: {raw_arg}")
 
     seen: set[Path] = set()
-    unique_paths: List[Path] = []
+    by_operation: Dict[str, Path] = {}
     for path in resolved:
         if path.name == "dummy_tests.json":
             continue
-        if path not in seen:
-            seen.add(path)
-            unique_paths.append(path)
-    return unique_paths
+        if path in seen:
+            continue
+        seen.add(path)
+        operation = operation_name_from_suite_path(path)
+        current = by_operation.get(operation)
+        if current is None or current.stem.endswith("_tests"):
+            by_operation[operation] = path
+    return [by_operation[operation] for operation in sorted(by_operation)]
 
 
 def main() -> None:
@@ -189,9 +232,7 @@ def main() -> None:
         print("No clean-format test suites found.")
         return
     tester = ImplementationTester()
-    written_files = tester.run(suite_files)
-    for path in written_files:
-        print(f"Comparison result saved to {path}")
+    tester.run(suite_files)
 
 
 if __name__ == "__main__":

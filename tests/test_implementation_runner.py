@@ -97,7 +97,7 @@ class ImplementationRunnerTests(unittest.TestCase):
         runner.testers = {name: FakeTester(client) for name, client in clients.items()}
 
         with tempfile.TemporaryDirectory() as temp_dir:
-            suite_file = Path(temp_dir) / "NFExample_tests.json"
+            suite_file = Path(temp_dir) / "NFExample.json"
             suite_file.write_text(
                 json.dumps(
                     {
@@ -142,7 +142,7 @@ class ImplementationRunnerTests(unittest.TestCase):
         }
 
         with tempfile.TemporaryDirectory() as temp_dir:
-            suite_file = Path(temp_dir) / "NFExample_tests.json"
+            suite_file = Path(temp_dir) / "NFExample.json"
             suite_file.write_text(
                 json.dumps(
                     {

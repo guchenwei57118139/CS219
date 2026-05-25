@@ -16,7 +16,7 @@ Agents should optimize for small, reversible changes, prefer reading code before
 - `extremal_testing/implementation_testers`: implementation-specific NRF test runners for `free5gc`, `oai`, and `open5gs`.
 - `extremal_testing/specs/original`: original OpenAPI/spec inputs.
 - `extremal_testing/json/constraints`: generated per-operation constraints.
-- `extremal_testing/json/testcases`: generated `*_tests.json` suites.
+- `extremal_testing/json/testcases`: generated per-operation JSON suites.
 - `extremal_testing/json/test_results`: per-operation implementation comparison outputs.
 - `extremal_testing/reports`: per-operation Markdown bug reports.
 
@@ -31,15 +31,15 @@ Use the existing scripts as the primary interfaces instead of hand-editing deriv
 - Generate bug reports:
   `python extremal_testing/nrf_agents/workflow/bug_report_agent.py`
 - Run Free5GC tests:
-  `python extremal_testing/implementation_testers/test_free5gc.py extremal_testing/json/testcases/<Operation>_tests.json [base_url]`
+  `python extremal_testing/implementation_testers/test_free5gc.py extremal_testing/json/testcases/<Operation>.json [base_url]`
 - Run OAI tests:
-  `python extremal_testing/implementation_testers/test_oai.py extremal_testing/json/testcases/<Operation>_tests.json [base_url]`
+  `python extremal_testing/implementation_testers/test_oai.py extremal_testing/json/testcases/<Operation>.json [base_url]`
 - Run Open5GS tests:
-  `python extremal_testing/implementation_testers/test_open5gs.py extremal_testing/json/testcases/<Operation>_tests.json [--resume <results.json>] [--no-auto-restart]`
+  `python extremal_testing/implementation_testers/test_open5gs.py extremal_testing/json/testcases/<Operation>.json [--resume <results.json>] [--no-auto-restart]`
 - Summarize result status codes:
   `python extremal_testing/utils/summarize_results.py [results_dir] --impl {oai,free5gc} [--latest-only] [--json]`
 - Run implementation testing:
-  `python extremal_testing/implementation_testers/implementation_tester.py [json/testcases/<Operation>_tests.json | json/testcases/]`
+  `python extremal_testing/implementation_testers/implementation_tester.py [json/testcases/<Operation>.json | json/testcases/]`
 - Generate bug reports:
   `python extremal_testing/nrf_agents/workflow/bug_report_agent.py [--test-results-dir <dir>] [--testcases-dir <dir>] [--reports-dir <dir>] [--batch-size 5]`
 

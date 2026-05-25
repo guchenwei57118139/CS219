@@ -9,6 +9,14 @@ from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
 
 
+def operation_name_from_suite_path(path: Path) -> str:
+    """Return the operation name for canonical and legacy suite filenames."""
+    stem = path.stem
+    if stem.endswith("_tests"):
+        return stem[:-6]
+    return stem
+
+
 def normalize_http_headers(headers: Optional[Dict[str, Any]]) -> Dict[str, str]:
     """Return headers in a form both requests and httpx accept."""
     if not headers:

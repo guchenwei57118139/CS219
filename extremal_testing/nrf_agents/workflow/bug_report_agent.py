@@ -70,6 +70,13 @@ def _load_json_file(path: Path) -> Any:
         return json.load(f)
 
 
+def _suite_file_for_operation(testcases_dir: Path, operation: str) -> Path:
+    canonical = testcases_dir / f"{operation}.json"
+    if canonical.exists():
+        return canonical
+    return testcases_dir / f"{operation}_tests.json"
+
+
 def _stringify_compact(value: Any, limit: int = BODY_SNIPPET_LIMIT) -> Optional[str]:
     if value is None:
         return None
@@ -285,7 +292,7 @@ class BugReportAgent:
         return result_files
 
     def load_test_suite(self, operation: str) -> Dict[str, Any]:
-        suite_file = self.testcases_dir / f"{operation}_tests.json"
+        suite_file = _suite_file_for_operation(self.testcases_dir, operation)
         if not suite_file.exists():
             raise FileNotFoundError(f"Matching test suite not found for {operation}: {suite_file}")
         suite = _load_json_file(suite_file)
@@ -499,7 +506,7 @@ class BugReportAgent:
     def process_result_file(self, result_file: Path) -> Optional[Path]:
         result_payload = self.load_test_results(result_file)
         operation = str(result_payload.get("operation") or result_file.stem)
-        suite_file = self.testcases_dir / f"{operation}_tests.json"
+        suite_file = _suite_file_for_operation(self.testcases_dir, operation)
         anomalies = self.build_anomalies(operation, result_file)
         if not anomalies:
             return self.write_operation_report(operation, result_file, suite_file, [], [])
@@ -547,7 +554,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
         "--testcases-dir",
         type=Path,
         default=TESTCASES_DIR,
-        help="Directory containing the original *_tests.json suites.",
+        help="Directory containing the original operation JSON suites.",
     )
     parser.add_argument(
         "--reports-dir",

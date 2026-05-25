@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Optional
 from extremal_testing.implementation_testers.common import (
     build_request_details,
     load_clean_suite,
+    operation_name_from_suite_path,
     response_headers_dict,
     response_reason,
     response_text,
@@ -57,7 +58,7 @@ class BaseNRFTester(ABC):
         return results_dir / f"{self.results_prefix}{operation_name}_{timestamp}.json"
 
     def load_suite(self, test_cases_file: str) -> Dict[str, Any]:
-        operation_name = Path(test_cases_file).stem.replace("_tests", "")
+        operation_name = operation_name_from_suite_path(Path(test_cases_file))
         suite = load_clean_suite(test_cases_file, operation_name)
         validate_clean_suite(suite)
         return suite
@@ -227,7 +228,7 @@ class BaseNRFTester(ABC):
 
         shared_setup = suite.get("setup", [])
         shared_cleanup = suite.get("cleanup", [])
-        operation_name = str(suite.get("operation") or Path(test_cases_file).stem.replace("_tests", ""))
+        operation_name = str(suite.get("operation") or operation_name_from_suite_path(Path(test_cases_file)))
         results_file = self.build_results_file(operation_name)
         results: List[Dict[str, Any]] = []
 

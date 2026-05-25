@@ -537,7 +537,7 @@ class TestAgent:
         }
 
     def save_operation_suite(self, operation_name: str, suite: Dict[str, Any]) -> None:
-        output_file = self.output_dir / f"{operation_name}_tests.json"
+        output_file = self.output_dir / f"{operation_name}.json"
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(suite, f, indent=2, ensure_ascii=False)
         print(f"  → Saved suite with {len(suite.get('tests', []))} test case(s) to {output_file.name}", flush=True)

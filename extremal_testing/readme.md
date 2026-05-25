@@ -14,7 +14,7 @@ extremal_testing/
 │   ├── constraints/               # Per-operation resolved input schemas and constraints
 │   │   └── <Operation>.json       # One file per operation
 │   ├── testcases/                 # Generated test cases
-│   │   └── *_tests.json           # One suite file per operation
+│   │   └── *.json                 # One suite file per operation
 │   ├── test_results/              # Per-operation implementation comparison results
 │   │   └── *.json                 # One comparison file per operation
 ├── reports/                       # Markdown bug reports
@@ -43,7 +43,7 @@ The main end-to-end entrypoint is `nrf_agents/workflow/orchestrator.py`. It runs
 ### 2. Test Generation
 - Run `nrf_agents/workflow/test_agent.py`
 - Input: `json/constraints/`, `json/AllOpsMetaData.json`, `json/config/test_format.json`
-- Output: `json/testcases/{Operation}_tests.json`
+- Output: `json/testcases/{Operation}.json`
 - Each suite uses `setup`, `tests`, and `cleanup` arrays
 - Each step uses `method`, `path`, `headers`, and optional `body`
 - Each test case adds `name` and `constraint`
@@ -55,7 +55,7 @@ The main end-to-end entrypoint is `nrf_agents/workflow/orchestrator.py`. It runs
 
 ### 4. Bug Report Generation
 - Run `nrf_agents/workflow/bug_report_agent.py`
-- Input: `json/test_results/{Operation}.json` and `json/testcases/{Operation}_tests.json`
+- Input: `json/test_results/{Operation}.json` and `json/testcases/{Operation}.json`
 - Test cases with differing implementation behavior are sent to the LLM
 - Anomalies are batched in groups of 5 per LLM call
 - The bug report agent groups related anomalies and keeps only high-signal candidates
