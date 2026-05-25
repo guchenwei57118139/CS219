@@ -5,14 +5,15 @@
 - Anomaly tests reviewed: 1
 - Reports selected: 1
 
-## 1. Inconsistent Handling of Invalid Requester-Features Pattern
+## 1. Open5GS Enforces Stricter Validation on requester-features
 
-Observed inconsistency in handling invalid 'requester-features' query parameter pattern. The parameter did not match the required pattern ^[A-Fa-f0-9]*$, yet different implementations responded differently.
+Open5GS returns a 400 error when the requester-features query parameter does not match the expected pattern ^[A-Fa-f0-9]*$. This suggests Open5GS may be enforcing stricter validation than other implementations.
 
-- Possibly affected implementations: free5gc, oai, open5gs
+- Possibly affected implementations: open5gs
 - Evidence strength: 8/10
-- Rationale: free5gc and oai returned 200 OK, while open5gs returned 400 Bad Request for the same invalid input.
-- Why investigate: Understanding how implementations validate query parameters can improve interoperability and compliance with specifications.
+- Rationale: Open5GS consistently returns a 400 error for invalid requester-features patterns, unlike other implementations.
+- Implementation differences: Open5GS returns 400 with error "cannot parse HTTP message" while free5gc and oai return 200.
+- Why investigate: This behavior indicates a possible discrepancy in pattern validation for optional fields, which could affect interoperability.
 
 ### Relevant Schema Evidence
 

@@ -18,7 +18,9 @@ if str(REPO_ROOT) not in sys.path:
 
 from extremal_testing.nrf_agents.prompts.bug_reports import (
     DEFAULT_PROTOCOL,
+    SYSTEM_PROMPT_BUG_REPORT_COALESCE,
     SYSTEM_PROMPT_BUG_REPORT_TRIAGE,
+    build_bug_report_coalesce_prompt,
     build_bug_report_prompt,
 )
 from extremal_testing.nrf_agents.workflow.sdk import run_text_agent
@@ -26,6 +28,7 @@ from extremal_testing.nrf_agents.workflow.sdk import run_text_agent
 DEFAULT_MAX_REPORTS = 3
 DEFAULT_MIN_STRENGTH = 7
 DEFAULT_EXCEPTIONAL_STRENGTH = 9
+DEFAULT_SCHEMA_BATCH_SIZE = 20
 BODY_SNIPPET_LIMIT = 240
 
 TEST_RESULTS_DIR = ROOT_DIR / "json" / "test_results"
@@ -145,6 +148,7 @@ def _normalize_report_item(
     title = _normalize_string(item.get("title"))
     description = _normalize_string(item.get("description"))
     investigation_value = _normalize_string(item.get("investigation_value"))
+    implementation_differences = _normalize_string(item.get("implementation_differences"))
     if not title or not description:
         return None
 
@@ -197,6 +201,7 @@ def _normalize_report_item(
         "affected_rationale": _normalize_string(item.get("affected_rationale")),
         "evidence_test_ids": evidence_test_ids,
         "evidence_schema_ids": evidence_schema_ids,
+        "implementation_differences": implementation_differences,
         "investigation_value": investigation_value,
         "strength": strength,
     }
@@ -256,6 +261,7 @@ class BugReportAgent:
         max_reports: int = DEFAULT_MAX_REPORTS,
         min_strength: int = DEFAULT_MIN_STRENGTH,
         exceptional_strength: int = DEFAULT_EXCEPTIONAL_STRENGTH,
+        schema_batch_size: int = DEFAULT_SCHEMA_BATCH_SIZE,
         protocol: str = DEFAULT_PROTOCOL,
     ) -> None:
         self.test_results_dir = test_results_dir
@@ -265,6 +271,7 @@ class BugReportAgent:
         self.max_reports = max_reports
         self.min_strength = min_strength
         self.exceptional_strength = exceptional_strength
+        self.schema_batch_size = max(1, schema_batch_size)
         self.protocol = protocol
 
     def discover_result_files(self) -> List[Path]:
@@ -594,6 +601,55 @@ class BugReportAgent:
 
         return anomalies
 
+    def _schema_group_key(self, anomaly: Dict[str, Any]) -> tuple[str, ...]:
+        schema_ids_raw = anomaly.get("constraint_schema_ids")
+        if isinstance(schema_ids_raw, list):
+            schema_ids = sorted(
+                {
+                    _normalize_string(schema_id)
+                    for schema_id in schema_ids_raw
+                    if _normalize_string(schema_id)
+                }
+            )
+            if schema_ids:
+                return tuple(schema_ids)
+
+        schema_id = _normalize_string(anomaly.get("constraint_schema_id"))
+        return (schema_id or "unknown_schema",)
+
+    def group_anomalies_by_schema(self, anomalies: Sequence[Dict[str, Any]]) -> Dict[tuple[str, ...], List[Dict[str, Any]]]:
+        grouped: Dict[tuple[str, ...], List[Dict[str, Any]]] = {}
+        for anomaly in anomalies:
+            grouped.setdefault(self._schema_group_key(anomaly), []).append(anomaly)
+        return grouped
+
+    def build_schema_batches(self, anomalies: Sequence[Dict[str, Any]]) -> List[List[Dict[str, Any]]]:
+        grouped = self.group_anomalies_by_schema(anomalies)
+        sorted_groups = sorted(grouped.items(), key=lambda item: item[0])
+        batches: List[List[Dict[str, Any]]] = []
+        current_batch: List[Dict[str, Any]] = []
+        current_group_count = 0
+
+        for _schema_key, group_anomalies in sorted_groups:
+            if current_group_count >= self.schema_batch_size:
+                batches.append(current_batch)
+                current_batch = []
+                current_group_count = 0
+            current_batch.extend(group_anomalies)
+            current_group_count += 1
+
+        if current_batch:
+            batches.append(current_batch)
+        return batches
+
+    def _schema_keys_for_batch(self, anomalies: Sequence[Dict[str, Any]]) -> List[str]:
+        keys: List[str] = []
+        for anomaly in anomalies:
+            key = ",".join(self._schema_group_key(anomaly))
+            if key not in keys:
+                keys.append(key)
+        return keys
+
     def generate_bug_report(
         self,
         operation: str,
@@ -628,6 +684,99 @@ class BugReportAgent:
         valid_test_ids = {item["test_id"] for item in anomalies if isinstance(item.get("test_id"), int)}
         schema_definitions = schema_context.get("schema_definitions", {})
         valid_schema_ids = set(schema_definitions) if isinstance(schema_definitions, dict) else set()
+        normalized_reports: List[Dict[str, Any]] = []
+        for item in parsed:
+            normalized = _normalize_report_item(item, valid_test_ids, valid_schema_ids, self.min_strength)
+            if normalized is not None:
+                normalized_reports.append(normalized)
+        return normalized_reports
+
+    def generate_schema_batched_reports(
+        self,
+        operation: str,
+        anomalies: List[Dict[str, Any]],
+        result_file: Path,
+        suite_file: Path,
+    ) -> List[Dict[str, Any]]:
+        schema_batches = self.build_schema_batches(anomalies)
+        slice_report_batches: List[Dict[str, Any]] = []
+
+        for batch_index, batch_anomalies in enumerate(schema_batches, 1):
+            schema_context = self.build_schema_context(operation, batch_anomalies)
+            schema_keys = self._schema_keys_for_batch(batch_anomalies)
+            print(
+                f"  -> Reviewing {operation} schema batch {batch_index}/{len(schema_batches)} "
+                f"({len(schema_keys)} schema group(s), {len(batch_anomalies)} test(s))",
+                flush=True,
+            )
+            reports = self.generate_bug_report(
+                operation=operation,
+                anomalies=list(batch_anomalies),
+                schema_context=schema_context,
+                result_file=result_file,
+                suite_file=suite_file,
+            )
+            if not reports:
+                continue
+            slice_report_batches.append(
+                {
+                    "schema_batch_index": batch_index,
+                    "schema_group_keys": schema_keys,
+                    "reports": reports,
+                }
+            )
+
+        if not slice_report_batches:
+            return []
+        return self.coalesce_slice_reports(operation, slice_report_batches, anomalies, result_file, suite_file)
+
+    def coalesce_slice_reports(
+        self,
+        operation: str,
+        slice_report_batches: List[Dict[str, Any]],
+        anomalies: Sequence[Dict[str, Any]],
+        result_file: Path,
+        suite_file: Path,
+    ) -> List[Dict[str, Any]]:
+        prompt = build_bug_report_coalesce_prompt(
+            operation=operation,
+            slice_report_batches=slice_report_batches,
+            result_file=str(result_file),
+            suite_file=str(suite_file),
+            protocol=self.protocol,
+        )
+        try:
+            response_text = run_text_agent(
+                agent_name="Bug Report Coalescing Agent",
+                instructions=SYSTEM_PROMPT_BUG_REPORT_COALESCE.format(protocol=self.protocol),
+                prompt=prompt,
+                workflow_name="Bug Report Generation",
+            )
+        except Exception as exc:
+            print(f"  -> Error coalescing reports for {operation}: {exc}", flush=True)
+            return [
+                report
+                for batch in slice_report_batches
+                for report in batch.get("reports", [])
+                if isinstance(report, dict)
+            ]
+
+        parsed = _parse_json_array(response_text)
+        if parsed is None:
+            return [
+                report
+                for batch in slice_report_batches
+                for report in batch.get("reports", [])
+                if isinstance(report, dict)
+            ]
+
+        valid_test_ids = {item["test_id"] for item in anomalies if isinstance(item.get("test_id"), int)}
+        valid_schema_ids = {
+            schema_id
+            for anomaly in anomalies
+            for schema_id in self._schema_group_key(anomaly)
+            if schema_id != "unknown_schema"
+        }
         normalized_reports: List[Dict[str, Any]] = []
         for item in parsed:
             normalized = _normalize_report_item(item, valid_test_ids, valid_schema_ids, self.min_strength)
@@ -687,6 +836,9 @@ class BugReportAgent:
             affected_rationale = report.get("affected_rationale")
             if affected_rationale:
                 lines.append(f"- Rationale: {affected_rationale}")
+            implementation_differences = report.get("implementation_differences")
+            if implementation_differences:
+                lines.append(f"- Implementation differences: {implementation_differences}")
             investigation_value = report.get("investigation_value")
             if investigation_value:
                 lines.append(f"- Why investigate: {investigation_value}")
@@ -838,12 +990,11 @@ class BugReportAgent:
         if not anomalies:
             return self.write_operation_report(operation, result_file, suite_file, [], [])
 
-        schema_context = self.build_schema_context(operation, anomalies)
         print(
-            f"  -> Reviewing {operation} anomaly set ({len(anomalies)} test(s))",
+            f"  -> Reviewing {operation} anomaly set ({len(anomalies)} test(s)) by schema batch",
             flush=True,
         )
-        all_reports = self.generate_bug_report(operation, anomalies, schema_context, result_file, suite_file)
+        all_reports = self.generate_schema_batched_reports(operation, anomalies, result_file, suite_file)
         selected_reports = _select_strong_reports(all_reports, self.max_reports, self.exceptional_strength)
         return self.write_operation_report(operation, result_file, suite_file, anomalies, selected_reports)
 
@@ -909,6 +1060,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
         default=DEFAULT_EXCEPTIONAL_STRENGTH,
         help="Strength threshold that allows reports beyond --max-reports.",
     )
+    parser.add_argument(
+        "--schema-batch-size",
+        type=int,
+        default=DEFAULT_SCHEMA_BATCH_SIZE,
+        help="Maximum number of schema groups to include in one slice-level LLM call.",
+    )
     return parser
 
 
@@ -923,6 +1080,7 @@ def main() -> None:
         max_reports=args.max_reports,
         min_strength=args.min_strength,
         exceptional_strength=args.exceptional_strength,
+        schema_batch_size=args.schema_batch_size,
     )
     generator.run()
 
