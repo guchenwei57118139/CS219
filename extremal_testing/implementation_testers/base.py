@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import time
 from abc import ABC, abstractmethod
 from datetime import datetime
 from pathlib import Path
@@ -29,6 +30,7 @@ class BaseNRFTester(ABC):
     default_base_url: str = ""
     results_prefix: str = "nrf_test_results_"
     request_timeout: Any = 10
+    server_crash_error = "This operation crashed the server."
 
     def __init__(self, base_url: Optional[str] = None):
         self.base_url = base_url or self.default_base_url
@@ -52,11 +54,123 @@ class BaseNRFTester(ABC):
             return f"Readiness probe failed for {self.base_url}: {exc.__class__.__name__}: {exc}"
         return None
 
+    def wait_for_service(
+        self,
+        max_wait_seconds: float = 60,
+        initial_delay_seconds: float = 1,
+        max_delay_seconds: float = 8,
+    ) -> bool:
+        deadline = time.monotonic() + max_wait_seconds
+        delay = initial_delay_seconds
+
+        while time.monotonic() <= deadline:
+            with self.create_client() as client:
+                if self.probe_service(client) is None:
+                    return True
+
+            if time.monotonic() + delay > deadline:
+                time.sleep(max(0, deadline - time.monotonic()))
+            else:
+                time.sleep(delay)
+            delay = min(delay * 2, max_delay_seconds)
+
+        with self.create_client() as client:
+            return self.probe_service(client) is None
+
     def build_results_file(self, operation_name: str) -> Path:
         results_dir = Path(__file__).resolve().parent.parent / "data" / "test_results"
         results_dir.mkdir(parents=True, exist_ok=True)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         return results_dir / f"{self.results_prefix}{operation_name}_{timestamp}.json"
+
+    @staticmethod
+    def is_transport_failure(error_type: Optional[str], message: Optional[str]) -> bool:
+        normalized_type = error_type or ""
+        normalized_message = (message or "").lower()
+        transport_error_types = {
+            "BrokenPipeError",
+            "ConnectionResetError",
+            "RemoteProtocolError",
+            "TransportError",
+            "ReadError",
+            "WriteError",
+            "ProtocolError",
+            "ServerDisconnectedError",
+            "RemoteProtocolError",
+        }
+        transport_message_fragments = (
+            "server disconnected",
+            "connection reset by peer",
+            "broken pipe",
+            "connection refused",
+            "connection aborted",
+            "connection closed",
+            "cannot connect",
+            "connect error",
+            "network is unreachable",
+            "peer closed",
+            "read of closed file",
+            "remote protocol error",
+            "cannot parse http message",
+        )
+        return normalized_type in transport_error_types or any(fragment in normalized_message for fragment in transport_message_fragments)
+
+    def result_has_transport_failure(self, result: Dict[str, Any]) -> bool:
+        if self.is_transport_failure(result.get("error_type"), result.get("error") or result.get("status_message")):
+            return True
+        for step_result in result.get("step_results", []) or []:
+            if self.result_has_transport_failure(step_result):
+                return True
+        return False
+
+    def execution_has_transport_failure(self, execution: Dict[str, Dict[str, Any]]) -> bool:
+        return self.result_has_transport_failure(execution["setup"]) or self.result_has_transport_failure(execution["response"])
+
+    def recover_from_transport_failure(self) -> bool:
+        return False
+
+    def after_recovery_attempt(
+        self,
+        original_execution: Dict[str, Dict[str, Any]],
+        recovered_execution: Dict[str, Dict[str, Any]],
+    ) -> None:
+        pass
+
+    def _request_once(
+        self,
+        client: Any,
+        method: str,
+        full_url: str,
+        request_headers: Dict[str, str],
+        request_body: Any,
+    ) -> Dict[str, Any]:
+        try:
+            response = client.request(
+                method,
+                full_url,
+                headers=request_headers,
+                json=request_body if request_body is not None else None,
+                timeout=self.request_timeout,
+            )
+            payload = {
+                "status_code": response.status_code,
+                "status_message": response_reason(response),
+                "response_body": response_text(response),
+                "response_headers": response_headers_dict(response),
+                "response_time": response.elapsed.total_seconds() if hasattr(response, "elapsed") else None,
+            }
+            return payload
+        except Exception as exc:
+            return {
+                "status_code": None,
+                "status_message": str(exc),
+                "response_body": None,
+                "response_headers": {},
+                "response_time": None,
+                "error": str(exc),
+                "error_type": exc.__class__.__name__,
+                "error_location": f"{method} {full_url}",
+            }
 
     def load_suite(self, test_cases_file: str) -> Dict[str, Any]:
         operation_name = operation_name_from_suite_path(Path(test_cases_file))
@@ -73,43 +187,22 @@ class BaseNRFTester(ABC):
     ) -> Dict[str, Any]:
         seed_context_from_step(step, context)
         request_details = build_request_details(step, self.base_url, headers, context)
-        method = request_details["method"]
-        full_url = request_details["full_url"]
-        request_body = request_details["body"]
-        request_headers = request_details["headers"]
-
-        try:
-            response = client.request(
-                method,
-                full_url,
-                headers=request_headers,
-                json=request_body if request_body is not None else None,
-                timeout=self.request_timeout,
-            )
-            payload = {
-                "status_code": response.status_code,
-                "status_message": response_reason(response),
-                "response_body": response_text(response),
-                "response_headers": response_headers_dict(response),
-                "response_time": response.elapsed.total_seconds() if hasattr(response, "elapsed") else None,
-            }
+        payload = self._request_once(
+            client,
+            request_details["method"],
+            request_details["full_url"],
+            request_details["headers"],
+            request_details["body"],
+        )
+        if payload.get("error"):
+            payload["error_location"] = f"{request_details['method']} {request_details['path']}"
+        else:
             update_context_from_response(context, payload["response_headers"], payload["response_body"])
-            return payload
-        except Exception as exc:
-            return {
-                "status_code": None,
-                "status_message": str(exc),
-                "response_body": None,
-                "response_headers": {},
-                "response_time": None,
-                "error": str(exc),
-                "error_type": exc.__class__.__name__,
-                "error_location": f"{method} {request_details['path']}",
-            }
+        return payload
 
     def execute_steps(
         self,
-        client: Any,
+        client_factory: Any,
         steps: List[Dict[str, Any]],
         headers: Dict[str, str],
         context: Dict[str, Any],
@@ -117,7 +210,8 @@ class BaseNRFTester(ABC):
     ) -> Dict[str, Any]:
         step_results: List[Dict[str, Any]] = []
         for step in steps:
-            result = self.execute_step(client, step, headers, context)
+            with client_factory() as client:
+                result = self.execute_step(client, step, headers, context)
             step_results.append(result)
             if stop_on_failure and self.step_failed(result):
                 break
@@ -153,6 +247,9 @@ class BaseNRFTester(ABC):
     def unavailable_response(self, error: str) -> Dict[str, Any]:
         return self.skipped_response(error)
 
+    def server_crash_response(self) -> Dict[str, Any]:
+        return self.skipped_response(self.server_crash_error)
+
     def result_error(
         self,
         setup_summary: Dict[str, Any],
@@ -162,7 +259,7 @@ class BaseNRFTester(ABC):
 
     def execute_test_case(
         self,
-        client: Any,
+        client_factory: Any,
         operation_name: str,
         test_case: Dict[str, Any],
     ) -> Dict[str, Dict[str, Any]]:
@@ -172,15 +269,34 @@ class BaseNRFTester(ABC):
         headers = self.build_default_headers()
         headers.update(self.build_auth_headers(context))
 
-        setup_summary = self.execute_steps(client, setup_steps, headers, context)
+        setup_summary = self.execute_steps(client_factory, setup_steps, headers, context)
         if setup_summary.get("error"):
             response = self.skipped_response(f"Setup failed; test request skipped: {setup_summary['error']}")
         else:
-            response = self.execute_step(client, test_case, headers, context)
+            with client_factory() as client:
+                response = self.execute_step(client, test_case, headers, context)
 
         return {
             "setup": setup_summary,
             "response": response,
+        }
+
+    def execute_test_case_with_recovery(
+        self,
+        client_factory: Any,
+        operation_name: str,
+        test_case: Dict[str, Any],
+    ) -> Dict[str, Dict[str, Any]]:
+        execution = self.execute_test_case(client_factory, operation_name, test_case)
+        if not self.execution_has_transport_failure(execution):
+            return execution
+        if not self.recover_from_transport_failure():
+            return execution
+        recovered_execution = self.execute_test_case(client_factory, operation_name, test_case)
+        self.after_recovery_attempt(execution, recovered_execution)
+        return {
+            "setup": execution["setup"],
+            "response": self.server_crash_response(),
         }
 
     def build_result(
@@ -219,18 +335,21 @@ class BaseNRFTester(ABC):
 
         with self.create_client() as client:
             readiness_error = self.probe_service(client)
-            for index, test_case in enumerate(tests):
-                if readiness_error:
-                    setup_summary = self.summarize_step_results([])
-                    response = self.unavailable_response(readiness_error)
-                else:
-                    execution = self.execute_test_case(client, operation_name, test_case)
-                    setup_summary = execution["setup"]
-                    response = execution["response"]
+        if readiness_error and self.is_transport_failure(None, readiness_error) and self.recover_from_transport_failure():
+            readiness_error = None
 
-                result = self.build_result(index, test_case, setup_summary, response)
-                result["operation"] = operation_name
-                results.append(result)
+        for index, test_case in enumerate(tests):
+            if readiness_error:
+                setup_summary = self.summarize_step_results([])
+                response = self.unavailable_response(readiness_error)
+            else:
+                execution = self.execute_test_case_with_recovery(self.create_client, operation_name, test_case)
+                setup_summary = execution["setup"]
+                response = execution["response"]
+
+            result = self.build_result(index, test_case, setup_summary, response)
+            result["operation"] = operation_name
+            results.append(result)
 
         with open(results_file, "w", encoding="utf-8") as f:
             json.dump(results, f, indent=2, ensure_ascii=False)

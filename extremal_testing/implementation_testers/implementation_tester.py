@@ -93,11 +93,11 @@ class ImplementationTester:
     def run_test_case_for_impl(
         self,
         tester: BaseNRFTester,
-        client: Any,
+        client_factory: Any,
         operation_name: str,
         test_case: Dict[str, Any],
     ) -> Dict[str, Any]:
-        execution = tester.execute_test_case(client, operation_name, test_case)
+        execution = tester.execute_test_case_with_recovery(client_factory, operation_name, test_case)
         response = execution["response"]
         setup_summary = execution["setup"]
 
@@ -134,6 +134,12 @@ class ImplementationTester:
             print(f"  -> {operation}: starting {implementation_name}", flush=True)
             with tester.create_client() as client:
                 readiness_error = tester.probe_service(client)
+                if (
+                    readiness_error
+                    and tester.is_transport_failure(None, readiness_error)
+                    and tester.recover_from_transport_failure()
+                ):
+                    readiness_error = None
                 if readiness_error:
                     print(f"  -> {operation}: {implementation_name} unavailable; recording errors", flush=True)
                     for index in range(len(tests)):
@@ -147,7 +153,7 @@ class ImplementationTester:
                     )
                     implementation_result = self.run_test_case_for_impl(
                         tester,
-                        client,
+                        tester.create_client,
                         operation,
                         test_case,
                     )
